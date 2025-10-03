@@ -18,7 +18,7 @@
     }
     
     body {
-      background: linear-gradient(135deg, #ffcc70, #ff7f50);
+      background: white;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
@@ -30,10 +30,8 @@
       flex-direction: column;
       height: 100vh;
       background: white;
-      max-width: 500px;
-      margin: 0 auto;
+      width: 100%;
       position: relative;
-      box-shadow: 0 0 20px rgba(0,0,0,0.1);
     }
     
     .header {
@@ -176,6 +174,7 @@
     
     .chat-item.pinned {
       background: #fff9e6;
+      border-left: 3px solid #ff7f50;
     }
     
     .chat-avatar {
@@ -395,6 +394,9 @@
       padding: 1rem;
       cursor: pointer;
       transition: background 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
     }
     
     .recommended-chat:hover {
@@ -411,13 +413,21 @@
       justify-content: center;
       font-weight: 600;
       color: white;
-      margin-bottom: 0.5rem;
+      flex-shrink: 0;
+    }
+    
+    .recommended-info {
+      flex: 1;
+      min-width: 0;
     }
     
     .recommended-name {
       font-weight: 600;
       font-size: 0.9rem;
-      margin-bottom: 0.3rem;
+      margin-bottom: 0.2rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
     
     .recommended-members {
@@ -766,6 +776,60 @@
       color: #ff4757;
     }
     
+    /* Меню настроек */
+    .settings-menu {
+      display: none;
+      position: fixed;
+      top: 60px;
+      right: 1rem;
+      background: white;
+      border-radius: 0.8rem;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+      z-index: 1000;
+      animation: fadeIn 0.2s ease;
+      min-width: 200px;
+    }
+    
+    .settings-item {
+      padding: 1rem 1.5rem;
+      cursor: pointer;
+      transition: background 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    
+    .settings-item:last-child {
+      border-bottom: none;
+    }
+    
+    .settings-item:hover {
+      background: #f9f9f9;
+    }
+    
+    .settings-icon {
+      width: 20px;
+      text-align: center;
+      color: #666;
+    }
+    
+    .settings-text {
+      font-size: 0.9rem;
+      color: #333;
+    }
+    
+    .theme-option {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+    
+    .theme-option input {
+      margin-right: 0.5rem;
+    }
+    
     .overlay {
       display: none;
       position: fixed;
@@ -775,6 +839,58 @@
       height: 100%;
       background: rgba(0,0,0,0.3);
       z-index: 999;
+    }
+    
+    .search-result-item {
+      padding: 1rem;
+      cursor: pointer;
+      border-bottom: 1px solid #f0f0f0;
+      transition: background 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    
+    .search-result-item:hover {
+      background: #f9f9f9;
+    }
+    
+    .search-result-item:last-child {
+      border-bottom: none;
+    }
+    
+    .result-avatar {
+      width: 45px;
+      height: 45px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #ff7f50, #ffcc70);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      color: white;
+      flex-shrink: 0;
+    }
+    
+    .result-info {
+      flex: 1;
+      min-width: 0;
+    }
+    
+    .result-type {
+      font-size: 0.8rem;
+      color: #ff7f50;
+      font-weight: 600;
+      margin-bottom: 0.3rem;
+    }
+    
+    .result-name {
+      font-weight: 500;
+      color: #333;
+      font-size: 1rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
   </style>
 </head>
@@ -838,21 +954,47 @@
         </button>
       </div>
       
-      <div class="search-results">
-        <div class="search-section">
+      <div class="search-results" id="searchResultsContainer">
+        <div class="search-section" id="recommendedSection">
           <div class="section-title">Рекомендуемые чаты</div>
           <div class="recommended-chats" id="recommendedChats">
             <!-- Рекомендуемые чаты -->
           </div>
         </div>
         
-        <div class="search-section">
+        <div class="search-section" id="searchResultsSection" style="display: none;">
           <div class="section-title">Результаты поиска</div>
           <div id="searchResults">
             <!-- Результаты поиска -->
           </div>
         </div>
       </div>
+    </div>
+  </div>
+  
+  <!-- Меню настроек -->
+  <div class="settings-menu" id="settingsMenu">
+    <div class="settings-item">
+      <div class="settings-icon">
+        <i class="fas fa-palette"></i>
+      </div>
+      <div class="settings-text">
+        Тема
+        <div class="theme-option">
+          <input type="radio" id="lightTheme" name="theme" value="light" checked>
+          <label for="lightTheme">Светлая</label>
+        </div>
+        <div class="theme-option">
+          <input type="radio" id="darkTheme" name="theme" value="dark">
+          <label for="darkTheme">Тёмная</label>
+        </div>
+      </div>
+    </div>
+    <div class="settings-item context-danger" id="logoutBtn">
+      <div class="settings-icon">
+        <i class="fas fa-sign-out-alt"></i>
+      </div>
+      <div class="settings-text">Выйти</div>
     </div>
   </div>
   
@@ -951,7 +1093,7 @@
       <div class="context-icon">
         <i class="fas fa-thumbtack"></i>
       </div>
-      <div class="context-text">Закрепить</div>
+      <div class="context-text" id="pinText">Закрепить</div>
     </div>
     <div class="context-item" data-action="read">
       <div class="context-icon">
@@ -963,7 +1105,7 @@
       <div class="context-icon">
         <i class="fas fa-bell-slash"></i>
       </div>
-      <div class="context-text">Отключить уведомления</div>
+      <div class="context-text" id="muteText">Отключить уведомления</div>
     </div>
     <div class="context-item context-danger" data-action="delete">
       <div class="context-icon">
@@ -991,16 +1133,22 @@
     let selectedPrivacy = 'public';
     let uploadedAvatarUrl = '';
     let currentContextChat = null;
+    let pinnedChats = JSON.parse(localStorage.getItem('hamburger_pinned_chats') || '[]');
+    let mutedChats = JSON.parse(localStorage.getItem('hamburger_muted_chats') || '[]');
     
     // Элементы DOM
     const appContainer = document.querySelector('.app-container');
     const profileBtn = document.getElementById('profileBtn');
     const profileInitial = document.getElementById('profileInitial');
     const searchToggle = document.getElementById('searchToggle');
+    const menuToggle = document.getElementById('menuToggle');
     const searchOverlay = document.getElementById('searchOverlay');
     const closeSearch = document.getElementById('closeSearch');
     const searchInput = document.getElementById('searchInput');
+    const searchResultsContainer = document.getElementById('searchResultsContainer');
+    const searchResultsSection = document.getElementById('searchResultsSection');
     const searchResults = document.getElementById('searchResults');
+    const recommendedSection = document.getElementById('recommendedSection');
     const recommendedChats = document.getElementById('recommendedChats');
     const chatList = document.getElementById('chatList');
     const noChats = document.getElementById('noChats');
@@ -1017,6 +1165,10 @@
     const groupAvatarInitial = document.getElementById('groupAvatarInitial');
     const changeGroupAvatar = document.getElementById('changeGroupAvatar');
     const contextMenu = document.getElementById('contextMenu');
+    const pinText = document.getElementById('pinText');
+    const muteText = document.getElementById('muteText');
+    const settingsMenu = document.getElementById('settingsMenu');
+    const logoutBtn = document.getElementById('logoutBtn');
     const overlay = document.getElementById('overlay');
     
     // Функции шифрования/дешифрования
@@ -1105,6 +1257,22 @@
         window.location.href = 'https://hamburgerchat.github.io/profile.html';
       });
       
+      // Меню настроек
+      menuToggle.addEventListener('click', (e) => {
+        e.stopPropagation();
+        settingsMenu.style.display = settingsMenu.style.display === 'block' ? 'none' : 'block';
+        overlay.style.display = settingsMenu.style.display === 'block' ? 'block' : 'none';
+      });
+      
+      // Выход из аккаунта
+      logoutBtn.addEventListener('click', () => {
+        localStorage.removeItem('hamburger_user');
+        localStorage.removeItem('hamburger_user_id');
+        localStorage.removeItem('hamburger_pinned_chats');
+        localStorage.removeItem('hamburger_muted_chats');
+        window.location.href = 'https://hamburgerchat.github.io/';
+      });
+      
       // Поиск
       searchToggle.addEventListener('click', openSearch);
       closeSearch.addEventListener('click', closeSearchPanel);
@@ -1137,6 +1305,14 @@
       
       // Оверлей
       overlay.addEventListener('click', closeAllModals);
+      
+      // Тема
+      document.querySelectorAll('input[name="theme"]').forEach(radio => {
+        radio.addEventListener('change', (e) => {
+          // Здесь будет логика смены темы
+          console.log('Тема изменена на:', e.target.value);
+        });
+      });
     }
     
     // Открытие поиска
@@ -1144,6 +1320,8 @@
       searchOverlay.style.display = 'block';
       overlay.style.display = 'block';
       searchInput.focus();
+      searchResultsSection.style.display = 'none';
+      recommendedSection.style.display = 'block';
     }
     
     // Закрытие поиска
@@ -1185,6 +1363,7 @@
       createGroupForm.style.display = 'none';
       overlay.style.display = 'none';
       contextMenu.style.display = 'none';
+      settingsMenu.style.display = 'none';
     }
     
     // Обработка загрузки аватарки группы
@@ -1241,9 +1420,29 @@
         noChats.style.display = 'none';
         chatList.style.display = 'flex';
         
+        // Сортируем чаты: сначала закрепленные
+        sortChats();
+        
       } catch (error) {
         console.error('Ошибка загрузки чатов:', error);
       }
+    }
+    
+    // Сортировка чатов
+    function sortChats() {
+      const chatItems = Array.from(chatList.children);
+      
+      chatItems.sort((a, b) => {
+        const aPinned = pinnedChats.includes(a.dataset.chatId);
+        const bPinned = pinnedChats.includes(b.dataset.chatId);
+        
+        if (aPinned && !bPinned) return -1;
+        if (!aPinned && bPinned) return 1;
+        return 0;
+      });
+      
+      // Переставляем элементы в правильном порядке
+      chatItems.forEach(item => chatList.appendChild(item));
     }
     
     // Отображение чата
@@ -1263,6 +1462,10 @@
         chatItem.className = 'chat-item';
         chatItem.dataset.chatId = chatId;
         
+        if (pinnedChats.includes(chatId)) {
+          chatItem.classList.add('pinned');
+        }
+        
         // Обработчики для чата
         chatItem.addEventListener('click', () => {
           if (!contextMenu.style.display || contextMenu.style.display === 'none') {
@@ -1277,7 +1480,6 @@
         
         chatItem.addEventListener('touchstart', (e) => {
           if (e.touches.length === 1) {
-            const touch = e.touches[0];
             longPressTimer = setTimeout(() => {
               showContextMenu(e, chatId, decryptedData);
             }, 500);
@@ -1329,7 +1531,7 @@
         const unread = document.createElement('div');
         unread.className = 'unread-badge';
         unread.textContent = '1';
-        unread.style.display = 'none'; // Пока скрываем
+        unread.style.display = 'none';
         
         meta.appendChild(type);
         meta.appendChild(unread);
@@ -1353,6 +1555,10 @@
     function showContextMenu(event, chatId, chatData) {
       event.preventDefault();
       currentContextChat = chatId;
+      
+      // Обновляем текст кнопок в зависимости от состояния
+      pinText.textContent = pinnedChats.includes(chatId) ? 'Открепить' : 'Закрепить';
+      muteText.textContent = mutedChats.includes(chatId) ? 'Включить уведомления' : 'Отключить уведомления';
       
       const x = event.clientX || event.touches[0].clientX;
       const y = event.clientY || event.touches[0].clientY;
@@ -1387,90 +1593,197 @@
     
     // Загрузка рекомендуемых чатов
     async function loadRecommendedChats() {
-      // Заглушка для рекомендуемых чатов
-      const recommended = [
-        { name: 'Hamburger Community', members: 1250 },
-        { name: 'Разработчики', members: 89 },
-        { name: 'Игровые новости', members: 543 },
-        { name: 'Музыка', members: 321 }
-      ];
-      
-      recommendedChats.innerHTML = '';
-      
-      recommended.forEach(chat => {
-        const chatElement = document.createElement('div');
-        chatElement.className = 'recommended-chat';
-        chatElement.innerHTML = `
-          <div class="recommended-avatar">${chat.name.charAt(0)}</div>
-          <div class="recommended-name">${chat.name}</div>
-          <div class="recommended-members">${chat.members} участников</div>
-        `;
-        recommendedChats.appendChild(chatElement);
-      });
+      try {
+        const chatsRef = database.ref('chats');
+        const snapshot = await chatsRef.once('value');
+        
+        if (!snapshot.exists()) {
+          recommendedChats.innerHTML = '<div style="padding: 1rem; text-align: center; color: #666;">Нет публичных чатов</div>';
+          return;
+        }
+        
+        const allChats = [];
+        
+        snapshot.forEach((childSnapshot) => {
+          const chatData = childSnapshot.val();
+          const decryptedData = decryptData(chatData.encryptedData);
+          
+          if (decryptedData && decryptedData.privacy === 'public' && decryptedData.type === 'group') {
+            allChats.push({
+              id: childSnapshot.key,
+              ...decryptedData
+            });
+          }
+        });
+        
+        // Берем случайные 4 чата
+        const randomChats = allChats
+          .sort(() => Math.random() - 0.5)
+          .slice(0, 4);
+        
+        recommendedChats.innerHTML = '';
+        
+        if (randomChats.length === 0) {
+          recommendedChats.innerHTML = '<div style="padding: 1rem; text-align: center; color: #666;">Нет публичных чатов</div>';
+          return;
+        }
+        
+        randomChats.forEach(chat => {
+          const chatElement = document.createElement('div');
+          chatElement.className = 'recommended-chat';
+          chatElement.addEventListener('click', () => {
+            joinPublicChat(chat.id, chat);
+          });
+          
+          chatElement.innerHTML = `
+            <div class="recommended-avatar">
+              ${chat.avatar ? '' : chat.name.charAt(0)}
+            </div>
+            <div class="recommended-info">
+              <div class="recommended-name">${chat.name}</div>
+              <div class="recommended-members">${chat.participants?.length || 1} участников</div>
+            </div>
+          `;
+          
+          if (chat.avatar) {
+            const avatar = chatElement.querySelector('.recommended-avatar');
+            avatar.style.backgroundImage = `url(${chat.avatar})`;
+            avatar.style.backgroundSize = 'cover';
+            avatar.style.backgroundPosition = 'center';
+          }
+          
+          recommendedChats.appendChild(chatElement);
+        });
+      } catch (error) {
+        console.error('Ошибка загрузки рекомендуемых чатов:', error);
+        recommendedChats.innerHTML = '<div style="padding: 1rem; text-align: center; color: #666;">Ошибка загрузки</div>';
+      }
+    }
+    
+    // Присоединение к публичному чату
+    async function joinPublicChat(chatId, chatData) {
+      try {
+        // Добавляем чат пользователю
+        await database.ref(`userChats/${currentUserId}/${chatId}`).set(true);
+        
+        // Добавляем пользователя в участники чата
+        const chatRef = database.ref(`chats/${chatId}`);
+        const snapshot = await chatRef.once('value');
+        const existingData = snapshot.val();
+        const decryptedData = decryptData(existingData.encryptedData);
+        
+        if (decryptedData && !decryptedData.participants.includes(currentUser)) {
+          decryptedData.participants.push(currentUser);
+          const updatedEncryptedData = encryptData(decryptedData);
+          await chatRef.update({
+            encryptedData: updatedEncryptedData
+          });
+        }
+        
+        closeAllModals();
+        window.location.href = `https://hamburgerchat.github.io/chat.html?=${chatId}`;
+        
+      } catch (error) {
+        console.error('Ошибка присоединения к чату:', error);
+        alert('Ошибка при присоединении к чату');
+      }
     }
     
     // Обработка поиска
     async function handleSearch() {
       const query = searchInput.value.trim();
       
+      if (query.length === 0) {
+        searchResultsSection.style.display = 'none';
+        recommendedSection.style.display = 'block';
+        return;
+      }
+      
       if (query.length < 2) {
+        searchResultsSection.style.display = 'block';
+        recommendedSection.style.display = 'none';
         searchResults.innerHTML = '<div style="padding: 1rem; text-align: center; color: #666;">Введите минимум 2 символа</div>';
         return;
       }
       
       try {
-        // Поиск пользователей
-        const usersRef = database.ref('users');
-        const snapshot = await usersRef.once('value');
-        
+        searchResultsSection.style.display = 'block';
+        recommendedSection.style.display = 'none';
         searchResults.innerHTML = '';
-        
-        if (!snapshot.exists()) {
-          searchResults.innerHTML = '<div style="padding: 1rem; text-align: center; color: #666;">Ничего не найдено</div>';
-          return;
-        }
         
         let resultsFound = false;
         
-        snapshot.forEach((childSnapshot) => {
-          const userData = childSnapshot.val();
-          const decryptedData = decryptData(userData.encryptedData);
-          
-          if (!decryptedData) return;
-          
-          if (decryptedData.username.toLowerCase().includes(query.toLowerCase()) && 
-              decryptedData.username !== currentUser) {
-            resultsFound = true;
+        // Поиск пользователей
+        const usersRef = database.ref('users');
+        const usersSnapshot = await usersRef.once('value');
+        
+        if (usersSnapshot.exists()) {
+          usersSnapshot.forEach((childSnapshot) => {
+            const userData = childSnapshot.val();
+            const decryptedData = decryptData(userData.encryptedData);
             
-            const resultItem = document.createElement('div');
-            resultItem.className = 'search-result-item';
-            resultItem.addEventListener('click', () => {
-              createOrOpenPrivateChat(decryptedData.username, childSnapshot.key);
-            });
+            if (!decryptedData) return;
             
-            const avatar = document.createElement('div');
-            avatar.className = 'result-avatar';
-            avatar.textContent = decryptedData.username.charAt(0).toUpperCase();
+            if (decryptedData.username.toLowerCase().includes(query.toLowerCase()) && 
+                decryptedData.username !== currentUser) {
+              resultsFound = true;
+              
+              const resultItem = document.createElement('div');
+              resultItem.className = 'search-result-item';
+              resultItem.addEventListener('click', () => {
+                createOrOpenPrivateChat(decryptedData.username, childSnapshot.key);
+              });
+              
+              resultItem.innerHTML = `
+                <div class="result-avatar">${decryptedData.username.charAt(0)}</div>
+                <div class="result-info">
+                  <div class="result-type">Пользователь</div>
+                  <div class="result-name">${decryptedData.username}</div>
+                </div>
+              `;
+              
+              searchResults.appendChild(resultItem);
+            }
+          });
+        }
+        
+        // Поиск чатов
+        const chatsRef = database.ref('chats');
+        const chatsSnapshot = await chatsRef.once('value');
+        
+        if (chatsSnapshot.exists()) {
+          chatsSnapshot.forEach((childSnapshot) => {
+            const chatData = childSnapshot.val();
+            const decryptedData = decryptData(chatData.encryptedData);
             
-            const info = document.createElement('div');
-            info.className = 'result-info';
+            if (!decryptedData) return;
             
-            const type = document.createElement('div');
-            type.className = 'result-type';
-            type.textContent = 'Пользователь';
-            
-            const name = document.createElement('div');
-            name.className = 'result-name';
-            name.textContent = decryptedData.username;
-            
-            info.appendChild(type);
-            info.appendChild(name);
-            
-            resultItem.appendChild(avatar);
-            resultItem.appendChild(info);
-            searchResults.appendChild(resultItem);
-          }
-        });
+            if (decryptedData.name.toLowerCase().includes(query.toLowerCase()) && 
+                decryptedData.privacy === 'public') {
+              resultsFound = true;
+              
+              const resultItem = document.createElement('div');
+              resultItem.className = 'search-result-item';
+              resultItem.addEventListener('click', () => {
+                joinPublicChat(childSnapshot.key, decryptedData);
+              });
+              
+              const avatarHtml = decryptedData.avatar 
+                ? `<div class="result-avatar" style="background-image: url(${decryptedData.avatar}); background-size: cover; background-position: center;"></div>`
+                : `<div class="result-avatar">${decryptedData.name.charAt(0)}</div>`;
+              
+              resultItem.innerHTML = `
+                ${avatarHtml}
+                <div class="result-info">
+                  <div class="result-type">${decryptedData.type === 'private' ? 'Личный чат' : 'Группа'}</div>
+                  <div class="result-name">${decryptedData.name}</div>
+                </div>
+              `;
+              
+              searchResults.appendChild(resultItem);
+            }
+          });
+        }
         
         if (!resultsFound) {
           searchResults.innerHTML = '<div style="padding: 1rem; text-align: center; color: #666;">Ничего не найдено</div>';
@@ -1602,33 +1915,75 @@
     
     // Обработка действий контекстного меню
     function handleContextAction(action, chatId) {
+      const chatElement = document.querySelector(`[data-chat-id="${chatId}"]`);
+      
       switch (action) {
         case 'pin':
-          alert(`Чат ${chatId} закреплен`);
+          togglePinChat(chatId, chatElement);
           break;
         case 'read':
-          alert(`Чат ${chatId} отмечен как прочитанный`);
+          // Логика отметки как прочитанного
           break;
         case 'mute':
-          alert(`Уведомления для чата ${chatId} отключены`);
+          toggleMuteChat(chatId, chatElement);
           break;
         case 'delete':
-          if (confirm('Вы уверены, что хотите удалить этот чат?')) {
-            deleteChat(chatId);
-          }
+          deleteChat(chatId, chatElement);
           break;
       }
       closeAllModals();
     }
     
+    // Закрепление/открепление чата
+    function togglePinChat(chatId, chatElement) {
+      const index = pinnedChats.indexOf(chatId);
+      
+      if (index > -1) {
+        // Открепляем
+        pinnedChats.splice(index, 1);
+        chatElement.classList.remove('pinned');
+      } else {
+        // Закрепляем
+        pinnedChats.push(chatId);
+        chatElement.classList.add('pinned');
+      }
+      
+      // Сохраняем в localStorage
+      localStorage.setItem('hamburger_pinned_chats', JSON.stringify(pinnedChats));
+      
+      // Сортируем чаты
+      sortChats();
+    }
+    
+    // Отключение/включение уведомлений
+    function toggleMuteChat(chatId, chatElement) {
+      const index = mutedChats.indexOf(chatId);
+      
+      if (index > -1) {
+        // Включаем уведомления
+        mutedChats.splice(index, 1);
+      } else {
+        // Отключаем уведомления
+        mutedChats.push(chatId);
+      }
+      
+      // Сохраняем в localStorage
+      localStorage.setItem('hamburger_muted_chats', JSON.stringify(mutedChats));
+    }
+    
     // Удаление чата
-    async function deleteChat(chatId) {
+    async function deleteChat(chatId, chatElement) {
       try {
         // Удаляем чат из списка пользователя
         await database.ref(`userChats/${currentUserId}/${chatId}`).remove();
         
+        // Удаляем из закрепленных и muted
+        pinnedChats = pinnedChats.filter(id => id !== chatId);
+        mutedChats = mutedChats.filter(id => id !== chatId);
+        localStorage.setItem('hamburger_pinned_chats', JSON.stringify(pinnedChats));
+        localStorage.setItem('hamburger_muted_chats', JSON.stringify(mutedChats));
+        
         // Удаляем элемент из DOM
-        const chatElement = document.querySelector(`[data-chat-id="${chatId}"]`);
         if (chatElement) {
           chatElement.remove();
         }
@@ -1640,7 +1995,6 @@
         
       } catch (error) {
         console.error('Ошибка удаления чата:', error);
-        alert('Ошибка при удалении чата');
       }
     }
   </script>
