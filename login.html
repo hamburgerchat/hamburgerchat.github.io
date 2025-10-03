@@ -4,131 +4,617 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Hamburger — Вход</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+    * { 
+      box-sizing: border-box; 
+      margin: 0; 
+      padding: 0; 
+      font-family: 'Inter', sans-serif; 
+    }
+    
     body {
       background: linear-gradient(135deg, #ffcc70, #ff7f50);
       display: flex;
       align-items: center;
       justify-content: center;
-      height: 100vh;
+      min-height: 100vh;
+      padding: 20px;
+      overflow: hidden;
     }
+    
+    .loader {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #ffcc70, #ff7f50);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      z-index: 1000;
+      transition: opacity 0.5s ease, visibility 0.5s ease;
+    }
+    
+    .loader.hidden {
+      opacity: 0;
+      visibility: hidden;
+    }
+    
+    .loader-logo {
+      width: 120px;
+      height: 120px;
+      background: linear-gradient(135deg, #ff7f50, #ffcc70);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 15px 30px rgba(255, 127, 80, 0.4);
+      margin-bottom: 20px;
+      animation: logoFloat 2s ease-in-out infinite;
+    }
+    
+    @keyframes logoFloat {
+      0%, 100% { transform: translateY(0) scale(1); }
+      50% { transform: translateY(-10px) scale(1.05); }
+    }
+    
+    .loader-logo i {
+      font-size: 3rem;
+      color: white;
+    }
+    
+    .loader-text {
+      color: white;
+      font-size: 1.5rem;
+      font-weight: 600;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+    
     .container {
-      background: white;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
       border-radius: 2rem;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.2);
-      padding: 2rem 3rem;
-      width: 350px;
-      animation: fadeIn 0.7s ease forwards;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.15), 0 10px 20px rgba(0,0,0,0.1);
+      padding: 2.5rem;
+      width: 100%;
+      max-width: 420px;
+      animation: fadeInUp 0.8s ease forwards;
+      position: relative;
+      overflow: hidden;
+      opacity: 0;
+      transform: translateY(20px);
     }
-    @keyframes fadeIn {
-      0% { opacity: 0; transform: translateY(30px); }
+    
+    @keyframes fadeInUp {
+      0% { opacity: 0; transform: translateY(20px); }
       100% { opacity: 1; transform: translateY(0); }
     }
-    .logo {
-      width: 80px;
-      height: 80px;
-      margin: 0 auto 1rem;
-      background-image: url('https://raw.githubusercontent.com/hamburgerchat/hamburgerchat.github.io/refs/heads/main/images/Burger.png');
-      background-size: cover;
-      border-radius: 50%;
+    
+    .logo-container {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 1.5rem;
     }
+    
+    .logo {
+      width: 100px;
+      height: 100px;
+      background: linear-gradient(135deg, #ff7f50, #ffcc70);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 10px 20px rgba(255, 127, 80, 0.3);
+      animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+    
+    .logo i {
+      font-size: 2.5rem;
+      color: white;
+    }
+    
     h1 {
       text-align: center;
-      font-size: 1.8rem;
+      font-size: 2rem;
       color: #333;
-      margin-bottom: 1rem;
+      margin-bottom: 1.5rem;
+      font-weight: 700;
     }
+    
+    .form-group {
+      margin-bottom: 1.5rem;
+      position: relative;
+    }
+    
     input {
       width: 100%;
-      padding: 0.75rem;
-      margin: 0.5rem 0;
-      border: 1px solid #ccc;
-      border-radius: 0.5rem;
+      padding: 1rem 1rem 1rem 3rem;
+      border: 2px solid #f0f0f0;
+      border-radius: 1rem;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      background-color: #f9f9f9;
     }
+    
     input:focus {
       border-color: #ff7f50;
       outline: none;
-      box-shadow: 0 0 5px #ff7f5077;
+      box-shadow: 0 0 0 3px rgba(255, 127, 80, 0.2);
+      background-color: white;
     }
+    
+    .input-icon {
+      position: absolute;
+      left: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #888;
+      transition: color 0.3s ease;
+    }
+    
+    input:focus + .input-icon {
+      color: #ff7f50;
+    }
+    
+    .password-toggle {
+      position: absolute;
+      right: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #888;
+      cursor: pointer;
+      transition: color 0.3s ease;
+    }
+    
+    .password-toggle:hover {
+      color: #ff7f50;
+    }
+    
     button {
       width: 100%;
-      padding: 0.75rem;
-      background: #ff7f50;
+      padding: 1rem;
+      background: linear-gradient(135deg, #ff7f50, #ff9966);
       color: white;
       border: none;
-      border-radius: 0.5rem;
+      border-radius: 1rem;
       font-weight: 600;
+      font-size: 1.1rem;
       cursor: pointer;
-      transition: background 0.3s;
+      transition: all 0.3s ease;
+      box-shadow: 0 5px 15px rgba(255, 127, 80, 0.4);
+      position: relative;
+      overflow: hidden;
     }
+    
     button:hover {
-      background: #ff6333;
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(255, 127, 80, 0.5);
     }
+    
+    button:active {
+      transform: translateY(0);
+    }
+    
+    button::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+      transition: left 0.5s;
+    }
+    
+    button:hover::after {
+      left: 100%;
+    }
+    
     .footer {
-      margin-top: 1rem;
+      margin-top: 2rem;
       text-align: center;
-      font-size: 0.85rem;
+      font-size: 0.9rem;
+      color: #666;
     }
+    
     .footer a {
       color: #ff7f50;
       text-decoration: none;
       font-weight: 600;
+      transition: color 0.3s ease;
+    }
+    
+    .footer a:hover {
+      color: #ff6333;
+      text-decoration: underline;
+    }
+    
+    .loading {
+      display: none;
+      text-align: center;
+      margin-top: 1rem;
+    }
+    
+    .loading-spinner {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(255, 127, 80, 0.3);
+      border-radius: 50%;
+      border-top-color: #ff7f50;
+      animation: spin 1s ease-in-out infinite;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    .message {
+      padding: 0.75rem 1rem;
+      border-radius: 0.75rem;
+      margin-bottom: 1rem;
+      text-align: center;
+      font-weight: 500;
+      display: none;
+    }
+    
+    .error {
+      background-color: #ffeaea;
+      color: #d32f2f;
+      border: 1px solid #ffcdd2;
+    }
+    
+    .success {
+      background-color: #e8f5e9;
+      color: #2e7d32;
+      border: 1px solid #c8e6c9;
+    }
+    
+    .info {
+      background-color: #e3f2fd;
+      color: #1565c0;
+      border: 1px solid #bbdefb;
+    }
+    
+    .particles {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      overflow: hidden;
+    }
+    
+    .particle {
+      position: absolute;
+      background: rgba(255, 127, 80, 0.3);
+      border-radius: 50%;
+      animation: float 15s infinite linear;
+    }
+    
+    @keyframes float {
+      0% { transform: translateY(0) rotate(0deg); opacity: 0; }
+      10% { opacity: 1; }
+      90% { opacity: 1; }
+      100% { transform: translateY(-1000%) rotate(720deg); opacity: 0; }
+    }
+    
+    @media (max-width: 480px) {
+      .container {
+        padding: 2rem 1.5rem;
+        border-radius: 1.5rem;
+      }
+      
+      h1 {
+        font-size: 1.7rem;
+      }
+      
+      input {
+        padding: 0.9rem 0.9rem 0.9rem 2.8rem;
+      }
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="logo"></div>
+  <div class="loader" id="loader">
+    <div class="loader-logo">
+      <i class="fas fa-hamburger"></i>
+    </div>
+    <div class="loader-text">Hamburger</div>
+  </div>
+  
+  <div class="particles" id="particles"></div>
+  
+  <div class="container" id="container">
+    <div class="logo-container">
+      <div class="logo">
+        <i class="fas fa-hamburger"></i>
+      </div>
+    </div>
+    
     <h1>Вход в Hamburger</h1>
-    <input type="text" id="username" placeholder="Имя пользователя" required />
-    <input type="password" id="password" placeholder="Пароль" required />
-    <button onclick="login()">Войти</button>
+    
+    <div class="message" id="message"></div>
+    
+    <div class="form-group">
+      <i class="fas fa-user input-icon"></i>
+      <input type="text" id="username" placeholder="Имя пользователя" required />
+    </div>
+    
+    <div class="form-group">
+      <i class="fas fa-lock input-icon"></i>
+      <input type="password" id="password" placeholder="Пароль" required />
+      <i class="fas fa-eye password-toggle" id="togglePassword"></i>
+    </div>
+    
+    <button onclick="login()" id="loginBtn">
+      <span id="btnText">Войти</span>
+    </button>
+    
+    <div class="loading" id="loading">
+      <div class="loading-spinner"></div>
+      <span>Вход в систему...</span>
+    </div>
+    
     <div class="footer">
-      Нет аккаунта? <a href="https://hamburgerchat.github.io/register.html">Зарегистрироваться</a>
+      Нет аккаунта? <a href="https://hamburgerchat.github.io/">Зарегистрироваться</a>
     </div>
   </div>
 
   <script>
-    const API = "https://bdd.somroti-yt.workers.dev";
-
-    async function get(key) {
-      const res = await fetch(`${API}/get/${encodeURIComponent(key)}`);
-      if (!res.ok) throw new Error("Ошибка запроса к серверу");
-      return await res.text();
+    // Инициализация Firebase
+    const firebaseConfig = {
+      databaseURL: "https://hamburgerchat-e8f2a-default-rtdb.firebaseio.com/"
+    };
+    
+    // Инициализируем Firebase
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+    
+    // Ключ для шифрования (должен совпадать с ключом на странице регистрации)
+    const ENCRYPTION_KEY = "HamburgerSecureKey2024!";
+    
+    // Хеширование пароля
+    function hashPassword(password) {
+      return CryptoJS.SHA256(password + ENCRYPTION_KEY).toString();
     }
-
+    
+    // Дешифрование данных
+    function decryptData(encryptedData) {
+      try {
+        const bytes = CryptoJS.AES.decrypt(encryptedData, ENCRYPTION_KEY);
+        return JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
+      } catch (e) {
+        return null;
+      }
+    }
+    
+    // Создание частиц для фона
+    function createParticles() {
+      const particlesContainer = document.getElementById('particles');
+      const particleCount = 15;
+      
+      for (let i = 0; i < particleCount; i++) {
+        const particle = document.createElement('div');
+        particle.classList.add('particle');
+        
+        // Случайные параметры для частиц
+        const size = Math.random() * 20 + 5;
+        const left = Math.random() * 100;
+        const animationDuration = Math.random() * 20 + 10;
+        const animationDelay = Math.random() * 5;
+        
+        particle.style.width = `${size}px`;
+        particle.style.height = `${size}px`;
+        particle.style.left = `${left}%`;
+        particle.style.animationDuration = `${animationDuration}s`;
+        particle.style.animationDelay = `${animationDelay}s`;
+        
+        particlesContainer.appendChild(particle);
+      }
+    }
+    
+    // Переключение видимости пароля
+    document.getElementById('togglePassword').addEventListener('click', function() {
+      const passwordInput = document.getElementById('password');
+      const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+      passwordInput.setAttribute('type', type);
+      this.classList.toggle('fa-eye');
+      this.classList.toggle('fa-eye-slash');
+    });
+    
+    // Функция входа в систему
     async function login() {
       const username = document.getElementById("username").value.trim();
       const password = document.getElementById("password").value.trim();
+      
+      const messageEl = document.getElementById("message");
+      const loginBtn = document.getElementById("loginBtn");
+      const btnText = document.getElementById("btnText");
+      const loading = document.getElementById("loading");
 
-      if (!username || !password) return alert("Введите логин и пароль");
+      // Валидация
+      if (!username || !password) {
+        showMessage("Заполните все поля", "error");
+        return;
+      }
+
+      // Показать индикатор загрузки
+      loginBtn.disabled = true;
+      btnText.textContent = "";
+      loading.style.display = "block";
 
       try {
-        const key = `${username}_accountdata`;
-        const raw = await get(key);
-        const data = JSON.parse(raw);
-
-        if (data.Password !== password) {
-          return alert("Неверный пароль");
+        // Поиск пользователя в Firebase по хешу имени
+        const usersRef = database.ref('users');
+        const usernameHash = hashPassword(username);
+        const snapshot = await usersRef.orderByChild('usernameHash').equalTo(usernameHash).once('value');
+        
+        if (!snapshot.exists()) {
+          showMessage("Пользователь не найден", "error");
+          resetButton();
+          return;
         }
 
+        // Получаем данные пользователя
+        let userFound = false;
+        let userId = null;
+        let userData = null;
+
+        snapshot.forEach((childSnapshot) => {
+          userId = childSnapshot.key;
+          const encryptedData = childSnapshot.val().encryptedData;
+          userData = decryptData(encryptedData);
+          
+          if (userData && userData.username === username) {
+            userFound = true;
+            return true; // Останавливаем перебор
+          }
+        });
+
+        if (!userFound || !userData) {
+          showMessage("Ошибка при расшифровке данных пользователя", "error");
+          resetButton();
+          return;
+        }
+
+        // Проверяем пароль
+        const passwordHash = hashPassword(password);
+        if (userData.password !== passwordHash) {
+          showMessage("Неверный пароль", "error");
+          resetButton();
+          return;
+        }
+
+        // Успешный вход
+        showMessage("Вход выполнен успешно! Перенаправление...", "success");
+        
+        // Сохраняем в localStorage
         localStorage.setItem("hamburger_user", username);
-        localStorage.setItem("hamburger_pass", password);
-        window.location.href = "chat.html";
+        localStorage.setItem("hamburger_user_id", userId);
+        
+        // Задержка перед перенаправлением на main.html
+        setTimeout(() => {
+          window.location.href = "https://hamburgerchat.github.io/main.html";
+        }, 1500);
+
       } catch (err) {
-        alert("Ошибка входа: аккаунт не найден или повреждён");
+        console.error("Ошибка входа:", err);
+        showMessage("Ошибка входа: " + err.message, "error");
+        resetButton();
       }
     }
-
-    // Автовход если уже авторизован
-    window.addEventListener("DOMContentLoaded", () => {
-      const u = localStorage.getItem("hamburger_user");
-      const p = localStorage.getItem("hamburger_pass");
-      if (u && p) {
-        window.location.href = "chat.html";
+    
+    // Функция показа сообщений
+    function showMessage(text, type) {
+      const messageEl = document.getElementById("message");
+      messageEl.textContent = text;
+      messageEl.className = `message ${type}`;
+      messageEl.style.display = "block";
+      
+      // Автоматическое скрытие сообщений об ошибках через 5 секунд
+      if (type === "error") {
+        setTimeout(() => {
+          messageEl.style.display = "none";
+        }, 5000);
       }
+    }
+    
+    // Сброс кнопки после ошибки
+    function resetButton() {
+      const loginBtn = document.getElementById("loginBtn");
+      const btnText = document.getElementById("btnText");
+      const loading = document.getElementById("loading");
+      
+      loginBtn.disabled = false;
+      btnText.textContent = "Войти";
+      loading.style.display = "none";
+    }
+    
+    // Проверка существования пользователя на сервере
+    async function verifyUserOnServer() {
+      const username = localStorage.getItem("hamburger_user");
+      const userId = localStorage.getItem("hamburger_user_id");
+      
+      if (!username || !userId) {
+        return false;
+      }
+      
+      try {
+        const userRef = database.ref('users/' + userId);
+        const snapshot = await userRef.once('value');
+        
+        if (!snapshot.exists()) {
+          return false;
+        }
+        
+        const encryptedData = snapshot.val().encryptedData;
+        const decryptedData = decryptData(encryptedData);
+        return decryptedData && decryptedData.username === username;
+      } catch (error) {
+        console.error("Ошибка проверки пользователя:", error);
+        return false;
+      }
+    }
+    
+    // Инициализация при загрузке страницы
+    window.addEventListener("DOMContentLoaded", async () => {
+      createParticles();
+      
+      // Проверка авторизации и существования пользователя на сервере
+      const user = localStorage.getItem("hamburger_user");
+      const userId = localStorage.getItem("hamburger_user_id");
+      
+      if (user && userId) {
+        const userExists = await verifyUserOnServer();
+        if (userExists) {
+          // Пользователь существует на сервере - перенаправляем
+          window.location.href = "https://hamburgerchat.github.io/main.html";
+          return;
+        } else {
+          // Пользователь не существует на сервере - очищаем localStorage
+          localStorage.removeItem("hamburger_user");
+          localStorage.removeItem("hamburger_user_id");
+          showMessage("Ваша сессия истекла. Пожалуйста, войдите снова.", "info");
+        }
+      }
+      
+      // Запуск анимации загрузки
+      setTimeout(() => {
+        document.getElementById('loader').classList.add('hidden');
+        document.getElementById('container').style.animation = 'fadeInUp 0.8s ease forwards';
+        
+        setTimeout(() => {
+          document.getElementById('loader').style.display = 'none';
+        }, 500);
+      }, 2000);
+      
+      // Добавляем обработчики для клавиши Enter
+      document.getElementById("username").addEventListener("keypress", function(e) {
+        if (e.key === "Enter") {
+          document.getElementById("password").focus();
+        }
+      });
+      
+      document.getElementById("password").addEventListener("keypress", function(e) {
+        if (e.key === "Enter") {
+          login();
+        }
+      });
     });
   </script>
 </body>
