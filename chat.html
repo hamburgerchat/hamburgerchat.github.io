@@ -37,6 +37,7 @@
       --reply-bg: #f8f9fa;
       --service-bg: rgba(255, 127, 80, 0.1);
       --service-text: #ff7f50;
+      --read-color: #2563eb;
     }
 
     [data-theme="dark"] {
@@ -60,6 +61,7 @@
       --reply-bg: #334155;
       --service-bg: rgba(253, 186, 116, 0.15);
       --service-text: #fdba74;
+      --read-color: #60a5fa;
     }
 
     * { 
@@ -198,7 +200,7 @@
       padding: 1rem 0.8rem;
       display: flex;
       flex-direction: column;
-      gap: 0.5rem;
+      gap: 0.3rem;
       scroll-behavior: smooth;
       padding-bottom: 80px;
     }
@@ -206,7 +208,6 @@
     .message {
       display: flex;
       max-width: 85%;
-      animation: messageAppear 0.3s ease;
       position: relative;
     }
     
@@ -217,17 +218,6 @@
     
     .message.group:not(.own) {
       padding-left: 40px;
-    }
-    
-    @keyframes messageAppear {
-      from {
-        opacity: 0;
-        transform: translateY(10px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
     }
     
     .message-avatar {
@@ -314,10 +304,29 @@
       color: var(--text-tertiary);
       text-align: right;
       margin-top: 0.2rem;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 0.3rem;
     }
     
     .message.own .message-time {
       text-align: left;
+      justify-content: flex-start;
+    }
+    
+    .message-status {
+      display: flex;
+      gap: 0.1rem;
+    }
+    
+    .status-icon {
+      font-size: 0.6rem;
+      color: var(--text-tertiary);
+    }
+    
+    .status-icon.read {
+      color: var(--read-color);
     }
     
     .reactions {
@@ -338,6 +347,7 @@
       gap: 0.2rem;
       cursor: pointer;
       transition: all 0.2s ease;
+      position: relative;
     }
     
     .reaction:hover {
@@ -347,6 +357,26 @@
     .reaction-count {
       font-size: 0.6rem;
       color: var(--text-secondary);
+    }
+    
+    .reaction-users {
+      position: absolute;
+      bottom: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 0.5rem;
+      font-size: 0.7rem;
+      white-space: nowrap;
+      z-index: 10;
+      box-shadow: var(--shadow);
+      display: none;
+    }
+    
+    .reaction:hover .reaction-users {
+      display: block;
     }
     
     .reply-preview {
@@ -507,6 +537,8 @@
       text-align: center;
       margin: 0.8rem 0;
       padding: 0.4rem 1rem;
+      align-self: center;
+      max-width: 80%;
     }
     
     .service-content {
@@ -517,7 +549,6 @@
       font-size: 0.8rem;
       font-weight: 500;
       display: inline-block;
-      max-width: 80%;
       border: 1px solid var(--service-bg);
     }
     
@@ -734,6 +765,10 @@
       100% { transform: rotate(360deg); }
     }
 
+    .pinned-message {
+      border-left: 3px solid var(--accent-color);
+    }
+
     @media (max-width: 480px) {
       .messages-container {
         padding: 0.8rem 0.6rem;
@@ -883,7 +918,7 @@
       <div class="context-icon">
         <i class="fas fa-thumbtack"></i>
       </div>
-      <div class="context-text">Закрепить</div>
+      <div class="context-text" id="pinText">Закрепить</div>
     </div>
     <div class="context-item context-danger" data-action="delete">
       <div class="context-icon">
@@ -914,6 +949,7 @@
     let replyingTo = null;
     let selectedMessage = null;
     let allMessages = new Map();
+    let displayedMessageIds = new Set();
     let longPressTimer = null;
 
     // Применяем тему при загрузке
@@ -1021,16 +1057,6 @@
         const count = Array.isArray(participants) ? participants.length : Object.keys(participants).length;
         chatStatus.textContent = `${count} участников`;
         document.getElementById('leaveChatItem').style.display = 'block';
-        
-        // Слушаем изменения участников
-        database.ref(`chats/${currentChatId}`).on('value', (snapshot) => {
-          const updatedData = snapshot.val();
-          const decrypted = decryptData(updatedData.encryptedData) || updatedData;
-          if (decrypted && decrypted.participants) {
-            const newCount = Array.isArray(decrypted.participants) ? decrypted.participants.length : Object.keys(decrypted.participants).length;
-            chatStatus.textContent = `${newCount} участников`;
-          }
-        });
       } else {
         chatStatus.textContent = 'был(а) недавно';
         document.getElementById('leaveChatItem').style.display = 'none';
@@ -1066,6 +1092,11 @@
     }
 
     function processMessage(messageId, messageData, isUpdate = false) {
+      // Проверяем дублирование
+      if (displayedMessageIds.has(messageId) && !isUpdate) {
+        return;
+      }
+      
       let decrypted = null;
       
       if (messageData.encryptedData) {
@@ -1077,6 +1108,7 @@
       if (decrypted) {
         const message = { id: messageId, ...decrypted };
         allMessages.set(messageId, message);
+        displayedMessageIds.add(messageId);
         
         if (isUpdate) {
           updateMessageDisplay(message);
@@ -1103,7 +1135,7 @@
 
       const isOwn = message.sender === currentUser;
       const showHeader = isGroupChat && !isOwn;
-      messageEl.className = `message ${isOwn ? 'own' : ''} ${isGroupChat ? 'group' : ''}`;
+      messageEl.className = `message ${isOwn ? 'own' : ''} ${isGroupChat ? 'group' : ''} ${message.pinned ? 'pinned-message' : ''}`;
       messageEl.dataset.messageId = message.id;
       
       // Аватар
@@ -1142,12 +1174,30 @@
       let reactions = '';
       if (message.reactions && Object.keys(message.reactions).length > 0) {
         reactions = `<div class="reactions">${
-          Object.entries(message.reactions).map(([emoji, users]) => 
-            `<div class="reaction" onclick="addReaction('${message.id}', '${emoji}')">
-              ${emoji} <span class="reaction-count">${users.length}</span>
-            </div>`
-          ).join('')
+          Object.entries(message.reactions).map(([emoji, users]) => {
+            const userList = users.join(', ');
+            const hasUserReaction = users.includes(currentUser);
+            const reactionClass = hasUserReaction ? ' user-reaction' : '';
+            return `
+              <div class="reaction${reactionClass}" onclick="toggleReaction('${message.id}', '${emoji}')">
+                ${emoji} <span class="reaction-count">${users.length}</span>
+                <div class="reaction-users">${userList}</div>
+              </div>
+            `;
+          }).join('')
         }</div>`;
+      }
+      
+      // Статус отправки
+      let statusIcons = '';
+      if (isOwn) {
+        if (message.readBy && message.readBy.length > 0) {
+          statusIcons = '<div class="message-status"><i class="fas fa-check-double status-icon read"></i><i class="fas fa-check-double status-icon read"></i></div>';
+        } else if (message.delivered) {
+          statusIcons = '<div class="message-status"><i class="fas fa-check-double status-icon"></i><i class="fas fa-check-double status-icon"></i></div>';
+        } else {
+          statusIcons = '<div class="message-status"><i class="fas fa-check status-icon"></i></div>';
+        }
       }
       
       // Контент
@@ -1162,7 +1212,7 @@
           <img src="${message.image}" class="message-image" onclick="openImage('${message.image}')">
           ${message.text ? `<div class="message-text">${message.text}</div>` : ''}
           ${reactions}
-          <div class="message-time">${formatTime(message.timestamp)}</div>
+          <div class="message-time">${formatTime(message.timestamp)} ${statusIcons}</div>
         `;
       } else if (message.sticker) {
         content = `
@@ -1173,7 +1223,7 @@
           </div>` : ''}
           <div class="message-text" style="font-size: 2rem; text-align: center; padding: 0.3rem;">${message.sticker}</div>
           ${reactions}
-          <div class="message-time">${formatTime(message.timestamp)}</div>
+          <div class="message-time">${formatTime(message.timestamp)} ${statusIcons}</div>
         `;
       } else {
         content = `
@@ -1184,7 +1234,7 @@
           </div>` : ''}
           <div class="message-text">${message.text || ''}</div>
           ${reactions}
-          <div class="message-time">${formatTime(message.timestamp)}</div>
+          <div class="message-time">${formatTime(message.timestamp)} ${statusIcons}</div>
         `;
       }
       
@@ -1192,16 +1242,27 @@
       
       setupMessageInteractions(messageEl, message);
       container.appendChild(messageEl);
-      scrollToBottom();
+      
+      // Прокручиваем только для новых сообщений, не при загрузке
+      if (!message.delivered) {
+        scrollToBottom();
+      }
     }
 
     // Обновление сообщения (для реакций)
     function updateMessageDisplay(message) {
       const existingMessage = document.querySelector(`[data-message-id="${message.id}"]`);
       if (existingMessage) {
+        // Сохраняем позицию прокрутки
+        const container = document.getElementById('messagesContainer');
+        const scrollBefore = container.scrollTop;
+        
         existingMessage.remove();
+        displayMessage(message);
+        
+        // Восстанавливаем позицию прокрутки
+        container.scrollTop = scrollBefore;
       }
-      displayMessage(message);
     }
 
     // Служебные сообщения
@@ -1211,7 +1272,6 @@
       serviceEl.className = 'service-message';
       serviceEl.innerHTML = `<div class="service-content">${message.text}</div>`;
       container.appendChild(serviceEl);
-      scrollToBottom();
     }
 
     // Взаимодействия с сообщением
@@ -1226,7 +1286,7 @@
       
       // Долгое нажатие
       contentEl.addEventListener('mousedown', (e) => {
-        if (e.button === 0) { // Левая кнопка
+        if (e.button === 0) {
           longPressTimer = setTimeout(() => {
             showMessageContextMenu(e, message);
           }, 500);
@@ -1256,14 +1316,7 @@
 
     // Открытие профиля
     function openUserProfile(username) {
-      if (isGroupChat) {
-        window.open(`https://hamburgerchat.github.io/profile.html?id=${username}`, '_blank');
-      } else {
-        const otherUser = getOtherParticipant();
-        if (otherUser) {
-          window.open(`https://hamburgerchat.github.io/profile.html?id=${otherUser}`, '_blank');
-        }
-      }
+      window.open(`https://hamburgerchat.github.io/profile.html?id=${username}`, '_blank');
     }
 
     // Контекстное меню
@@ -1271,6 +1324,11 @@
       clearLongPressTimer();
       selectedMessage = message;
       const menu = document.getElementById('messageContextMenu');
+      
+      // Обновляем текст закрепления
+      const pinText = document.getElementById('pinText');
+      pinText.textContent = message.pinned ? 'Открепить' : 'Закрепить';
+      
       menu.style.display = 'block';
       
       const x = event.clientX || (event.touches && event.touches[0].clientX) || 100;
@@ -1382,7 +1440,8 @@
           sender: currentUser,
           timestamp: Date.now(),
           type: 'text',
-          replyTo: replyingTo
+          replyTo: replyingTo,
+          delivered: false
         };
         
         const encrypted = encryptData(messageData);
@@ -1392,6 +1451,15 @@
           encryptedData: encrypted,
           timestamp: Date.now()
         });
+        
+        // Обновляем статус доставки
+        setTimeout(async () => {
+          messageData.delivered = true;
+          const updatedEncrypted = encryptData(messageData);
+          await database.ref(`messages/${currentChatId}/${messageId}`).update({
+            encryptedData: updatedEncrypted
+          });
+        }, 1000);
         
         // Обновляем последнее сообщение в чате
         await updateLastMessage(text);
@@ -1413,7 +1481,8 @@
           sticker: sticker,
           sender: currentUser,
           timestamp: Date.now(),
-          type: 'sticker'
+          type: 'sticker',
+          delivered: false
         };
         
         const encrypted = encryptData(messageData);
@@ -1423,6 +1492,15 @@
           encryptedData: encrypted,
           timestamp: Date.now()
         });
+        
+        // Обновляем статус доставки
+        setTimeout(async () => {
+          messageData.delivered = true;
+          const updatedEncrypted = encryptData(messageData);
+          await database.ref(`messages/${currentChatId}/${messageId}`).update({
+            encryptedData: updatedEncrypted
+          });
+        }, 1000);
         
         await updateLastMessage('Стикер');
         
@@ -1437,7 +1515,6 @@
       if (!file) return;
       
       try {
-        // Показываем индикатор загрузки
         const sendBtn = document.getElementById('sendButton');
         const originalHTML = sendBtn.innerHTML;
         sendBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
@@ -1470,7 +1547,8 @@
           image: imageUrl,
           sender: currentUser,
           timestamp: Date.now(),
-          type: 'image'
+          type: 'image',
+          delivered: false
         };
         
         const encrypted = encryptData(messageData);
@@ -1481,6 +1559,15 @@
           timestamp: Date.now()
         });
         
+        // Обновляем статус доставки
+        setTimeout(async () => {
+          messageData.delivered = true;
+          const updatedEncrypted = encryptData(messageData);
+          await database.ref(`messages/${currentChatId}/${messageId}`).update({
+            encryptedData: updatedEncrypted
+          });
+        }, 1000);
+        
         await updateLastMessage('Изображение');
         
         document.getElementById('messageInput').value = '';
@@ -1490,7 +1577,6 @@
       } catch (error) {
         alert('Ошибка загрузки: ' + error.message);
       } finally {
-        // Восстанавливаем кнопку
         const sendBtn = document.getElementById('sendButton');
         sendBtn.innerHTML = '<i class="fas fa-paper-plane"></i>';
         sendBtn.disabled = !document.getElementById('messageInput').value.trim();
@@ -1522,11 +1608,6 @@
       document.getElementById('replyContent').textContent = message.text || 'Сообщение';
       document.getElementById('replyContainer').style.display = 'flex';
       document.getElementById('messageInput').focus();
-      
-      // Прокручиваем к полю ввода
-      setTimeout(() => {
-        document.getElementById('messageInput').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-      }, 100);
     }
 
     function cancelReply() {
@@ -1535,7 +1616,7 @@
     }
 
     // Реакции
-    async function addReaction(messageId, reaction) {
+    async function toggleReaction(messageId, reaction) {
       try {
         const message = allMessages.get(messageId);
         if (!message) return;
@@ -1543,20 +1624,18 @@
         if (!message.reactions) message.reactions = {};
         if (!message.reactions[reaction]) message.reactions[reaction] = [];
         
-        // Удаляем предыдущие реакции пользователя из этого сообщения
-        const userReactions = Object.keys(message.reactions).filter(r => 
-          message.reactions[r].includes(currentUser)
-        );
+        const userIndex = message.reactions[reaction].indexOf(currentUser);
         
-        for (const userReaction of userReactions) {
-          message.reactions[userReaction] = message.reactions[userReaction].filter(u => u !== currentUser);
-          if (message.reactions[userReaction].length === 0) {
-            delete message.reactions[userReaction];
+        if (userIndex > -1) {
+          // Убираем реакцию
+          message.reactions[reaction].splice(userIndex, 1);
+          if (message.reactions[reaction].length === 0) {
+            delete message.reactions[reaction];
           }
+        } else {
+          // Добавляем реакцию
+          message.reactions[reaction].push(currentUser);
         }
-        
-        // Добавляем новую реакцию
-        message.reactions[reaction].push(currentUser);
         
         const encrypted = encryptData(message);
         await database.ref(`messages/${currentChatId}/${messageId}`).update({
@@ -1565,7 +1644,6 @@
         
       } catch (error) {
         console.error('Ошибка реакции:', error);
-        alert('Ошибка при добавлении реакции');
       }
     }
 
@@ -1599,16 +1677,34 @@
           navigator.clipboard.writeText(selectedMessage.text || '');
           break;
         case 'pin':
-          pinMessage(selectedMessage.id);
+          togglePinMessage(selectedMessage.id);
           break;
         case 'delete':
           deleteMessage(selectedMessage.id);
           break;
         default:
-          if (action) addReaction(selectedMessage.id, action);
+          if (action) toggleReaction(selectedMessage.id, action);
           break;
       }
       closeAllModals();
+    }
+
+    // Закрепление сообщения
+    async function togglePinMessage(messageId) {
+      try {
+        const message = allMessages.get(messageId);
+        if (!message) return;
+        
+        message.pinned = !message.pinned;
+        
+        const encrypted = encryptData(message);
+        await database.ref(`messages/${currentChatId}/${messageId}`).update({
+          encryptedData: encrypted
+        });
+        
+      } catch (error) {
+        alert('Ошибка при закреплении сообщения');
+      }
     }
 
     // Вспомогательные функции
@@ -1654,6 +1750,8 @@
             <p>История чата очищена</p>
           </div>
         `;
+        allMessages.clear();
+        displayedMessageIds.clear();
       } catch (error) {
         alert('Ошибка при очистке истории');
       }
@@ -1692,11 +1790,6 @@
       }
     }
 
-    async function pinMessage(messageId) {
-      // Здесь можно добавить логику закрепления
-      alert('Сообщение закреплено');
-    }
-
     async function deleteMessage(messageId) {
       if (!confirm('Удалить это сообщение?')) return;
       
@@ -1732,7 +1825,6 @@
       const messageElement = document.querySelector(`[data-message-id="${messageId}"]`);
       if (messageElement) {
         messageElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        // Подсвечиваем сообщение
         messageElement.style.backgroundColor = 'var(--service-bg)';
         setTimeout(() => {
           messageElement.style.backgroundColor = '';
