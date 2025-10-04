@@ -765,7 +765,7 @@
       
       // Получение ID чата из URL
       const urlParams = new URLSearchParams(window.location.search);
-      currentChatId = urlParams.get('=');
+      currentChatId = urlParams.get('id') || urlParams.get('=');
       
       if (!currentChatId) {
         alert('Чат не найден');
