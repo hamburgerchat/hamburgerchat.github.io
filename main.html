@@ -412,6 +412,44 @@
       box-shadow: 0 6px 20px rgba(255, 127, 80, 0.6);
     }
     
+    /* Контекстное меню */
+    .context-menu {
+      position: fixed;
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 0.8rem;
+      padding: 0.5rem;
+      box-shadow: var(--shadow);
+      z-index: 1000;
+      min-width: 180px;
+      display: none;
+    }
+    
+    .context-menu-item {
+      padding: 0.7rem 1rem;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.7rem;
+      font-size: 0.9rem;
+      color: var(--text-primary);
+      transition: background 0.2s ease;
+    }
+    
+    .context-menu-item:hover {
+      background: var(--hover-bg);
+    }
+    
+    .context-menu-item.danger {
+      color: var(--danger-color);
+    }
+    
+    .context-menu-item i {
+      width: 16px;
+      text-align: center;
+    }
+    
     /* Модальные окна */
     .modal {
       display: none;
@@ -502,9 +540,123 @@
       background: var(--bg-secondary);
       color: var(--text-primary);
     }
-    
-    /* Остальные стили... */
 
+    /* Поиск */
+    .search-container {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: var(--bg-primary);
+      z-index: 1500;
+      flex-direction: column;
+    }
+    
+    .search-header {
+      padding: 1rem;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    
+    .search-input {
+      flex: 1;
+      padding: 0.8rem 1rem;
+      border: 1px solid var(--border-color);
+      border-radius: 0.8rem;
+      font-size: 1rem;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+    }
+    
+    .close-search {
+      background: none;
+      border: none;
+      font-size: 1.2rem;
+      color: var(--text-secondary);
+      cursor: pointer;
+    }
+    
+    .search-results {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1rem;
+    }
+    
+    .search-result-item {
+      display: flex;
+      align-items: center;
+      padding: 1rem;
+      border-bottom: 1px solid var(--border-color);
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+    
+    .search-result-item:hover {
+      background: var(--hover-bg);
+    }
+    
+    .result-avatar {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: var(--accent-gradient);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 600;
+      margin-right: 1rem;
+      flex-shrink: 0;
+    }
+    
+    .result-info {
+      flex: 1;
+    }
+    
+    .result-name {
+      font-weight: 600;
+      margin-bottom: 0.3rem;
+    }
+    
+    .result-type {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+    }
+
+    /* Меню профиля */
+    .profile-menu {
+      position: fixed;
+      top: 60px;
+      right: 1rem;
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 0.8rem;
+      padding: 0.5rem;
+      box-shadow: var(--shadow);
+      z-index: 1000;
+      min-width: 200px;
+      display: none;
+    }
+    
+    .profile-menu-item {
+      padding: 0.8rem 1rem;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.7rem;
+      font-size: 0.9rem;
+      color: var(--text-primary);
+      transition: background 0.2s ease;
+    }
+    
+    .profile-menu-item:hover {
+      background: var(--hover-bg);
+    }
   </style>
 </head>
 <body>
@@ -563,6 +715,55 @@
     </button>
   </div>
   
+  <!-- Контекстное меню -->
+  <div class="context-menu" id="contextMenu">
+    <div class="context-menu-item" id="pinChatBtn">
+      <i class="fas fa-thumbtack"></i>
+      <span>Закрепить</span>
+    </div>
+    <div class="context-menu-item" id="addToFolderBtn">
+      <i class="fas fa-folder-plus"></i>
+      <span>Добавить в папку</span>
+    </div>
+    <div class="context-menu-item" id="muteChatBtn">
+      <i class="fas fa-bell-slash"></i>
+      <span>Отключить уведомления</span>
+    </div>
+    <div class="context-menu-item danger" id="deleteChatBtn">
+      <i class="fas fa-trash"></i>
+      <span>Удалить чат</span>
+    </div>
+  </div>
+
+  <!-- Меню профиля -->
+  <div class="profile-menu" id="profileMenu">
+    <div class="profile-menu-item" id="profileSettingsBtn">
+      <i class="fas fa-user-cog"></i>
+      <span>Настройки профиля</span>
+    </div>
+    <div class="profile-menu-item" id="themeToggleBtn">
+      <i class="fas fa-moon"></i>
+      <span>Сменить тему</span>
+    </div>
+    <div class="profile-menu-item" id="logoutBtn">
+      <i class="fas fa-sign-out-alt"></i>
+      <span>Выйти</span>
+    </div>
+  </div>
+
+  <!-- Поиск -->
+  <div class="search-container" id="searchContainer">
+    <div class="search-header">
+      <input type="text" class="search-input" id="searchInput" placeholder="Поиск пользователей и чатов...">
+      <button class="close-search" id="closeSearch">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="search-results" id="searchResults">
+      <!-- Результаты поиска -->
+    </div>
+  </div>
+
   <!-- Модальное окно создания папки -->
   <div class="modal" id="createFolderModal">
     <div class="modal-content">
@@ -607,6 +808,29 @@
       </div>
       <div class="modal-actions">
         <button class="btn btn-secondary" id="cancelSelectFolder">Отмена</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Модальное окно создания чата -->
+  <div class="modal" id="createChatModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title">Создать чат</h2>
+        <button class="close-modal" id="closeCreateChat">&times;</button>
+      </div>
+      <input type="text" class="modal-input" id="chatNameInput" placeholder="Название чата">
+      <select class="modal-input" id="chatTypeSelect">
+        <option value="private">Личный чат</option>
+        <option value="group">Групповой чат</option>
+      </select>
+      <select class="modal-input" id="chatPrivacySelect">
+        <option value="public">Публичный</option>
+        <option value="private">Приватный</option>
+      </select>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" id="cancelCreateChat">Отмена</button>
+        <button class="btn btn-primary" id="confirmCreateChat">Создать</button>
       </div>
     </div>
   </div>
@@ -658,6 +882,11 @@
     // Генерация ID
     function generateId() {
       return Date.now().toString(36) + Math.random().toString(36).substr(2);
+    }
+
+    // Хеширование пароля
+    function hashPassword(password) {
+      return CryptoJS.SHA256(password).toString();
     }
 
     // Инициализация при загрузке
@@ -764,7 +993,7 @@
         return userChats.filter(chat => chat.type === 'group').length;
       }
       if (folderId === 'favorites') {
-        return userChats.filter(chat => chat.type === 'favorites').length;
+        return 1; // Избранное всегда есть
       }
       
       // Для пользовательских папок
@@ -802,7 +1031,7 @@
             shouldShow = chat.type === 'group';
             break;
           case 'favorites':
-            shouldShow = chat.type === 'favorites';
+            shouldShow = chat.id === 'favorites';
             break;
           default:
             // Пользовательские папки
@@ -854,12 +1083,6 @@
           chatDataArray.filter(chat => chat !== null).forEach(chat => {
             userChats.push(chat);
           });
-        }
-        
-        if (userChats.length === 0) {
-          document.getElementById('loadingContainer').style.display = 'none';
-          document.getElementById('noChats').style.display = 'block';
-          return;
         }
         
         // Отображаем чаты
@@ -918,10 +1141,9 @@
       // Обработчики для чата
       chatItem.addEventListener('click', () => {
         if (chat.type === 'favorites') {
-          // Для избранного создаем специальную страницу
           window.location.href = `https://hamburgerchat.github.io/favorites.html`;
         } else {
-          window.location.href = `https://hamburgerchat.github.io/chat.html?=${chat.id}`;
+          window.location.href = `https://hamburgerchat.github.io/chat.html?id=${chat.id}`;
         }
       });
       
@@ -978,6 +1200,13 @@
       
       meta.appendChild(type);
       
+      // Бейдж для закрепленных чатов
+      if (pinnedChats.includes(chat.id)) {
+        const pinBadge = document.createElement('div');
+        pinBadge.innerHTML = '<i class="fas fa-thumbtack" style="color: var(--accent-color); font-size: 0.7rem;"></i>';
+        meta.appendChild(pinBadge);
+      }
+      
       info.appendChild(header);
       info.appendChild(lastMessage);
       info.appendChild(meta);
@@ -986,6 +1215,104 @@
       chatItem.appendChild(info);
       
       document.getElementById('chatList').appendChild(chatItem);
+    }
+
+    // Показать контекстное меню
+    function showContextMenu(e, chatId, chat) {
+      currentContextChat = { id: chatId, ...chat };
+      
+      const contextMenu = document.getElementById('contextMenu');
+      contextMenu.style.display = 'block';
+      contextMenu.style.left = e.pageX + 'px';
+      contextMenu.style.top = e.pageY + 'px';
+      
+      // Обновляем текст для закрепления/открепления
+      const pinBtn = document.getElementById('pinChatBtn');
+      if (pinnedChats.includes(chatId)) {
+        pinBtn.innerHTML = '<i class="fas fa-thumbtack"></i><span>Открепить</span>';
+      } else {
+        pinBtn.innerHTML = '<i class="fas fa-thumbtack"></i><span>Закрепить</span>';
+      }
+      
+      // Обновляем текст для уведомлений
+      const muteBtn = document.getElementById('muteChatBtn');
+      if (mutedChats.includes(chatId)) {
+        muteBtn.innerHTML = '<i class="fas fa-bell"></i><span>Включить уведомления</span>';
+      } else {
+        muteBtn.innerHTML = '<i class="fas fa-bell-slash"></i><span>Отключить уведомления</span>';
+      }
+    }
+
+    // Скрыть контекстное меню
+    function hideContextMenu() {
+      document.getElementById('contextMenu').style.display = 'none';
+    }
+
+    // Закрепить/открепить чат
+    function togglePinChat(chatId) {
+      if (pinnedChats.includes(chatId)) {
+        pinnedChats = pinnedChats.filter(id => id !== chatId);
+      } else {
+        pinnedChats.push(chatId);
+      }
+      localStorage.setItem('hamburger_pinned_chats', JSON.stringify(pinnedChats));
+      
+      // Обновляем отображение
+      const chatItem = document.querySelector(`[data-chat-id="${chatId}"]`);
+      if (chatItem) {
+        if (pinnedChats.includes(chatId)) {
+          chatItem.classList.add('pinned');
+        } else {
+          chatItem.classList.remove('pinned');
+        }
+      }
+      
+      sortChats();
+      hideContextMenu();
+    }
+
+    // Включить/выключить уведомления
+    function toggleMuteChat(chatId) {
+      if (mutedChats.includes(chatId)) {
+        mutedChats = mutedChats.filter(id => id !== chatId);
+      } else {
+        mutedChats.push(chatId);
+      }
+      localStorage.setItem('hamburger_muted_chats', JSON.stringify(mutedChats));
+      hideContextMenu();
+    }
+
+    // Удалить чат
+    function deleteChat(chatId) {
+      if (confirm('Вы уверены, что хотите удалить этот чат?')) {
+        // Удаляем из всех папок
+        folders.forEach(folder => {
+          if (folder.chatIds && folder.chatIds.includes(chatId)) {
+            folder.chatIds = folder.chatIds.filter(id => id !== chatId);
+          }
+        });
+        
+        // Удаляем из закрепленных
+        pinnedChats = pinnedChats.filter(id => id !== chatId);
+        localStorage.setItem('hamburger_pinned_chats', JSON.stringify(pinnedChats));
+        
+        // Удаляем из списка чатов пользователя
+        userChats = userChats.filter(chat => chat.id !== chatId);
+        
+        // Удаляем из Firebase
+        database.ref(`userChats/${currentUserId}/${chatId}`).remove();
+        
+        // Удаляем из DOM
+        const chatItem = document.querySelector(`[data-chat-id="${chatId}"]`);
+        if (chatItem) {
+          chatItem.remove();
+        }
+        
+        // Обновляем счетчики папок
+        renderFolders();
+        filterChatsByFolder();
+      }
+      hideContextMenu();
     }
 
     // Сортировка чатов
@@ -998,7 +1325,13 @@
         
         if (aPinned && !bPinned) return -1;
         if (!aPinned && bPinned) return 1;
-        return 0;
+        
+        // Сортировка по времени последнего сообщения
+        const aChat = userChats.find(c => c.id === a.dataset.chatId);
+        const bChat = userChats.find(c => c.id === b.dataset.chatId);
+        
+        if (!aChat || !bChat) return 0;
+        return (bChat.lastMessageTime || 0) - (aChat.lastMessageTime || 0);
       });
       
       // Переставляем элементы в правильном порядке
@@ -1018,6 +1351,255 @@
       } else {
         return date.toLocaleDateString('ru-RU');
       }
+    }
+
+    // Поиск пользователей и чатов
+    async function performSearch(query) {
+      if (!query.trim()) {
+        document.getElementById('searchResults').innerHTML = '<div style="text-align: center; padding: 2rem; color: var(--text-secondary);">Введите запрос для поиска</div>';
+        return;
+      }
+      
+      try {
+        // Поиск пользователей
+        const usersRef = database.ref('users');
+        const snapshot = await usersRef.once('value');
+        
+        const results = [];
+        
+        if (snapshot.exists()) {
+          const users = snapshot.val();
+          
+          for (const userId in users) {
+            if (userId === currentUserId) continue; // Пропускаем текущего пользователя
+            
+            const userData = users[userId];
+            const decryptedData = decryptData(userData.encryptedData);
+            
+            if (decryptedData && decryptedData.username) {
+              const username = decryptedData.username.toLowerCase();
+              if (username.includes(query.toLowerCase())) {
+                results.push({
+                  type: 'user',
+                  id: userId,
+                  name: decryptedData.username,
+                  avatar: decryptedData.avatar
+                });
+              }
+            }
+          }
+        }
+        
+        // Поиск чатов
+        const chatsRef = database.ref('chats');
+        const chatsSnapshot = await chatsRef.once('value');
+        
+        if (chatsSnapshot.exists()) {
+          const chats = chatsSnapshot.val();
+          
+          for (const chatId in chats) {
+            const chatData = chats[chatId];
+            const decryptedData = decryptData(chatData.encryptedData);
+            
+            if (decryptedData && decryptedData.name) {
+              const chatName = decryptedData.name.toLowerCase();
+              if (chatName.includes(query.toLowerCase()) && decryptedData.privacy === 'public') {
+                results.push({
+                  type: 'chat',
+                  id: chatId,
+                  name: decryptedData.name,
+                  avatar: decryptedData.avatar,
+                  chatType: decryptedData.type
+                });
+              }
+            }
+          }
+        }
+        
+        // Отображаем результаты
+        displaySearchResults(results, query);
+        
+      } catch (error) {
+        console.error('Ошибка поиска:', error);
+        document.getElementById('searchResults').innerHTML = '<div style="text-align: center; padding: 2rem; color: var(--danger-color);">Ошибка поиска</div>';
+      }
+    }
+
+    // Отображение результатов поиска
+    function displaySearchResults(results, query) {
+      const resultsContainer = document.getElementById('searchResults');
+      
+      if (results.length === 0) {
+        resultsContainer.innerHTML = `
+          <div style="text-align: center; padding: 3rem 2rem; color: var(--text-secondary);">
+            <i class="fas fa-search" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+            <h3>Ничего не найдено</h3>
+            <p>По запросу "${query}" ничего не найдено</p>
+          </div>
+        `;
+        return;
+      }
+      
+      resultsContainer.innerHTML = '';
+      
+      results.forEach(result => {
+        const resultItem = document.createElement('div');
+        resultItem.className = 'search-result-item';
+        
+        resultItem.innerHTML = `
+          <div class="result-avatar">
+            ${result.avatar ? 
+              `<img src="${result.avatar}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">` : 
+              result.name.charAt(0).toUpperCase()}
+          </div>
+          <div class="result-info">
+            <div class="result-name">${result.name}</div>
+            <div class="result-type">${result.type === 'user' ? 'Пользователь' : result.chatType === 'group' ? 'Групповой чат' : 'Личный чат'}</div>
+          </div>
+        `;
+        
+        resultItem.addEventListener('click', () => {
+          if (result.type === 'user') {
+            // Создаем или открываем личный чат с пользователем
+            createOrOpenPrivateChat(result.id, result.name);
+          } else {
+            // Присоединяемся к чату
+            joinChat(result.id);
+          }
+        });
+        
+        resultsContainer.appendChild(resultItem);
+      });
+    }
+
+    // Создание или открытие личного чата
+    async function createOrOpenPrivateChat(userId, username) {
+      try {
+        // Проверяем, есть ли уже чат с этим пользователем
+        const existingChat = userChats.find(chat => 
+          chat.type === 'private' && 
+          chat.participants && 
+          chat.participants.includes(userId)
+        );
+        
+        if (existingChat) {
+          // Открываем существующий чат
+          window.location.href = `https://hamburgerchat.github.io/chat.html?id=${existingChat.id}`;
+          return;
+        }
+        
+        // Создаем новый чат
+        const chatId = generateId();
+        const chatData = {
+          id: chatId,
+          name: username,
+          type: 'private',
+          participants: [currentUserId, userId],
+          createdAt: Date.now(),
+          lastMessage: 'Чат создан',
+          lastMessageTime: Date.now(),
+          privacy: 'private'
+        };
+        
+        // Шифруем и сохраняем
+        const encryptedData = encryptData(chatData);
+        await database.ref(`chats/${chatId}`).set({ encryptedData });
+        
+        // Добавляем чат обоим пользователям
+        await database.ref(`userChats/${currentUserId}/${chatId}`).set(true);
+        await database.ref(`userChats/${userId}/${chatId}`).set(true);
+        
+        // Закрываем поиск и открываем чат
+        document.getElementById('searchContainer').style.display = 'none';
+        window.location.href = `https://hamburgerchat.github.io/chat.html?id=${chatId}`;
+        
+      } catch (error) {
+        console.error('Ошибка создания чата:', error);
+        alert('Ошибка создания чата');
+      }
+    }
+
+    // Присоединение к чату
+    async function joinChat(chatId) {
+      try {
+        // Добавляем чат пользователю
+        await database.ref(`userChats/${currentUserId}/${chatId}`).set(true);
+        
+        // Закрываем поиск
+        document.getElementById('searchContainer').style.display = 'none';
+        
+        // Показываем уведомление
+        alert('Вы присоединились к чату');
+        
+        // Перезагружаем чаты
+        await loadUserChats();
+        
+      } catch (error) {
+        console.error('Ошибка присоединения к чату:', error);
+        alert('Ошибка присоединения к чату');
+      }
+    }
+
+    // Создание нового чата
+    async function createNewChat() {
+      const name = document.getElementById('chatNameInput').value.trim();
+      const type = document.getElementById('chatTypeSelect').value;
+      const privacy = document.getElementById('chatPrivacySelect').value;
+      
+      if (!name) {
+        alert('Введите название чата');
+        return;
+      }
+      
+      try {
+        const chatId = generateId();
+        const chatData = {
+          id: chatId,
+          name: name,
+          type: type,
+          participants: [currentUserId],
+          createdAt: Date.now(),
+          lastMessage: 'Чат создан',
+          lastMessageTime: Date.now(),
+          privacy: privacy,
+          admin: currentUserId
+        };
+        
+        // Шифруем и сохраняем
+        const encryptedData = encryptData(chatData);
+        await database.ref(`chats/${chatId}`).set({ encryptedData });
+        
+        // Добавляем чат пользователю
+        await database.ref(`userChats/${currentUserId}/${chatId}`).set(true);
+        
+        // Закрываем модальное окно
+        document.getElementById('createChatModal').style.display = 'none';
+        document.getElementById('chatNameInput').value = '';
+        
+        // Показываем уведомление
+        alert('Чат создан успешно!');
+        
+        // Перезагружаем чаты
+        await loadUserChats();
+        
+      } catch (error) {
+        console.error('Ошибка создания чата:', error);
+        alert('Ошибка создания чата');
+      }
+    }
+
+    // Переключение темы
+    function toggleTheme() {
+      currentTheme = currentTheme === 'light' ? 'dark' : 'light';
+      document.documentElement.setAttribute('data-theme', currentTheme);
+      localStorage.setItem('hamburger_theme', currentTheme);
+    }
+
+    // Выход из аккаунта
+    function logout() {
+      localStorage.removeItem('hamburger_user');
+      localStorage.removeItem('hamburger_user_id');
+      window.location.href = 'https://hamburgerchat.github.io/';
     }
 
     // Настройка обработчиков событий
@@ -1048,7 +1630,72 @@
         document.getElementById('selectFolderModal').style.display = 'none';
       });
 
-      // Остальные обработчики...
+      // Создание чата
+      document.getElementById('confirmCreateChat').addEventListener('click', createNewChat);
+      document.getElementById('cancelCreateChat').addEventListener('click', () => {
+        document.getElementById('createChatModal').style.display = 'none';
+      });
+      document.getElementById('closeCreateChat').addEventListener('click', () => {
+        document.getElementById('createChatModal').style.display = 'none';
+      });
+
+      // Контекстное меню
+      document.getElementById('pinChatBtn').addEventListener('click', () => {
+        if (currentContextChat) togglePinChat(currentContextChat.id);
+      });
+      document.getElementById('addToFolderBtn').addEventListener('click', () => {
+        if (currentContextChat) showFolderSelection(currentContextChat.id);
+      });
+      document.getElementById('muteChatBtn').addEventListener('click', () => {
+        if (currentContextChat) toggleMuteChat(currentContextChat.id);
+      });
+      document.getElementById('deleteChatBtn').addEventListener('click', () => {
+        if (currentContextChat) deleteChat(currentContextChat.id);
+      });
+
+      // Закрытие контекстного меню при клике вне его
+      document.addEventListener('click', hideContextMenu);
+
+      // Поиск
+      document.getElementById('searchToggle').addEventListener('click', () => {
+        document.getElementById('searchContainer').style.display = 'flex';
+        document.getElementById('searchInput').focus();
+      });
+      document.getElementById('closeSearch').addEventListener('click', () => {
+        document.getElementById('searchContainer').style.display = 'none';
+      });
+      document.getElementById('searchInput').addEventListener('input', (e) => {
+        performSearch(e.target.value);
+      });
+
+      // Меню профиля
+      document.getElementById('profileBtn').addEventListener('click', (e) => {
+        e.stopPropagation();
+        const profileMenu = document.getElementById('profileMenu');
+        profileMenu.style.display = profileMenu.style.display === 'block' ? 'none' : 'block';
+      });
+      document.getElementById('themeToggleBtn').addEventListener('click', toggleTheme);
+      document.getElementById('logoutBtn').addEventListener('click', logout);
+      document.getElementById('profileSettingsBtn').addEventListener('click', () => {
+        window.location.href = 'https://hamburgerchat.github.io/profile.html';
+      });
+
+      // Закрытие меню профиля при клике вне его
+      document.addEventListener('click', () => {
+        document.getElementById('profileMenu').style.display = 'none';
+      });
+
+      // Создание чата
+      document.getElementById('createChatBtn').addEventListener('click', () => {
+        document.getElementById('createChatModal').style.display = 'flex';
+      });
+
+      // Три точки (дополнительное меню)
+      document.getElementById('menuToggle').addEventListener('click', () => {
+        // Показываем простое меню с настройками
+        const profileMenu = document.getElementById('profileMenu');
+        profileMenu.style.display = profileMenu.style.display === 'block' ? 'none' : 'block';
+      });
     }
 
     // Создание новой папки
@@ -1100,7 +1747,6 @@
     function showFolderSelection(chatId) {
       const customFolders = folders.filter(f => f.type === 'custom');
       if (customFolders.length === 0) {
-        // Если нет пользовательских папок, показываем сообщение
         alert('Сначала создайте папку');
         return;
       }
@@ -1149,28 +1795,33 @@
         renderFolders();
         
         // Показываем уведомление
-        const notification = document.createElement('div');
-        notification.style.cssText = `
-          position: fixed;
-          top: 20px;
-          right: 20px;
-          background: var(--success-color);
-          color: white;
-          padding: 1rem;
-          border-radius: 0.5rem;
-          z-index: 3000;
-        `;
-        notification.textContent = `Чат добавлен в папку "${folder.name}"`;
-        document.body.appendChild(notification);
-        
-        setTimeout(() => {
-          document.body.removeChild(notification);
-        }, 3000);
+        showNotification(`Чат добавлен в папку "${folder.name}"`, 'success');
       }
     }
 
-    // Остальные функции...
-
+    // Показать уведомление
+    function showNotification(message, type = 'info') {
+      const notification = document.createElement('div');
+      notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: ${type === 'success' ? 'var(--success-color)' : 'var(--accent-color)'};
+        color: white;
+        padding: 1rem 1.5rem;
+        border-radius: 0.5rem;
+        z-index: 3000;
+        box-shadow: var(--shadow);
+      `;
+      notification.textContent = message;
+      document.body.appendChild(notification);
+      
+      setTimeout(() => {
+        if (document.body.contains(notification)) {
+          document.body.removeChild(notification);
+        }
+      }, 3000);
+    }
   </script>
 </body>
 </html>
