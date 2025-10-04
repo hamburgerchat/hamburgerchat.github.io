@@ -1,0 +1,1295 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hamburger — Чат</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+  <style>
+    :root {
+      --bg-primary: #ffffff;
+      --bg-secondary: #f8f9fa;
+      --bg-tertiary: #f1f3f4;
+      --text-primary: #1f2937;
+      --text-secondary: #6b7280;
+      --text-tertiary: #9ca3af;
+      --border-color: #e5e7eb;
+      --accent-color: #ff7f50;
+      --accent-gradient: linear-gradient(135deg, #ff7f50, #ffcc70);
+      --chat-bg-gradient: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+      --shadow: 0 1px 3px rgba(0,0,0,0.1);
+      --card-bg: #ffffff;
+      --hover-bg: #f3f4f6;
+      --danger-color: #ef4444;
+      --success-color: #10b981;
+      --message-bg: #ffffff;
+      --own-message-bg: #dcf8c6;
+      --role-creator: #ff6b35;
+      --role-admin: #4ecdc4;
+      --role-member: #6b7280;
+    }
+
+    [data-theme="dark"] {
+      --bg-primary: #111827;
+      --bg-secondary: #1f2937;
+      --bg-tertiary: #374151;
+      --text-primary: #f9fafb;
+      --text-secondary: #d1d5db;
+      --text-tertiary: #9ca3af;
+      --border-color: #374151;
+      --card-bg: #1f2937;
+      --hover-bg: #374151;
+      --chat-bg-gradient: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+      --shadow: 0 1px 3px rgba(0,0,0,0.3);
+      --message-bg: #374151;
+      --own-message-bg: #2563eb;
+      --role-creator: #f97316;
+      --role-admin: #0d9488;
+      --role-member: #9ca3af;
+    }
+
+    * { 
+      box-sizing: border-box; 
+      margin: 0; 
+      padding: 0; 
+      font-family: 'Inter', sans-serif; 
+    }
+    
+    body {
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+    
+    .chat-container {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      background: var(--chat-bg-gradient);
+      position: relative;
+    }
+    
+    /* Шапка чата */
+    .chat-header {
+      background: var(--bg-primary);
+      padding: 0.8rem 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border-color);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(10px);
+    }
+    
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex: 1;
+    }
+    
+    .back-button {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: none;
+      background: transparent;
+      color: var(--text-secondary);
+      font-size: 1.2rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+    }
+    
+    .back-button:hover {
+      background: var(--hover-bg);
+    }
+    
+    .chat-info {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+    }
+    
+    .chat-avatar {
+      width: 45px;
+      height: 45px;
+      border-radius: 50%;
+      background: var(--accent-gradient);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      color: white;
+      font-size: 1.1rem;
+    }
+    
+    .chat-avatar.has-image {
+      background-size: cover;
+      background-position: center;
+    }
+    
+    .chat-details {
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .chat-name {
+      font-weight: 600;
+      font-size: 1.1rem;
+      color: var(--text-primary);
+    }
+    
+    .chat-status {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+    }
+    
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .menu-toggle {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: none;
+      background: transparent;
+      color: var(--text-secondary);
+      font-size: 1.2rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+    }
+    
+    .menu-toggle:hover {
+      background: var(--hover-bg);
+    }
+    
+    /* Область сообщений */
+    .messages-container {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
+    }
+    
+    .message {
+      display: flex;
+      gap: 0.8rem;
+      max-width: 70%;
+      animation: messageAppear 0.3s ease;
+    }
+    
+    .message.own {
+      align-self: flex-end;
+      flex-direction: row-reverse;
+    }
+    
+    @keyframes messageAppear {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    .message-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--accent-gradient);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      color: white;
+      font-size: 0.9rem;
+      flex-shrink: 0;
+    }
+    
+    .message-avatar.has-image {
+      background-size: cover;
+      background-position: center;
+    }
+    
+    .message-content {
+      background: var(--message-bg);
+      border-radius: 1.2rem;
+      padding: 0.8rem 1rem;
+      box-shadow: var(--shadow);
+      position: relative;
+      min-width: 120px;
+    }
+    
+    .message.own .message-content {
+      background: var(--own-message-bg);
+    }
+    
+    .message-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.3rem;
+    }
+    
+    .sender-name {
+      font-weight: 600;
+      font-size: 0.85rem;
+      color: var(--text-primary);
+    }
+    
+    .message-role {
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 0.1rem 0.5rem;
+      border-radius: 0.8rem;
+      background: var(--role-member);
+      color: white;
+    }
+    
+    .role-creator {
+      background: var(--role-creator);
+    }
+    
+    .role-admin {
+      background: var(--role-admin);
+    }
+    
+    .message-text {
+      font-size: 0.95rem;
+      line-height: 1.4;
+      color: var(--text-primary);
+      word-wrap: break-word;
+    }
+    
+    .message-image {
+      max-width: 300px;
+      max-height: 300px;
+      border-radius: 0.8rem;
+      margin-top: 0.5rem;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+    
+    .message-image:hover {
+      transform: scale(1.02);
+    }
+    
+    .message-time {
+      font-size: 0.75rem;
+      color: var(--text-tertiary);
+      text-align: right;
+      margin-top: 0.3rem;
+    }
+    
+    .message.own .message-time {
+      text-align: left;
+    }
+    
+    /* Панель ввода */
+    .input-container {
+      background: var(--bg-primary);
+      padding: 1rem;
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      align-items: flex-end;
+      gap: 0.8rem;
+    }
+    
+    .attachment-btn, .sticker-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      border: none;
+      background: transparent;
+      color: var(--text-secondary);
+      font-size: 1.2rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+      flex-shrink: 0;
+    }
+    
+    .attachment-btn:hover, .sticker-btn:hover {
+      background: var(--hover-bg);
+      color: var(--accent-color);
+    }
+    
+    .message-input-wrapper {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .message-input {
+      width: 100%;
+      min-height: 44px;
+      max-height: 120px;
+      padding: 0.8rem 1rem;
+      border: 1px solid var(--border-color);
+      border-radius: 1.5rem;
+      font-size: 1rem;
+      resize: none;
+      outline: none;
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      transition: border 0.2s ease;
+    }
+    
+    .message-input:focus {
+      border-color: var(--accent-color);
+    }
+    
+    .send-button {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      border: none;
+      background: var(--accent-gradient);
+      color: white;
+      font-size: 1.2rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+      flex-shrink: 0;
+    }
+    
+    .send-button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 4px 12px rgba(255, 127, 80, 0.3);
+    }
+    
+    .send-button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+    
+    /* Меню настроек чата */
+    .chat-menu {
+      display: none;
+      position: fixed;
+      top: 70px;
+      right: 1rem;
+      background: var(--card-bg);
+      border-radius: 0.8rem;
+      box-shadow: var(--shadow);
+      z-index: 1000;
+      animation: fadeIn 0.2s ease;
+      min-width: 220px;
+      border: 1px solid var(--border-color);
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .menu-item {
+      padding: 1rem 1.5rem;
+      cursor: pointer;
+      transition: background 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+    
+    .menu-item:last-child {
+      border-bottom: none;
+    }
+    
+    .menu-item:hover {
+      background: var(--hover-bg);
+    }
+    
+    .menu-icon {
+      width: 20px;
+      text-align: center;
+      color: var(--text-secondary);
+    }
+    
+    .menu-text {
+      font-size: 0.9rem;
+      color: var(--text-primary);
+    }
+    
+    .menu-danger {
+      color: var(--danger-color);
+    }
+    
+    .menu-danger .menu-icon {
+      color: var(--danger-color);
+    }
+    
+    /* Оверлей */
+    .overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.3);
+      z-index: 999;
+    }
+    
+    /* Стикеры */
+    .sticker-picker {
+      display: none;
+      position: absolute;
+      bottom: 80px;
+      left: 1rem;
+      background: var(--card-bg);
+      border-radius: 0.8rem;
+      box-shadow: var(--shadow);
+      padding: 1rem;
+      z-index: 1000;
+      max-width: 300px;
+      border: 1px solid var(--border-color);
+    }
+    
+    .sticker-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.5rem;
+    }
+    
+    .sticker {
+      width: 60px;
+      height: 60px;
+      cursor: pointer;
+      border-radius: 0.5rem;
+      transition: transform 0.2s ease;
+    }
+    
+    .sticker:hover {
+      transform: scale(1.1);
+    }
+    
+    /* Загрузка */
+    .loading-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      padding: 2rem;
+      color: var(--text-secondary);
+    }
+    
+    .loading-spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid var(--border-color);
+      border-top: 3px solid var(--accent-color);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-bottom: 1rem;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Адаптивность */
+    @media (max-width: 768px) {
+      .message {
+        max-width: 85%;
+      }
+      
+      .message-image {
+        max-width: 250px;
+        max-height: 250px;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .message {
+        max-width: 90%;
+      }
+      
+      .message-image {
+        max-width: 200px;
+        max-height: 200px;
+      }
+      
+      .sticker-picker {
+        max-width: 280px;
+      }
+      
+      .sticker-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="chat-container">
+    <!-- Шапка чата -->
+    <div class="chat-header">
+      <div class="header-left">
+        <button class="back-button" id="backButton">
+          <i class="fas fa-arrow-left"></i>
+        </button>
+        <div class="chat-info">
+          <div class="chat-avatar" id="chatAvatar">
+            <span id="chatAvatarInitial">C</span>
+          </div>
+          <div class="chat-details">
+            <div class="chat-name" id="chatName">Загрузка...</div>
+            <div class="chat-status" id="chatStatus">Подключение...</div>
+          </div>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button class="menu-toggle" id="menuToggle">
+          <i class="fas fa-ellipsis-v"></i>
+        </button>
+      </div>
+    </div>
+    
+    <!-- Область сообщений -->
+    <div class="messages-container" id="messagesContainer">
+      <div class="loading-container" id="loadingContainer">
+        <div class="loading-spinner"></div>
+        <div>Загрузка сообщений...</div>
+      </div>
+      <!-- Сообщения будут добавляться здесь -->
+    </div>
+    
+    <!-- Панель ввода -->
+    <div class="input-container">
+      <button class="attachment-btn" id="attachmentBtn">
+        <i class="fas fa-image"></i>
+      </button>
+      <input type="file" id="imageUpload" accept="image/*" style="display: none;">
+      
+      <button class="sticker-btn" id="stickerBtn">
+        <i class="fas fa-smile"></i>
+      </button>
+      
+      <div class="message-input-wrapper">
+        <textarea class="message-input" id="messageInput" placeholder="Введите сообщение..." rows="1"></textarea>
+      </div>
+      
+      <button class="send-button" id="sendButton" disabled>
+        <i class="fas fa-paper-plane"></i>
+      </button>
+    </div>
+    
+    <!-- Выбор стикеров -->
+    <div class="sticker-picker" id="stickerPicker">
+      <div class="sticker-grid">
+        <!-- Стикеры будут добавляться динамически -->
+        <img src="https://via.placeholder.com/60x60/ff7f50/ffffff?text=😊" class="sticker" data-sticker="😊">
+        <img src="https://via.placeholder.com/60x60/ff7f50/ffffff?text=😂" class="sticker" data-sticker="😂">
+        <img src="https://via.placeholder.com/60x60/ff7f50/ffffff?text=❤️" class="sticker" data-sticker="❤️">
+        <img src="https://via.placeholder.com/60x60/ff7f50/ffffff?text=🔥" class="sticker" data-sticker="🔥">
+        <img src="https://via.placeholder.com/60x60/ff7f50/ffffff?text=🎉" class="sticker" data-sticker="🎉">
+        <img src="https://via.placeholder.com/60x60/ff7f50/ffffff?text=👍" class="sticker" data-sticker="👍">
+        <img src="https://via.placeholder.com/60x60/ff7f50/ffffff?text=👋" class="sticker" data-sticker="👋">
+        <img src="https://via.placeholder.com/60x60/ff7f50/ffffff?text=💯" class="sticker" data-sticker="💯">
+      </div>
+    </div>
+  </div>
+  
+  <!-- Оверлей -->
+  <div class="overlay" id="overlay"></div>
+  
+  <!-- Меню настроек чата -->
+  <div class="chat-menu" id="chatMenu">
+    <div class="menu-item" data-action="mute">
+      <div class="menu-icon">
+        <i class="fas fa-bell-slash"></i>
+      </div>
+      <div class="menu-text" id="muteText">Отключить уведомления</div>
+    </div>
+    <div class="menu-item" data-action="favorite">
+      <div class="menu-icon">
+        <i class="fas fa-star"></i>
+      </div>
+      <div class="menu-text" id="favoriteText">Добавить в избранное</div>
+    </div>
+    <div class="menu-item" data-action="clear">
+      <div class="menu-icon">
+        <i class="fas fa-trash"></i>
+      </div>
+      <div class="menu-text">Очистить историю</div>
+    </div>
+    <div class="menu-item menu-danger" data-action="leave" id="leaveChatItem" style="display: none;">
+      <div class="menu-icon">
+        <i class="fas fa-sign-out-alt"></i>
+      </div>
+      <div class="menu-text">Покинуть группу</div>
+    </div>
+  </div>
+
+  <script>
+    // Инициализация Firebase
+    const firebaseConfig = {
+      databaseURL: "https://hamburgerchat-e8f2a-default-rtdb.firebaseio.com/"
+    };
+    
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+    
+    // Ключ для шифрования
+    const ENCRYPTION_KEY = "HamburgerSecureKey2024!";
+    
+    // Текущий пользователь и данные
+    let currentUser = null;
+    let currentUserId = null;
+    let currentTheme = localStorage.getItem('hamburger_theme') || 'light';
+    let currentChatId = null;
+    let currentChatData = null;
+    let messagesRef = null;
+    let chatRef = null;
+    let isGroupChat = false;
+
+    // Применяем тему
+    document.documentElement.setAttribute('data-theme', currentTheme);
+
+    // Функции шифрования/дешифрования
+    function encryptData(data) {
+      return CryptoJS.AES.encrypt(JSON.stringify(data), ENCRYPTION_KEY).toString();
+    }
+    
+    function decryptData(encryptedData) {
+      try {
+        const bytes = CryptoJS.AES.decrypt(encryptedData, ENCRYPTION_KEY);
+        const decrypted = bytes.toString(CryptoJS.enc.Utf8);
+        return decrypted ? JSON.parse(decrypted) : null;
+      } catch (e) {
+        console.error('Ошибка дешифрования:', e);
+        return null;
+      }
+    }
+
+    // Конвертация изображения в Data URL
+    function convertImageToDataUrl(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (e) => resolve(e.target.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
+    // Загрузка изображения на сервер через ImgBB API
+    async function uploadImageToServer(dataUrl) {
+      try {
+        const apiKey = "02cf7a0dc37b8a8adaedc9784752a3db";
+        const formData = new FormData();
+        formData.append("image", dataUrl.split(",")[1]);
+        formData.append("key", apiKey);
+
+        const response = await fetch("https://api.imgbb.com/1/upload", {
+          method: "POST",
+          body: formData,
+        });
+        
+        const data = await response.json();
+        return data.data?.url || '';
+      } catch (error) {
+        console.error('Ошибка загрузки изображения:', error);
+        return '';
+      }
+    }
+
+    // Получение ID чата из URL
+    function getChatIdFromUrl() {
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get('=');
+    }
+
+    // Инициализация при загрузке
+    window.addEventListener('DOMContentLoaded', async () => {
+      // Проверка авторизации
+      currentUser = localStorage.getItem('hamburger_user');
+      currentUserId = localStorage.getItem('hamburger_user_id');
+      
+      if (!currentUser || !currentUserId) {
+        window.location.href = 'https://hamburgerchat.github.io/';
+        return;
+      }
+      
+      // Получаем ID чата
+      currentChatId = getChatIdFromUrl();
+      if (!currentChatId) {
+        alert('Чат не найден');
+        window.location.href = 'https://hamburgerchat.github.io/main.html';
+        return;
+      }
+      
+      // Загружаем данные чата
+      await loadChatData();
+      
+      // Настройка обработчиков событий
+      setupEventListeners();
+    });
+
+    // Загрузка данных чата
+    async function loadChatData() {
+      try {
+        chatRef = database.ref(`chats/${currentChatId}`);
+        const snapshot = await chatRef.once('value');
+        
+        if (!snapshot.exists()) {
+          alert('Чат не найден');
+          window.location.href = 'https://hamburgerchat.github.io/main.html';
+          return;
+        }
+        
+        const chatData = snapshot.val();
+        currentChatData = decryptData(chatData.encryptedData);
+        
+        if (!currentChatData) {
+          alert('Ошибка загрузки чата');
+          window.location.href = 'https://hamburgerchat.github.io/main.html';
+          return;
+        }
+        
+        // Обновляем информацию в шапке
+        updateChatHeader();
+        
+        // Загружаем сообщения
+        await loadMessages();
+        
+        // Скрываем загрузку
+        document.getElementById('loadingContainer').style.display = 'none';
+        
+      } catch (error) {
+        console.error('Ошибка загрузки чата:', error);
+        alert('Ошибка загрузки чата');
+      }
+    }
+
+    // Обновление шапки чата
+    function updateChatHeader() {
+      const chatName = document.getElementById('chatName');
+      const chatAvatar = document.getElementById('chatAvatar');
+      const chatStatus = document.getElementById('chatStatus');
+      const chatAvatarInitial = document.getElementById('chatAvatarInitial');
+      
+      chatName.textContent = currentChatData.name;
+      
+      if (currentChatData.avatar) {
+        chatAvatar.style.backgroundImage = `url(${currentChatData.avatar})`;
+        chatAvatar.classList.add('has-image');
+        chatAvatarInitial.style.display = 'none';
+      } else {
+        chatAvatarInitial.textContent = currentChatData.name.charAt(0).toUpperCase();
+      }
+      
+      // Определяем тип чата
+      isGroupChat = currentChatData.type === 'group';
+      
+      if (isGroupChat) {
+        const participantCount = currentChatData.participants ? currentChatData.participants.length : 1;
+        chatStatus.textContent = `${participantCount} участников`;
+        document.getElementById('leaveChatItem').style.display = 'block';
+      } else {
+        chatStatus.textContent = 'в сети';
+        document.getElementById('leaveChatItem').style.display = 'none';
+      }
+    }
+
+    // Загрузка сообщений
+    async function loadMessages() {
+      messagesRef = database.ref(`messages/${currentChatId}`);
+      
+      // Загружаем существующие сообщения
+      const snapshot = await messagesRef.once('value');
+      
+      if (snapshot.exists()) {
+        const messages = snapshot.val();
+        const messagesArray = [];
+        
+        for (const messageId in messages) {
+          const messageData = messages[messageId];
+          const decryptedData = decryptData(messageData.encryptedData);
+          
+          if (decryptedData) {
+            messagesArray.push({
+              id: messageId,
+              ...decryptedData
+            });
+          }
+        }
+        
+        // Сортируем по времени
+        messagesArray.sort((a, b) => a.timestamp - b.timestamp);
+        
+        // Отображаем сообщения
+        messagesArray.forEach(message => {
+          displayMessage(message);
+        });
+      }
+      
+      // Слушаем новые сообщения
+      messagesRef.on('child_added', (snapshot) => {
+        const messageData = snapshot.val();
+        const decryptedData = decryptData(messageData.encryptedData);
+        
+        if (decryptedData) {
+          displayMessage({
+            id: snapshot.key,
+            ...decryptedData
+          });
+        }
+      });
+    }
+
+    // Отображение сообщения
+    function displayMessage(message) {
+      const messagesContainer = document.getElementById('messagesContainer');
+      const messageElement = document.createElement('div');
+      
+      const isOwnMessage = message.sender === currentUser;
+      messageElement.className = `message ${isOwnMessage ? 'own' : ''}`;
+      messageElement.dataset.messageId = message.id;
+      
+      // Определяем роль отправителя
+      let role = 'Участник';
+      let roleClass = 'message-role';
+      
+      if (isGroupChat) {
+        if (message.sender === currentChatData.createdBy) {
+          role = 'Создатель';
+          roleClass += ' role-creator';
+        } else if (currentChatData.admins && currentChatData.admins.includes(message.sender)) {
+          role = 'Админ';
+          roleClass += ' role-admin';
+        }
+      } else {
+        role = '';
+        roleClass = '';
+      }
+      
+      let avatarContent = '';
+      if (message.senderAvatar) {
+        avatarContent = `<div class="message-avatar has-image" style="background-image: url(${message.senderAvatar})"></div>`;
+      } else {
+        avatarContent = `<div class="message-avatar">${message.sender.charAt(0).toUpperCase()}</div>`;
+      }
+      
+      let messageContent = '';
+      if (message.image) {
+        messageContent = `
+          <div class="message-header">
+            <div class="sender-name">${message.sender}</div>
+            ${role ? `<div class="${roleClass}">${role}</div>` : ''}
+          </div>
+          <img src="${message.image}" class="message-image" alt="Изображение">
+          ${message.text ? `<div class="message-text">${message.text}</div>` : ''}
+          <div class="message-time">${formatTime(message.timestamp)}</div>
+        `;
+      } else if (message.sticker) {
+        messageContent = `
+          <div class="message-header">
+            <div class="sender-name">${message.sender}</div>
+            ${role ? `<div class="${roleClass}">${role}</div>` : ''}
+          </div>
+          <div class="message-text" style="font-size: 2rem; text-align: center;">${message.sticker}</div>
+          <div class="message-time">${formatTime(message.timestamp)}</div>
+        `;
+      } else {
+        messageContent = `
+          <div class="message-header">
+            <div class="sender-name">${message.sender}</div>
+            ${role ? `<div class="${roleClass}">${role}</div>` : ''}
+          </div>
+          <div class="message-text">${message.text}</div>
+          <div class="message-time">${formatTime(message.timestamp)}</div>
+        `;
+      }
+      
+      messageElement.innerHTML = `
+        ${!isOwnMessage ? avatarContent : ''}
+        <div class="message-content">
+          ${messageContent}
+        </div>
+        ${isOwnMessage ? avatarContent : ''}
+      `;
+      
+      messagesContainer.appendChild(messageElement);
+      
+      // Прокручиваем к последнему сообщению
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    // Форматирование времени
+    function formatTime(timestamp) {
+      const date = new Date(timestamp);
+      return date.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+    }
+
+    // Настройка обработчиков событий
+    function setupEventListeners() {
+      // Кнопка назад
+      document.getElementById('backButton').addEventListener('click', () => {
+        window.location.href = 'https://hamburgerchat.github.io/main.html';
+      });
+      
+      // Меню чата
+      document.getElementById('menuToggle').addEventListener('click', (e) => {
+        e.stopPropagation();
+        const chatMenu = document.getElementById('chatMenu');
+        chatMenu.style.display = chatMenu.style.display === 'block' ? 'none' : 'block';
+        document.getElementById('overlay').style.display = chatMenu.style.display === 'block' ? 'block' : 'none';
+      });
+      
+      // Действия меню
+      document.querySelectorAll('.menu-item').forEach(item => {
+        item.addEventListener('click', function() {
+          const action = this.dataset.action;
+          handleMenuAction(action);
+        });
+      });
+      
+      // Ввод сообщения
+      const messageInput = document.getElementById('messageInput');
+      const sendButton = document.getElementById('sendButton');
+      
+      messageInput.addEventListener('input', function() {
+        sendButton.disabled = this.value.trim() === '';
+        
+        // Автоматическое увеличение высоты
+        this.style.height = 'auto';
+        this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+      });
+      
+      messageInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter' && !e.shiftKey) {
+          e.preventDefault();
+          if (!sendButton.disabled) {
+            sendMessage();
+          }
+        }
+      });
+      
+      // Отправка сообщения
+      sendButton.addEventListener('click', sendMessage);
+      
+      // Прикрепление фото
+      document.getElementById('attachmentBtn').addEventListener('click', () => {
+        document.getElementById('imageUpload').click();
+      });
+      
+      document.getElementById('imageUpload').addEventListener('change', handleImageUpload);
+      
+      // Стикеры
+      document.getElementById('stickerBtn').addEventListener('click', (e) => {
+        e.stopPropagation();
+        const stickerPicker = document.getElementById('stickerPicker');
+        stickerPicker.style.display = stickerPicker.style.display === 'block' ? 'none' : 'block';
+      });
+      
+      document.querySelectorAll('.sticker').forEach(sticker => {
+        sticker.addEventListener('click', function() {
+          sendSticker(this.dataset.sticker);
+          document.getElementById('stickerPicker').style.display = 'none';
+        });
+      });
+      
+      // Закрытие меню и стикеров по клику на оверлей
+      document.getElementById('overlay').addEventListener('click', closeAllModals);
+      
+      // Закрытие стикеров по клику вне
+      document.addEventListener('click', (e) => {
+        if (!e.target.closest('.sticker-picker') && !e.target.closest('#stickerBtn')) {
+          document.getElementById('stickerPicker').style.display = 'none';
+        }
+      });
+    }
+
+    // Отправка сообщения
+    async function sendMessage() {
+      const messageInput = document.getElementById('messageInput');
+      const text = messageInput.value.trim();
+      
+      if (!text) return;
+      
+      try {
+        const messageId = Date.now().toString();
+        const messageData = {
+          text: text,
+          sender: currentUser,
+          timestamp: Date.now(),
+          type: 'text'
+        };
+        
+        const encryptedData = encryptData(messageData);
+        
+        await database.ref(`messages/${currentChatId}/${messageId}`).set({
+          encryptedData: encryptedData,
+          timestamp: Date.now()
+        });
+        
+        // Обновляем последнее сообщение в чате
+        await updateLastMessage(text);
+        
+        // Очищаем поле ввода
+        messageInput.value = '';
+        messageInput.style.height = 'auto';
+        document.getElementById('sendButton').disabled = true;
+        
+      } catch (error) {
+        console.error('Ошибка отправки сообщения:', error);
+        alert('Ошибка отправки сообщения');
+      }
+    }
+
+    // Отправка стикера
+    async function sendSticker(sticker) {
+      try {
+        const messageId = Date.now().toString();
+        const messageData = {
+          sticker: sticker,
+          sender: currentUser,
+          timestamp: Date.now(),
+          type: 'sticker'
+        };
+        
+        const encryptedData = encryptData(messageData);
+        
+        await database.ref(`messages/${currentChatId}/${messageId}`).set({
+          encryptedData: encryptedData,
+          timestamp: Date.now()
+        });
+        
+        await updateLastMessage('Стикер');
+        
+      } catch (error) {
+        console.error('Ошибка отправки стикера:', error);
+        alert('Ошибка отправки стикера');
+      }
+    }
+
+    // Обработка загрузки изображения
+    async function handleImageUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      
+      if (!file.type.startsWith('image/')) {
+        alert('Пожалуйста, выберите изображение');
+        return;
+      }
+      
+      try {
+        // Показываем уведомление о загрузке
+        const originalText = document.getElementById('sendButton').innerHTML;
+        document.getElementById('sendButton').innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+        document.getElementById('sendButton').disabled = true;
+        
+        const dataUrl = await convertImageToDataUrl(file);
+        const imageUrl = await uploadImageToServer(dataUrl);
+        
+        if (!imageUrl) {
+          throw new Error('Не удалось загрузить изображение');
+        }
+        
+        // Отправляем сообщение с изображением
+        const messageId = Date.now().toString();
+        const messageText = document.getElementById('messageInput').value.trim();
+        
+        const messageData = {
+          text: messageText,
+          image: imageUrl,
+          sender: currentUser,
+          timestamp: Date.now(),
+          type: 'image'
+        };
+        
+        const encryptedData = encryptData(messageData);
+        
+        await database.ref(`messages/${currentChatId}/${messageId}`).set({
+          encryptedData: encryptedData,
+          timestamp: Date.now()
+        });
+        
+        await updateLastMessage(messageText || 'Изображение');
+        
+        // Очищаем поле ввода
+        document.getElementById('messageInput').value = '';
+        document.getElementById('imageUpload').value = '';
+        
+      } catch (error) {
+        console.error('Ошибка загрузки изображения:', error);
+        alert('Ошибка при загрузке изображения');
+      } finally {
+        // Восстанавливаем кнопку
+        document.getElementById('sendButton').innerHTML = '<i class="fas fa-paper-plane"></i>';
+        document.getElementById('sendButton').disabled = document.getElementById('messageInput').value.trim() === '';
+      }
+    }
+
+    // Обновление последнего сообщения в чате
+    async function updateLastMessage(lastMessage) {
+      if (!currentChatData) return;
+      
+      currentChatData.lastMessage = lastMessage;
+      currentChatData.lastMessageTime = Date.now();
+      
+      const encryptedData = encryptData(currentChatData);
+      
+      await database.ref(`chats/${currentChatId}`).update({
+        encryptedData: encryptedData
+      });
+    }
+
+    // Обработка действий меню
+    function handleMenuAction(action) {
+      switch (action) {
+        case 'mute':
+          toggleMuteChat();
+          break;
+        case 'favorite':
+          toggleFavoriteChat();
+          break;
+        case 'clear':
+          clearChatHistory();
+          break;
+        case 'leave':
+          leaveGroupChat();
+          break;
+      }
+      closeAllModals();
+    }
+
+    // Переключение уведомлений
+    function toggleMuteChat() {
+      const mutedChats = JSON.parse(localStorage.getItem('hamburger_muted_chats') || '[]');
+      const isMuted = mutedChats.includes(currentChatId);
+      
+      if (isMuted) {
+        const index = mutedChats.indexOf(currentChatId);
+        mutedChats.splice(index, 1);
+        alert('Уведомления включены');
+      } else {
+        mutedChats.push(currentChatId);
+        alert('Уведомления отключены');
+      }
+      
+      localStorage.setItem('hamburger_muted_chats', JSON.stringify(mutedChats));
+      updateMuteButton();
+    }
+
+    // Обновление кнопки отключения звука
+    function updateMuteButton() {
+      const mutedChats = JSON.parse(localStorage.getItem('hamburger_muted_chats') || '[]');
+      const isMuted = mutedChats.includes(currentChatId);
+      
+      document.getElementById('muteText').textContent = isMuted ? 
+        'Включить уведомления' : 'Отключить уведомления';
+    }
+
+    // Добавление в избранное
+    function toggleFavoriteChat() {
+      const favoriteChats = JSON.parse(localStorage.getItem('hamburger_favorite_chats') || '[]');
+      const isFavorite = favoriteChats.includes(currentChatId);
+      
+      if (isFavorite) {
+        const index = favoriteChats.indexOf(currentChatId);
+        favoriteChats.splice(index, 1);
+        alert('Чат удален из избранного');
+      } else {
+        favoriteChats.push(currentChatId);
+        alert('Чат добавлен в избранное');
+      }
+      
+      localStorage.setItem('hamburger_favorite_chats', JSON.stringify(favoriteChats));
+      updateFavoriteButton();
+    }
+
+    // Обновление кнопки избранного
+    function updateFavoriteButton() {
+      const favoriteChats = JSON.parse(localStorage.getItem('hamburger_favorite_chats') || '[]');
+      const isFavorite = favoriteChats.includes(currentChatId);
+      
+      document.getElementById('favoriteText').textContent = isFavorite ? 
+        'Удалить из избранного' : 'Добавить в избранное';
+    }
+
+    // Очистка истории чата
+    async function clearChatHistory() {
+      if (!confirm('Вы уверены, что хотите очистить историю чата?')) return;
+      
+      try {
+        await database.ref(`messages/${currentChatId}`).remove();
+        document.getElementById('messagesContainer').innerHTML = '';
+      } catch (error) {
+        console.error('Ошибка очистки истории:', error);
+        alert('Ошибка при очистке истории');
+      }
+    }
+
+    // Выход из группового чата
+    async function leaveGroupChat() {
+      if (!isGroupChat) return;
+      
+      if (!confirm('Вы уверены, что хотите покинуть группу?')) return;
+      
+      try {
+        // Удаляем чат из списка пользователя
+        await database.ref(`userChats/${currentUserId}/${currentChatId}`).remove();
+        
+        // Удаляем пользователя из участников чата
+        if (currentChatData.participants) {
+          const participantIndex = currentChatData.participants.indexOf(currentUser);
+          if (participantIndex > -1) {
+            currentChatData.participants.splice(participantIndex, 1);
+            
+            const encryptedData = encryptData(currentChatData);
+            await database.ref(`chats/${currentChatId}`).update({
+              encryptedData: encryptedData
+            });
+          }
+        }
+        
+        alert('Вы покинули группу');
+        window.location.href = 'https://hamburgerchat.github.io/main.html';
+        
+      } catch (error) {
+        console.error('Ошибка выхода из группы:', error);
+        alert('Ошибка при выходе из группы');
+      }
+    }
+
+    // Закрытие всех модальных окон
+    function closeAllModals() {
+      document.getElementById('chatMenu').style.display = 'none';
+      document.getElementById('stickerPicker').style.display = 'none';
+      document.getElementById('overlay').style.display = 'none';
+    }
+  </script>
+</body>
+</html>
