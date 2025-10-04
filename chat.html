@@ -20,24 +20,48 @@
       --border-color: #e5e7eb;
       --accent-color: #ff7f50;
       --accent-gradient: linear-gradient(135deg, #ff7f50, #ffcc70);
+      --chat-bg: #f0f2f5;
       --shadow: 0 1px 3px rgba(0,0,0,0.1);
+      --shadow-light: 0 1px 2px rgba(0,0,0,0.05);
       --card-bg: #ffffff;
       --hover-bg: #f3f4f6;
       --danger-color: #ef4444;
       --success-color: #10b981;
+      --message-bg: #ffffff;
+      --own-message-bg: #e3f2fd;
+      --role-creator: #ff6b35;
+      --role-admin: #4ecdc4;
+      --role-member: #94a3b8;
+      --online-color: #10b981;
+      --typing-color: #f59e0b;
+      --reply-bg: #f8f9fa;
+      --service-bg: rgba(255, 127, 80, 0.1);
+      --service-text: #ff7f50;
+      --read-color: #2563eb;
     }
 
     [data-theme="dark"] {
-      --bg-primary: #111827;
-      --bg-secondary: #1f2937;
-      --bg-tertiary: #374151;
-      --text-primary: #f9fafb;
-      --text-secondary: #d1d5db;
-      --text-tertiary: #9ca3af;
-      --border-color: #374151;
-      --card-bg: #1f2937;
-      --hover-bg: #374151;
+      --bg-primary: #0f172a;
+      --bg-secondary: #1e293b;
+      --bg-tertiary: #334155;
+      --text-primary: #f1f5f9;
+      --text-secondary: #cbd5e1;
+      --text-tertiary: #94a3b8;
+      --border-color: #334155;
+      --card-bg: #1e293b;
+      --hover-bg: #334155;
+      --chat-bg: #0f172a;
       --shadow: 0 1px 3px rgba(0,0,0,0.3);
+      --shadow-light: 0 1px 2px rgba(0,0,0,0.2);
+      --message-bg: #1e293b;
+      --own-message-bg: #1e3a5f;
+      --role-creator: #fdba74;
+      --role-admin: #5eead4;
+      --role-member: #64748b;
+      --reply-bg: #334155;
+      --service-bg: rgba(253, 186, 116, 0.15);
+      --service-text: #fdba74;
+      --read-color: #60a5fa;
     }
 
     * { 
@@ -57,18 +81,17 @@
       transition: all 0.3s ease;
     }
     
-    .app-container {
+    .chat-container {
       display: flex;
       flex-direction: column;
       height: 100vh;
-      background: var(--bg-primary);
-      width: 100%;
+      background: var(--chat-bg);
       position: relative;
     }
     
-    .header {
+    .chat-header {
       background: var(--bg-primary);
-      padding: 0.8rem 1rem;
+      padding: 0.7rem 1rem;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -76,21 +99,29 @@
       position: sticky;
       top: 0;
       z-index: 100;
+      min-height: 60px;
+    }
+    
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      flex: 1;
     }
     
     .back-button {
-      background: none;
-      border: none;
-      font-size: 1.3rem;
-      color: var(--text-secondary);
-      cursor: pointer;
-      width: 40px;
-      height: 40px;
+      width: 36px;
+      height: 36px;
       border-radius: 50%;
+      border: none;
+      background: transparent;
+      color: var(--text-secondary);
+      font-size: 1.1rem;
+      cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      margin-right: 0.5rem;
+      transition: all 0.2s ease;
     }
     
     .back-button:hover {
@@ -98,10 +129,10 @@
     }
     
     .chat-info {
-      flex: 1;
       display: flex;
       align-items: center;
       gap: 0.8rem;
+      cursor: pointer;
     }
     
     .chat-avatar {
@@ -114,7 +145,7 @@
       justify-content: center;
       font-weight: 600;
       color: white;
-      flex-shrink: 0;
+      font-size: 1rem;
     }
     
     .chat-avatar.has-image {
@@ -123,34 +154,30 @@
     }
     
     .chat-details {
-      flex: 1;
-      min-width: 0;
+      display: flex;
+      flex-direction: column;
     }
     
-    .chat-title {
+    .chat-name {
       font-weight: 600;
-      font-size: 1.1rem;
+      font-size: 1rem;
       color: var(--text-primary);
-      margin-bottom: 0.2rem;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
     }
     
     .chat-status {
-      font-size: 0.8rem;
+      font-size: 0.75rem;
       color: var(--text-secondary);
     }
     
     .header-actions {
       display: flex;
       align-items: center;
-      gap: 0.5rem;
+      gap: 0.3rem;
     }
     
-    .header-btn {
-      width: 38px;
-      height: 38px;
+    .menu-toggle {
+      width: 36px;
+      height: 36px;
       border-radius: 50%;
       border: none;
       background: transparent;
@@ -163,122 +190,287 @@
       transition: all 0.2s ease;
     }
     
-    .header-btn:hover {
+    .menu-toggle:hover {
       background: var(--hover-bg);
     }
     
-    /* Контейнер сообщений */
     .messages-container {
       flex: 1;
       overflow-y: auto;
-      background: var(--bg-primary);
-      padding: 1rem;
+      padding: 1rem 0.8rem;
       display: flex;
       flex-direction: column;
-      padding-bottom: 100px; /* Фикс для телефона */
+      gap: 0.3rem;
+      scroll-behavior: smooth;
+      padding-bottom: 100px;
     }
     
     .message {
-      max-width: 70%;
-      margin-bottom: 1rem;
-      padding: 0.8rem 1rem;
-      border-radius: 1rem;
+      display: flex;
+      max-width: 85%;
       position: relative;
-      word-wrap: break-word;
     }
     
-    .message.received {
-      align-self: flex-start;
-      background: var(--bg-secondary);
-      border-bottom-left-radius: 0.3rem;
-    }
-    
-    .message.sent {
+    .message.own {
       align-self: flex-end;
+      margin-left: auto;
+    }
+    
+    .message.group:not(.own) {
+      padding-left: 40px;
+    }
+    
+    .message-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
       background: var(--accent-gradient);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
       color: white;
-      border-bottom-right-radius: 0.3rem;
+      font-size: 0.8rem;
+      position: absolute;
+      left: 0;
+      bottom: 2px;
+      cursor: pointer;
+    }
+    
+    .message-content {
+      background: var(--message-bg);
+      border-radius: 12px;
+      padding: 0.6rem 0.8rem;
+      box-shadow: var(--shadow-light);
+      position: relative;
+      min-width: 60px;
+      border: 1px solid rgba(0,0,0,0.05);
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+    
+    .message.own .message-content {
+      background: var(--own-message-bg);
     }
     
     .message-header {
       display: flex;
-      justify-content: space-between;
       align-items: center;
-      margin-bottom: 0.3rem;
-      font-size: 0.8rem;
-      opacity: 0.8;
+      gap: 0.5rem;
+      margin-bottom: 0.2rem;
     }
     
-    .message-sender {
+    .sender-name {
       font-weight: 600;
+      font-size: 0.8rem;
+      color: var(--text-primary);
+      cursor: pointer;
+    }
+    
+    .message-role {
+      font-size: 0.65rem;
+      font-weight: 600;
+      padding: 0.1rem 0.4rem;
+      border-radius: 8px;
+      background: var(--role-member);
+      color: white;
+    }
+    
+    .role-creator {
+      background: var(--role-creator);
+    }
+    
+    .role-admin {
+      background: var(--role-admin);
+    }
+    
+    .message-text {
+      font-size: 0.9rem;
+      line-height: 1.4;
+      color: var(--text-primary);
+      word-wrap: break-word;
+    }
+    
+    .message-image {
+      max-width: 250px;
+      max-height: 250px;
+      border-radius: 8px;
+      margin-top: 0.4rem;
+      cursor: pointer;
     }
     
     .message-time {
       font-size: 0.7rem;
+      color: var(--text-tertiary);
+      text-align: right;
+      margin-top: 0.2rem;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 0.3rem;
     }
     
-    .message-content {
-      line-height: 1.4;
+    .message.own .message-time {
+      text-align: left;
+      justify-content: flex-start;
     }
     
-    .message-sticker {
-      max-width: 200px;
-      border-radius: 0.5rem;
+    .message-status {
+      display: flex;
+      gap: 0.1rem;
     }
     
-    .message-actions {
+    .status-icon {
+      font-size: 0.6rem;
+      color: var(--text-tertiary);
+    }
+    
+    .status-icon.read {
+      color: var(--read-color);
+    }
+    
+    .reactions {
+      display: flex;
+      gap: 0.3rem;
+      margin-top: 0.3rem;
+      flex-wrap: wrap;
+    }
+    
+    .reaction {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 0.1rem 0.4rem;
+      font-size: 0.7rem;
+      display: flex;
+      align-items: center;
+      gap: 0.2rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      position: relative;
+    }
+    
+    .reaction:hover {
+      transform: scale(1.1);
+    }
+    
+    .reaction-count {
+      font-size: 0.6rem;
+      color: var(--text-secondary);
+    }
+    
+    .reaction-users {
       position: absolute;
-      top: -30px;
-      right: 0;
+      bottom: 100%;
+      left: 50%;
+      transform: translateX(-50%);
       background: var(--card-bg);
-      border-radius: 0.5rem;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 0.5rem;
+      font-size: 0.7rem;
+      white-space: nowrap;
+      z-index: 10;
       box-shadow: var(--shadow);
       display: none;
-      z-index: 10;
     }
     
-    .message:hover .message-actions {
-      display: flex;
+    .reaction:hover .reaction-users {
+      display: block;
     }
     
-    .message-action {
-      padding: 0.5rem;
+    .reply-preview {
+      background: var(--reply-bg);
+      border-left: 3px solid var(--accent-color);
+      padding: 0.4rem 0.6rem;
+      border-radius: 6px;
+      margin-bottom: 0.4rem;
+      font-size: 0.8rem;
       cursor: pointer;
-      color: var(--text-secondary);
-      transition: color 0.2s ease;
     }
     
-    .message-action:hover {
+    .reply-sender {
+      font-weight: 600;
       color: var(--accent-color);
+      margin-bottom: 0.1rem;
     }
     
-    /* Панель ввода */
-    .input-container {
+    .reply-text {
+      color: var(--text-secondary);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    
+    .reply-container {
       background: var(--bg-primary);
-      border-top: 1px solid var(--border-color);
-      padding: 1rem;
-      position: sticky;
-      bottom: 0;
-      z-index: 90;
-    }
-    
-    .input-wrapper {
+      padding: 0.6rem 1rem;
+      border-bottom: 1px solid var(--border-color);
       display: flex;
-      align-items: flex-end;
-      gap: 0.8rem;
-      background: var(--bg-secondary);
-      border-radius: 1.5rem;
-      padding: 0.5rem 1rem;
+      align-items: center;
+      justify-content: space-between;
     }
     
-    .attachment-btn, .sticker-btn, .send-btn {
+    .reply-info {
+      flex: 1;
+    }
+    
+    .reply-label {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      margin-bottom: 0.2rem;
+    }
+    
+    .reply-content {
+      font-size: 0.9rem;
+      color: var(--text-primary);
+    }
+    
+    .cancel-reply {
       background: none;
       border: none;
       color: var(--text-secondary);
-      font-size: 1.2rem;
       cursor: pointer;
-      padding: 0.5rem;
+      font-size: 1rem;
+      padding: 0.3rem;
       border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .cancel-reply:hover {
+      background: var(--hover-bg);
+    }
+    
+    .input-container {
+      background: var(--bg-primary);
+      padding: 0.8rem;
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      align-items: flex-end;
+      gap: 0.6rem;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 90;
+    }
+    
+    .attachment-btn, .sticker-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: none;
+      background: transparent;
+      color: var(--text-secondary);
+      font-size: 1.1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       transition: all 0.2s ease;
       flex-shrink: 0;
     }
@@ -288,46 +480,245 @@
       color: var(--accent-color);
     }
     
-    .send-btn {
-      background: var(--accent-color);
-      color: white;
-    }
-    
-    .send-btn:hover {
-      background: var(--accent-color);
-      transform: scale(1.1);
+    .message-input-wrapper {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
     }
     
     .message-input {
-      flex: 1;
-      border: none;
-      outline: none;
-      background: transparent;
-      font-size: 1rem;
-      color: var(--text-primary);
+      width: 100%;
+      min-height: 36px;
+      max-height: 100px;
+      padding: 0.6rem 0.8rem;
+      border: 1px solid var(--border-color);
+      border-radius: 18px;
+      font-size: 0.9rem;
       resize: none;
-      max-height: 120px;
-      min-height: 20px;
-      padding: 0.5rem 0;
+      outline: none;
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      transition: border 0.2s ease;
+      line-height: 1.4;
     }
     
-    /* Панель стикеров */
+    .message-input:focus {
+      border-color: var(--accent-color);
+    }
+    
+    .send-button {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: none;
+      background: var(--accent-color);
+      color: white;
+      font-size: 1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+      flex-shrink: 0;
+    }
+    
+    .send-button:hover:not(:disabled) {
+      background: #ff6b35;
+      transform: scale(1.05);
+    }
+    
+    .send-button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+    
+    .service-message {
+      text-align: center;
+      margin: 0.8rem 0;
+      padding: 0.4rem 1rem;
+      align-self: center;
+      max-width: 80%;
+    }
+    
+    .service-content {
+      background: var(--service-bg);
+      color: var(--service-text);
+      padding: 0.4rem 1.2rem;
+      border-radius: 16px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      display: inline-block;
+      border: 1px solid var(--service-bg);
+    }
+    
+    .chat-menu {
+      display: none;
+      position: fixed;
+      top: 60px;
+      right: 1rem;
+      background: var(--card-bg);
+      border-radius: 12px;
+      box-shadow: var(--shadow);
+      z-index: 1000;
+      animation: fadeIn 0.2s ease;
+      min-width: 200px;
+      border: 1px solid var(--border-color);
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .menu-item {
+      padding: 1rem 1.2rem;
+      cursor: pointer;
+      transition: background 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+    
+    .menu-item:last-child {
+      border-bottom: none;
+    }
+    
+    .menu-item:hover {
+      background: var(--hover-bg);
+    }
+    
+    .menu-icon {
+      width: 16px;
+      text-align: center;
+      color: var(--text-secondary);
+    }
+    
+    .menu-text {
+      font-size: 0.9rem;
+      color: var(--text-primary);
+    }
+    
+    .menu-danger {
+      color: var(--danger-color);
+    }
+    
+    .menu-danger .menu-icon {
+      color: var(--danger-color);
+    }
+    
+    .overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.3);
+      z-index: 999;
+    }
+    
+    .message-context-menu {
+      display: none;
+      position: fixed;
+      background: var(--card-bg);
+      border-radius: 12px;
+      box-shadow: var(--shadow);
+      z-index: 1001;
+      animation: fadeIn 0.2s ease;
+      min-width: 180px;
+      border: 1px solid var(--border-color);
+    }
+    
+    .context-header {
+      padding: 1rem;
+      border-bottom: 1px solid var(--border-color);
+      text-align: center;
+      font-weight: 600;
+    }
+    
+    .reaction-buttons {
+      display: flex;
+      justify-content: space-around;
+      padding: 0.8rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+    
+    .reaction-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+      font-size: 1.2rem;
+      background: none;
+      border: none;
+    }
+    
+    .reaction-btn:hover {
+      transform: scale(1.2);
+      background: var(--hover-bg);
+    }
+    
+    .context-item {
+      padding: 0.8rem 1rem;
+      cursor: pointer;
+      transition: background 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+    
+    .context-item:last-child {
+      border-bottom: none;
+    }
+    
+    .context-item:hover {
+      background: var(--hover-bg);
+    }
+    
+    .context-icon {
+      width: 16px;
+      text-align: center;
+      color: var(--text-secondary);
+    }
+    
+    .context-text {
+      font-size: 0.85rem;
+      color: var(--text-primary);
+    }
+    
+    .context-danger {
+      color: var(--danger-color);
+    }
+    
+    .context-danger .context-icon {
+      color: var(--danger-color);
+    }
+    
     .sticker-panel {
       display: none;
       position: fixed;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      height: 300px;
-      background: var(--bg-primary);
-      border-top: 1px solid var(--border-color);
+      bottom: 70px;
+      left: 1rem;
+      right: 1rem;
+      background: var(--card-bg);
+      border-radius: 12px;
+      box-shadow: var(--shadow);
+      padding: 1rem;
       z-index: 1000;
+      max-height: 300px;
+      border: 1px solid var(--border-color);
       flex-direction: column;
     }
     
     .sticker-search {
-      padding: 1rem;
-      border-bottom: 1px solid var(--border-color);
+      margin-bottom: 1rem;
     }
     
     .sticker-search input {
@@ -343,6 +734,7 @@
     .sticker-tabs {
       display: flex;
       border-bottom: 1px solid var(--border-color);
+      margin-bottom: 1rem;
     }
     
     .sticker-tab {
@@ -364,7 +756,6 @@
     .sticker-packs {
       flex: 1;
       overflow-y: auto;
-      padding: 1rem;
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
       gap: 0.8rem;
@@ -467,8 +858,36 @@
       font-weight: 600;
     }
     
-    /* Закреплённое сообщение */
+    .loading-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      padding: 2rem;
+      color: var(--text-secondary);
+    }
+    
+    .loading-spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid var(--border-color);
+      border-top: 3px solid var(--accent-color);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-bottom: 1rem;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
     .pinned-message {
+      border-left: 3px solid var(--accent-color);
+    }
+
+    .pinned-message-top {
       background: var(--bg-secondary);
       border-left: 3px solid var(--accent-color);
       padding: 0.8rem;
@@ -497,132 +916,53 @@
       float: right;
       padding: 0.2rem 0.5rem;
     }
-    
-    /* Контекстное меню */
-    .context-menu {
-      display: none;
-      position: fixed;
-      background: var(--card-bg);
-      border-radius: 0.8rem;
-      box-shadow: var(--shadow);
-      z-index: 1000;
-      animation: fadeIn 0.2s ease;
-      min-width: 200px;
-      border: 1px solid var(--border-color);
-    }
-    
-    .context-item {
-      padding: 1rem 1.5rem;
-      cursor: pointer;
-      transition: background 0.2s ease;
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      border-bottom: 1px solid var(--border-color);
-    }
-    
-    .context-item:last-child {
-      border-bottom: none;
-    }
-    
-    .context-item:hover {
-      background: var(--hover-bg);
-    }
-    
-    .context-icon {
-      width: 20px;
-      text-align: center;
-      color: #666;
-    }
-    
-    .context-text {
-      font-size: 0.9rem;
-      color: var(--text-primary);
-    }
-    
-    .overlay {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0,0,0,0.3);
-      z-index: 999;
-    }
-    
-    .loading-container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100%;
-      padding: 2rem;
-      color: var(--text-secondary);
-    }
-    
-    .loading-spinner {
-      width: 40px;
-      height: 40px;
-      border: 3px solid var(--border-color);
-      border-top: 3px solid var(--accent-color);
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-      margin-bottom: 1rem;
-    }
-    
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-    
-    @keyframes fadeIn {
-      0% { opacity: 0; }
-      100% { opacity: 1; }
-    }
 
-    /* Адаптивность */
-    @media (max-width: 768px) {
-      .message {
-        max-width: 85%;
+    @media (max-width: 480px) {
+      .messages-container {
+        padding: 0.8rem 0.6rem;
+        padding-bottom: 100px;
       }
       
-      .messages-container {
-        padding-bottom: 120px;
+      .message {
+        max-width: 90%;
+      }
+      
+      .input-container {
+        padding: 0.7rem;
+      }
+      
+      .sticker-panel {
+        left: 0.5rem;
+        right: 0.5rem;
       }
     }
   </style>
 </head>
 <body>
-  <div class="app-container">
-    <!-- Шапка чата -->
-    <div class="header">
-      <button class="back-button" id="backButton">
-        <i class="fas fa-arrow-left"></i>
-      </button>
-      
-      <div class="chat-info">
-        <div class="chat-avatar" id="chatAvatar">
-          <span id="chatAvatarInitial">C</span>
-        </div>
-        <div class="chat-details">
-          <div class="chat-title" id="chatTitle">Загрузка...</div>
-          <div class="chat-status" id="chatStatus">Подключение...</div>
+  <div class="chat-container">
+    <div class="chat-header">
+      <div class="header-left">
+        <button class="back-button" id="backButton">
+          <i class="fas fa-arrow-left"></i>
+        </button>
+        <div class="chat-info" id="chatInfo">
+          <div class="chat-avatar" id="chatAvatar">
+            <span id="chatAvatarInitial">C</span>
+          </div>
+          <div class="chat-details">
+            <div class="chat-name" id="chatName">Загрузка...</div>
+            <div class="chat-status" id="chatStatus">Подключение...</div>
+          </div>
         </div>
       </div>
-      
       <div class="header-actions">
-        <button class="header-btn" id="searchBtn">
-          <i class="fas fa-search"></i>
-        </button>
-        <button class="header-btn" id="menuBtn">
+        <button class="menu-toggle" id="menuToggle">
           <i class="fas fa-ellipsis-v"></i>
         </button>
       </div>
     </div>
     
-    <!-- Закреплённое сообщение -->
-    <div class="pinned-message" id="pinnedMessage">
+    <div class="pinned-message-top" id="pinnedMessageTop">
       <button class="unpin-btn" id="unpinBtn">
         <i class="fas fa-times"></i>
       </button>
@@ -630,7 +970,16 @@
       <div class="pinned-message-info" id="pinnedMessageInfo"></div>
     </div>
     
-    <!-- Контейнер сообщений -->
+    <div class="reply-container" id="replyContainer" style="display: none;">
+      <div class="reply-info">
+        <div class="reply-label">Ответ на сообщение</div>
+        <div class="reply-content" id="replyContent"></div>
+      </div>
+      <button class="cancel-reply" id="cancelReply">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    
     <div class="messages-container" id="messagesContainer">
       <div class="loading-container" id="loadingContainer">
         <div class="loading-spinner"></div>
@@ -638,30 +987,28 @@
       </div>
     </div>
     
-    <!-- Панель ввода -->
     <div class="input-container">
-      <div class="input-wrapper">
-        <button class="attachment-btn" id="attachmentBtn">
-          <i class="fas fa-paperclip"></i>
-        </button>
-        
+      <button class="attachment-btn" id="attachmentBtn">
+        <i class="fas fa-image"></i>
+      </button>
+      <input type="file" id="imageUpload" accept="image/*" style="display: none;">
+      
+      <button class="sticker-btn" id="stickerBtn">
+        <i class="fas fa-smile"></i>
+      </button>
+      
+      <div class="message-input-wrapper">
         <textarea class="message-input" id="messageInput" placeholder="Введите сообщение..." rows="1"></textarea>
-        
-        <button class="sticker-btn" id="stickerBtn">
-          <i class="fas fa-smile"></i>
-        </button>
-        
-        <button class="send-btn" id="sendBtn">
-          <i class="fas fa-paper-plane"></i>
-        </button>
       </div>
+      
+      <button class="send-button" id="sendButton" disabled>
+        <i class="fas fa-paper-plane"></i>
+      </button>
     </div>
   </div>
   
-  <!-- Оверлей -->
   <div class="overlay" id="overlay"></div>
   
-  <!-- Панель стикеров -->
   <div class="sticker-panel" id="stickerPanel">
     <div class="sticker-search">
       <input type="text" id="stickerSearch" placeholder="Поиск стикерпаков...">
@@ -671,16 +1018,13 @@
       <button class="sticker-tab" data-tab="search">Поиск</button>
     </div>
     <div class="sticker-packs" id="stickerPacks">
-      <!-- Стикерпаки будут здесь -->
     </div>
   </div>
   
-  <!-- Просмотр стикерпака -->
   <div class="sticker-view" id="stickerView">
     <div class="sticker-view-content">
       <h3 id="stickerPackTitle">Название пака</h3>
       <div class="sticker-view-stickers" id="stickerViewStickers">
-        <!-- Стикеры пака -->
       </div>
       <div class="sticker-view-actions">
         <button class="close-sticker-view" id="closeStickerView">Закрыть</button>
@@ -689,19 +1033,53 @@
     </div>
   </div>
   
-  <!-- Контекстное меню -->
-  <div class="context-menu" id="contextMenu">
-    <div class="context-item" data-action="pin">
-      <div class="context-icon">
-        <i class="fas fa-thumbtack"></i>
+  <div class="chat-menu" id="chatMenu">
+    <div class="menu-item" data-action="mute">
+      <div class="menu-icon">
+        <i class="fas fa-bell-slash"></i>
       </div>
-      <div class="context-text" id="pinText">Закрепить</div>
+      <div class="menu-text" id="muteText">Отключить уведомления</div>
+    </div>
+    <div class="menu-item" data-action="clear">
+      <div class="menu-icon">
+        <i class="fas fa-trash"></i>
+      </div>
+      <div class="menu-text">Очистить историю</div>
+    </div>
+    <div class="menu-item menu-danger" data-action="leave" id="leaveChatItem" style="display: none;">
+      <div class="menu-icon">
+        <i class="fas fa-sign-out-alt"></i>
+      </div>
+      <div class="menu-text">Покинуть группу</div>
+    </div>
+  </div>
+
+  <div class="message-context-menu" id="messageContextMenu">
+    <div class="context-header">Сообщение</div>
+    <div class="reaction-buttons">
+      <button class="reaction-btn" data-reaction="👍">👍</button>
+      <button class="reaction-btn" data-reaction="❤️">❤️</button>
+      <button class="reaction-btn" data-reaction="😂">😂</button>
+      <button class="reaction-btn" data-reaction="😮">😮</button>
+      <button class="reaction-btn" data-reaction="😢">😢</button>
     </div>
     <div class="context-item" data-action="reply">
       <div class="context-icon">
         <i class="fas fa-reply"></i>
       </div>
       <div class="context-text">Ответить</div>
+    </div>
+    <div class="context-item" data-action="copy">
+      <div class="context-icon">
+        <i class="fas fa-copy"></i>
+      </div>
+      <div class="context-text">Копировать</div>
+    </div>
+    <div class="context-item" data-action="pin">
+      <div class="context-icon">
+        <i class="fas fa-thumbtack"></i>
+      </div>
+      <div class="context-text" id="pinText">Закрепить</div>
     </div>
     <div class="context-item context-danger" data-action="delete">
       <div class="context-icon">
@@ -712,31 +1090,35 @@
   </div>
 
   <script>
-    // Инициализация Firebase
     const firebaseConfig = {
       databaseURL: "https://hamburgerchat-e8f2a-default-rtdb.firebaseio.com/"
     };
     
-    firebase.initializeApp(firebaseConfig);
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
     const database = firebase.database();
     
-    // Ключ для шифрования
     const ENCRYPTION_KEY = "HamburgerSecureKey2024!";
     
-    // Текущий пользователь и чат
     let currentUser = null;
     let currentUserId = null;
     let currentChatId = null;
     let currentChatData = null;
-    let currentTheme = localStorage.getItem('hamburger_theme') || 'light';
+    let isGroupChat = false;
+    let replyingTo = null;
+    let selectedMessage = null;
+    let allMessages = new Map();
+    let displayedMessageIds = new Set();
+    let longPressTimer = null;
     let stickerPacks = JSON.parse(localStorage.getItem('hamburger_sticker_packs') || '[]');
-    let currentContextMessage = null;
     let allStickerPacks = [];
 
-    // Применяем настройки при загрузке
-    document.documentElement.setAttribute('data-theme', currentTheme);
+    document.addEventListener('DOMContentLoaded', function() {
+      const savedTheme = localStorage.getItem('hamburger_theme') || 'light';
+      document.documentElement.setAttribute('data-theme', savedTheme);
+    });
 
-    // Функции шифрования/дешифрования
     function encryptData(data) {
       return CryptoJS.AES.encrypt(JSON.stringify(data), ENCRYPTION_KEY).toString();
     }
@@ -747,14 +1129,17 @@
         const decrypted = bytes.toString(CryptoJS.enc.Utf8);
         return decrypted ? JSON.parse(decrypted) : null;
       } catch (e) {
-        console.error('Ошибка дешифрования:', e);
+        console.log('Ошибка дешифрования:', e);
         return null;
       }
     }
 
-    // Инициализация при загрузке
+    function getChatIdFromUrl() {
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get('id') || window.location.hash.substring(1) || window.location.search.substring(1);
+    }
+
     window.addEventListener('DOMContentLoaded', async () => {
-      // Проверка авторизации
       currentUser = localStorage.getItem('hamburger_user');
       currentUserId = localStorage.getItem('hamburger_user_id');
       
@@ -763,9 +1148,8 @@
         return;
       }
       
-      // Получение ID чата из URL
-      const urlParams = new URLSearchParams(window.location.search);
-      currentChatId = urlParams.get('id') || urlParams.get('=');
+      currentChatId = getChatIdFromUrl();
+      console.log('ID чата из URL:', currentChatId);
       
       if (!currentChatId) {
         alert('Чат не найден');
@@ -773,161 +1157,329 @@
         return;
       }
       
-      // Загрузка данных чата
       await loadChatData();
-      
-      // Настройка обработчиков событий
       setupEventListeners();
-      
-      // Загрузка стикеров
       loadAllStickerPacks();
     });
 
-// Загрузка данных чата
-async function loadChatData() {
-  try {
-    console.log('Пытаюсь загрузить чат с ID:', currentChatId);
-    
-    const chatRef = database.ref(`chats/${currentChatId}`);
-    const snapshot = await chatRef.once('value');
-    
-    console.log('Данные чата из Firebase:', snapshot.val());
-    
-    if (!snapshot.exists()) {
-      console.error('Чат не найден в Firebase');
-      alert('Чат не найден');
-      window.location.href = 'https://hamburgerchat.github.io/main.html';
-      return;
-    }
-    
-    const chatData = snapshot.val();
-    console.log('Зашифрованные данные чата:', chatData);
-    
-    currentChatData = decryptData(chatData.encryptedData);
-    console.log('Расшифрованные данные чата:', currentChatData);
-    
-    if (!currentChatData) {
-      console.error('Не удалось расшифровать данные чата');
-      alert('Ошибка загрузки чата');
-      return;
-    }
-    
-    // Обновление заголовка
-    document.getElementById('chatTitle').textContent = currentChatData.name;
-    document.getElementById('chatAvatarInitial').textContent = currentChatData.name.charAt(0).toUpperCase();
-    document.getElementById('chatStatus').textContent = 'В сети';
-    
-    if (currentChatData.avatar) {
-      document.getElementById('chatAvatar').style.backgroundImage = `url(${currentChatData.avatar})`;
-      document.getElementById('chatAvatar').classList.add('has-image');
-    }
-    
-    console.log('Чат успешно загружен:', currentChatData.name);
-    
-    // Загрузка сообщений
-    loadMessages();
-    
-    // Загрузка закреплённого сообщения
-    loadPinnedMessage();
-    
-  } catch (error) {
-    console.error('Ошибка загрузки чата:', error);
-    alert('Ошибка: ' + error.message);
-  }
-}
-
-    // Загрузка сообщений
-    function loadMessages() {
+    async function loadChatData() {
       try {
-        const messagesRef = database.ref(`messages/${currentChatId}`);
+        console.log('Загружаю чат с ID:', currentChatId);
         
-        messagesRef.on('value', (snapshot) => {
-          document.getElementById('loadingContainer').style.display = 'none';
-          
-          if (!snapshot.exists()) {
-            document.getElementById('messagesContainer').innerHTML = `
-              <div style="text-align: center; padding: 2rem; color: var(--text-secondary);">
-                <i class="fas fa-comments" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;"></i>
-                <div>Пока нет сообщений</div>
-                <div style="font-size: 0.9rem; margin-top: 0.5rem;">Начните общение первым!</div>
-              </div>
-            `;
-            return;
-          }
-          
-          const messages = snapshot.val();
-          displayMessages(messages);
-        });
+        const chatRef = database.ref(`chats/${currentChatId}`);
+        const snapshot = await chatRef.once('value');
+        
+        if (!snapshot.exists()) {
+          throw new Error('Чат не найден в базе данных');
+        }
+        
+        const chatData = snapshot.val();
+        console.log('Данные чата:', chatData);
+        
+        let decryptedData = null;
+        
+        if (chatData.encryptedData) {
+          decryptedData = decryptData(chatData.encryptedData);
+        } else if (chatData.name) {
+          decryptedData = chatData;
+        }
+        
+        if (!decryptedData) {
+          throw new Error('Не удалось расшифровать данные чата');
+        }
+        
+        currentChatData = decryptedData;
+        console.log('Расшифрованные данные:', currentChatData);
+        
+        updateChatHeader();
+        await loadMessages();
+        await loadPinnedMessage();
+        document.getElementById('loadingContainer').style.display = 'none';
         
       } catch (error) {
-        console.error('Ошибка загрузки сообщений:', error);
+        console.error('Ошибка загрузки чата:', error);
+        alert('Ошибка загрузки чата: ' + error.message);
+        window.location.href = 'https://hamburgerchat.github.io/main.html';
       }
     }
 
-    // Отображение сообщений
-    function displayMessages(messages) {
-      const container = document.getElementById('messagesContainer');
-      container.innerHTML = '';
+    function updateChatHeader() {
+      const chatName = document.getElementById('chatName');
+      const chatAvatar = document.getElementById('chatAvatar');
+      const chatStatus = document.getElementById('chatStatus');
+      const chatAvatarInitial = document.getElementById('chatAvatarInitial');
       
-      // Сортируем сообщения по времени
-      const sortedMessages = Object.entries(messages).sort((a, b) => a[1].timestamp - b[1].timestamp);
+      chatName.textContent = currentChatData.name || 'Без названия';
       
-      sortedMessages.forEach(([messageId, messageData]) => {
-        const decryptedData = decryptData(messageData.encryptedData);
-        if (!decryptedData) return;
-        
-        const messageElement = createMessageElement(messageId, decryptedData);
-        container.appendChild(messageElement);
-      });
-      
-      // Прокрутка вниз
-      setTimeout(() => {
-        container.scrollTop = container.scrollHeight;
-      }, 100);
-    }
-
-    // Создание элемента сообщения
-    function createMessageElement(messageId, messageData) {
-      const messageDiv = document.createElement('div');
-      const isOwnMessage = messageData.sender === currentUser;
-      
-      messageDiv.className = `message ${isOwnMessage ? 'sent' : 'received'}`;
-      messageDiv.dataset.messageId = messageId;
-      
-      let contentHtml = '';
-      
-      if (messageData.type === 'sticker') {
-        contentHtml = `<img src="${messageData.content}" class="message-sticker" alt="Стикер">`;
+      if (currentChatData.avatar) {
+        chatAvatar.style.backgroundImage = `url(${currentChatData.avatar})`;
+        chatAvatar.classList.add('has-image');
+        chatAvatarInitial.style.display = 'none';
       } else {
-        contentHtml = `<div class="message-content">${escapeHtml(messageData.content)}</div>`;
+        chatAvatarInitial.textContent = currentChatData.name ? currentChatData.name.charAt(0).toUpperCase() : '?';
       }
       
-      messageDiv.innerHTML = `
-        <div class="message-header">
-          <span class="message-sender">${isOwnMessage ? 'Вы' : escapeHtml(messageData.sender)}</span>
-          <span class="message-time">${formatTime(messageData.timestamp)}</span>
-        </div>
-        ${contentHtml}
-      `;
+      isGroupChat = currentChatData.type === 'group';
       
-      // Контекстное меню
-      messageDiv.addEventListener('contextmenu', (e) => {
-        e.preventDefault();
-        showContextMenu(e, messageId, messageData);
-      });
-      
-      // Одиночный клик на стикер
-      if (messageData.type === 'sticker') {
-        const stickerImg = messageDiv.querySelector('.message-sticker');
-        stickerImg.addEventListener('click', () => {
-          // Здесь можно добавить функционал просмотра стикерпака
-        });
+      if (isGroupChat) {
+        const participants = currentChatData.participants || [];
+        const count = Array.isArray(participants) ? participants.length : Object.keys(participants).length;
+        chatStatus.textContent = `${count} участников`;
+        document.getElementById('leaveChatItem').style.display = 'block';
+      } else {
+        chatStatus.textContent = 'был(а) недавно';
+        document.getElementById('leaveChatItem').style.display = 'none';
       }
-      
-      return messageDiv;
     }
 
-    // Загрузка закреплённого сообщения
+    async function loadMessages() {
+      const messagesRef = database.ref(`messages/${currentChatId}`);
+      
+      const snapshot = await messagesRef.once('value');
+      if (snapshot.exists()) {
+        const messages = snapshot.val();
+        for (const messageId in messages) {
+          processMessage(messageId, messages[messageId]);
+        }
+      }
+      
+      messagesRef.on('child_added', (snapshot) => {
+        processMessage(snapshot.key, snapshot.val());
+      });
+
+      messagesRef.on('child_changed', (snapshot) => {
+        processMessage(snapshot.key, snapshot.val(), true);
+      });
+    }
+
+    function processMessage(messageId, messageData, isUpdate = false) {
+      if (displayedMessageIds.has(messageId) && !isUpdate) {
+        return;
+      }
+      
+      let decrypted = null;
+      
+      if (messageData.encryptedData) {
+        decrypted = decryptData(messageData.encryptedData);
+      } else if (messageData.text || messageData.type === 'service') {
+        decrypted = messageData;
+      }
+      
+      if (decrypted) {
+        const message = { id: messageId, ...decrypted };
+        allMessages.set(messageId, message);
+        displayedMessageIds.add(messageId);
+        
+        if (isUpdate) {
+          updateMessageDisplay(message);
+        } else {
+          displayMessage(message);
+        }
+      }
+    }
+
+    function displayMessage(message) {
+      const container = document.getElementById('messagesContainer');
+      
+      const noMessages = container.querySelector('.no-messages');
+      if (noMessages) noMessages.remove();
+      
+      const messageEl = document.createElement('div');
+      
+      if (message.type === 'service') {
+        displayServiceMessage(message);
+        return;
+      }
+
+      const isOwn = message.sender === currentUser;
+      const showHeader = isGroupChat && !isOwn;
+      messageEl.className = `message ${isOwn ? 'own' : ''} ${isGroupChat ? 'group' : ''} ${message.pinned ? 'pinned-message' : ''}`;
+      messageEl.dataset.messageId = message.id;
+      
+      let avatar = '';
+      if (isGroupChat && !isOwn) {
+        avatar = `<div class="message-avatar" onclick="openUserProfile('${message.sender}')">
+          ${message.sender ? message.sender.charAt(0).toUpperCase() : '?'}
+        </div>`;
+      }
+      
+      let role = '';
+      if (showHeader && currentChatData) {
+        if (message.sender === currentChatData.createdBy) {
+          role = '<div class="message-role role-creator">Создатель</div>';
+        } else if (currentChatData.admins && currentChatData.admins.includes(message.sender)) {
+          role = '<div class="message-role role-admin">Админ</div>';
+        }
+      }
+      
+      let replyContent = '';
+      if (message.replyTo) {
+        const repliedMessage = allMessages.get(message.replyTo);
+        if (repliedMessage) {
+          replyContent = `
+            <div class="reply-preview" onclick="scrollToMessage('${message.replyTo}')">
+              <div class="reply-sender">${repliedMessage.sender}</div>
+              <div class="reply-text">${repliedMessage.text || 'Сообщение'}</div>
+            </div>
+          `;
+        }
+      }
+      
+      let reactions = '';
+      if (message.reactions && Object.keys(message.reactions).length > 0) {
+        reactions = `<div class="reactions">${
+          Object.entries(message.reactions).map(([emoji, users]) => {
+            const userList = users.join(', ');
+            const hasUserReaction = users.includes(currentUser);
+            const reactionClass = hasUserReaction ? ' user-reaction' : '';
+            return `
+              <div class="reaction${reactionClass}" onclick="toggleReaction('${message.id}', '${emoji}')">
+                ${emoji} <span class="reaction-count">${users.length}</span>
+                <div class="reaction-users">${userList}</div>
+              </div>
+            `;
+          }).join('')
+        }</div>`;
+      }
+      
+      let statusIcons = '';
+      if (isOwn) {
+        if (message.readBy && message.readBy.length > 0) {
+          statusIcons = '<div class="message-status"><i class="fas fa-check-double status-icon read"></i><i class="fas fa-check-double status-icon read"></i></div>';
+        } else if (message.delivered) {
+          statusIcons = '<div class="message-status"><i class="fas fa-check-double status-icon"></i><i class="fas fa-check-double status-icon"></i></div>';
+        } else {
+          statusIcons = '<div class="message-status"><i class="fas fa-check status-icon"></i></div>';
+        }
+      }
+      
+      let content = '';
+      if (message.image) {
+        content = `
+          ${replyContent}
+          ${showHeader ? `<div class="message-header">
+            <div class="sender-name" onclick="openUserProfile('${message.sender}')">${message.sender}</div>
+            ${role}
+          </div>` : ''}
+          <img src="${message.image}" class="message-image" onclick="openImage('${message.image}')">
+          ${message.text ? `<div class="message-text">${message.text}</div>` : ''}
+          ${reactions}
+          <div class="message-time">${formatTime(message.timestamp)} ${statusIcons}</div>
+        `;
+      } else if (message.sticker) {
+        content = `
+          ${replyContent}
+          ${showHeader ? `<div class="message-header">
+            <div class="sender-name" onclick="openUserProfile('${message.sender}')">${message.sender}</div>
+            ${role}
+          </div>` : ''}
+          <div class="message-text" style="font-size: 2rem; text-align: center; padding: 0.3rem;">${message.sticker}</div>
+          ${reactions}
+          <div class="message-time">${formatTime(message.timestamp)} ${statusIcons}</div>
+        `;
+      } else {
+        content = `
+          ${replyContent}
+          ${showHeader ? `<div class="message-header">
+            <div class="sender-name" onclick="openUserProfile('${message.sender}')">${message.sender}</div>
+            ${role}
+          </div>` : ''}
+          <div class="message-text">${message.text || ''}</div>
+          ${reactions}
+          <div class="message-time">${formatTime(message.timestamp)} ${statusIcons}</div>
+        `;
+      }
+      
+      messageEl.innerHTML = `${avatar}<div class="message-content">${content}</div>`;
+      
+      setupMessageInteractions(messageEl, message);
+      container.appendChild(messageEl);
+      
+      if (!message.delivered) {
+        scrollToBottom();
+      }
+    }
+
+    function updateMessageDisplay(message) {
+      const existingMessage = document.querySelector(`[data-message-id="${message.id}"]`);
+      if (existingMessage) {
+        const container = document.getElementById('messagesContainer');
+        const scrollBefore = container.scrollTop;
+        
+        existingMessage.remove();
+        displayMessage(message);
+        
+        container.scrollTop = scrollBefore;
+      }
+    }
+
+    function displayServiceMessage(message) {
+      const container = document.getElementById('messagesContainer');
+      const serviceEl = document.createElement('div');
+      serviceEl.className = 'service-message';
+      serviceEl.innerHTML = `<div class="service-content">${message.text}</div>`;
+      container.appendChild(serviceEl);
+    }
+
+    function setupMessageInteractions(messageEl, message) {
+      const contentEl = messageEl.querySelector('.message-content');
+      
+      contentEl.addEventListener('contextmenu', (e) => {
+        e.preventDefault();
+        showMessageContextMenu(e, message);
+      });
+      
+      contentEl.addEventListener('mousedown', (e) => {
+        if (e.button === 0) {
+          longPressTimer = setTimeout(() => {
+            showMessageContextMenu(e, message);
+          }, 500);
+        }
+      });
+      
+      contentEl.addEventListener('mouseup', clearLongPressTimer);
+      contentEl.addEventListener('mouseleave', clearLongPressTimer);
+      
+      contentEl.addEventListener('touchstart', (e) => {
+        longPressTimer = setTimeout(() => {
+          showMessageContextMenu(e.touches[0], message);
+        }, 500);
+      });
+      
+      contentEl.addEventListener('touchend', clearLongPressTimer);
+      contentEl.addEventListener('touchmove', clearLongPressTimer);
+    }
+
+    function clearLongPressTimer() {
+      if (longPressTimer) {
+        clearTimeout(longPressTimer);
+        longPressTimer = null;
+      }
+    }
+
+    function openUserProfile(username) {
+      window.open(`https://hamburgerchat.github.io/profile.html?id=${username}`, '_blank');
+    }
+
+    function showMessageContextMenu(event, message) {
+      clearLongPressTimer();
+      selectedMessage = message;
+      const menu = document.getElementById('messageContextMenu');
+      
+      const pinText = document.getElementById('pinText');
+      pinText.textContent = message.pinned ? 'Открепить' : 'Закрепить';
+      
+      menu.style.display = 'block';
+      
+      const x = event.clientX || (event.touches && event.touches[0].clientX) || 100;
+      const y = event.clientY || (event.touches && event.touches[0].clientY) || 100;
+      
+      menu.style.left = Math.min(x, window.innerWidth - 200) + 'px';
+      menu.style.top = Math.min(y, window.innerHeight - 300) + 'px';
+      
+      document.getElementById('overlay').style.display = 'block';
+    }
+
     async function loadPinnedMessage() {
       try {
         const pinnedRef = database.ref(`pinnedMessages/${currentChatId}`);
@@ -938,122 +1490,82 @@ async function loadChatData() {
           const decryptedData = decryptData(pinnedData.encryptedData);
           
           if (decryptedData) {
-            document.getElementById('pinnedMessage').style.display = 'block';
+            document.getElementById('pinnedMessageTop').style.display = 'block';
             document.getElementById('pinnedMessageContent').textContent = 
-              decryptedData.type === 'sticker' ? '📎 Стикер' : decryptedData.content;
+              decryptedData.type === 'sticker' ? '📎 Стикер' : (decryptedData.text || 'Сообщение');
             document.getElementById('pinnedMessageInfo').textContent = 
               `Закрепил: ${decryptedData.pinnedBy} • ${formatTime(decryptedData.pinnedAt)}`;
           }
         } else {
-          document.getElementById('pinnedMessage').style.display = 'none';
+          document.getElementById('pinnedMessageTop').style.display = 'none';
         }
       } catch (error) {
         console.error('Ошибка загрузки закреплённого сообщения:', error);
       }
     }
 
-    // Отправка сообщения
-    async function sendMessage() {
-      const input = document.getElementById('messageInput');
-      const content = input.value.trim();
-      
-      if (!content) return;
-      
+    async function pinMessage(messageId) {
       try {
-        const messageData = {
-          content: content,
-          sender: currentUser,
-          timestamp: Date.now(),
-          type: 'text'
+        const message = allMessages.get(messageId);
+        if (!message) return;
+        
+        const pinnedData = {
+          messageId: messageId,
+          text: message.text,
+          type: message.type,
+          sender: message.sender,
+          pinnedBy: currentUser,
+          pinnedAt: Date.now(),
+          timestamp: message.timestamp
         };
         
-        const encryptedData = encryptData(messageData);
-        const messageId = Date.now().toString();
+        const encryptedPinnedData = encryptData(pinnedData);
         
-        await database.ref(`messages/${currentChatId}/${messageId}`).set({
-          encryptedData: encryptedData,
-          timestamp: Date.now()
+        await database.ref(`pinnedMessages/${currentChatId}`).set({
+          encryptedData: encryptedPinnedData,
+          pinnedAt: Date.now()
         });
         
-        // Обновляем последнее сообщение в чате
-        await updateLastMessage(content);
-        
-        input.value = '';
-        adjustTextareaHeight();
+        loadPinnedMessage();
         
       } catch (error) {
-        console.error('Ошибка отправки сообщения:', error);
-        alert('Ошибка при отправке сообщения');
+        console.error('Ошибка закрепления сообщения:', error);
+        alert('Ошибка при закреплении сообщения');
       }
     }
 
-    // Отправка стикера
-    async function sendSticker(stickerUrl) {
+    async function unpinMessage() {
       try {
-        const messageData = {
-          content: stickerUrl,
-          sender: currentUser,
-          timestamp: Date.now(),
-          type: 'sticker'
-        };
-        
-        const encryptedData = encryptData(messageData);
-        const messageId = Date.now().toString();
-        
-        await database.ref(`messages/${currentChatId}/${messageId}`).set({
-          encryptedData: encryptedData,
-          timestamp: Date.now()
-        });
-        
-        // Обновляем последнее сообщение в чате
-        await updateLastMessage('📎 Стикер');
-        
-        closeStickerPanel();
-        
+        await database.ref(`pinnedMessages/${currentChatId}`).remove();
+        loadPinnedMessage();
       } catch (error) {
-        console.error('Ошибка отправки стикера:', error);
-        alert('Ошибка при отправке стикера');
+        console.error('Ошибка открепления сообщения:', error);
       }
     }
 
-    // Обновление последнего сообщения в чате
-    async function updateLastMessage(lastMessage) {
-      try {
-        const chatRef = database.ref(`chats/${currentChatId}`);
-        const snapshot = await chatRef.once('value');
-        const chatData = snapshot.val();
-        const decryptedData = decryptData(chatData.encryptedData);
-        
-        decryptedData.lastMessage = lastMessage;
-        decryptedData.lastMessageTime = Date.now();
-        
-        const encryptedData = encryptData(decryptedData);
-        
-        await chatRef.update({
-          encryptedData: encryptedData,
-          lastUpdated: Date.now()
-        });
-        
-      } catch (error) {
-        console.error('Ошибка обновления чата:', error);
-      }
+    function scrollToPinnedMessage() {
+      const pinnedRef = database.ref(`pinnedMessages/${currentChatId}`);
+      pinnedRef.once('value').then((snapshot) => {
+        if (snapshot.exists()) {
+          const pinnedData = snapshot.val();
+          const decryptedData = decryptData(pinnedData.encryptedData);
+          if (decryptedData) {
+            scrollToMessage(decryptedData.messageId);
+          }
+        }
+      });
     }
 
-    // Загрузка всех стикерпаков
     async function loadAllStickerPacks() {
       try {
         const response = await fetch('https://api.allorigins.win/raw?url=https://bdd.somroti-yt.workers.dev/get/HMBR_AllStickers');
         allStickerPacks = await response.json();
         displaySavedStickers();
-        
       } catch (error) {
         console.error('Ошибка загрузки стикерпаков:', error);
-        document.getElementById('stickerPacks').innerHTML = 
-          '<div style="padding: 1rem; text-align: center; color: var(--text-secondary);">Ошибка загрузки стикеров</div>';
       }
     }
 
-    // Отображение сохранённых стикеров
     function displaySavedStickers() {
       const container = document.getElementById('stickerPacks');
       container.innerHTML = '';
@@ -1087,7 +1599,6 @@ async function loadChatData() {
       });
     }
 
-    // Отображение стикеров для поиска
     function displaySearchStickers() {
       const container = document.getElementById('stickerPacks');
       container.innerHTML = '';
@@ -1112,7 +1623,6 @@ async function loadChatData() {
       });
     }
 
-    // Загрузка конкретного стикерпака
     async function loadStickerPack(packName) {
       try {
         const response = await fetch(`https://api.allorigins.win/raw?url=https://bdd.somroti-yt.workers.dev/get/HMBR_StickerPack_${encodeURIComponent(packName)}`);
@@ -1144,7 +1654,6 @@ async function loadChatData() {
       }
     }
 
-    // Добавление стикерпака в коллекцию
     function addStickerPack(packName) {
       if (!stickerPacks.includes(packName)) {
         stickerPacks.push(packName);
@@ -1152,7 +1661,6 @@ async function loadChatData() {
         alert(`Стикерпак "${packName}" добавлен в коллекцию!`);
         document.getElementById('addStickerPack').style.display = 'none';
         
-        // Обновляем отображение если на вкладке поиска
         const activeTab = document.querySelector('.sticker-tab.active').dataset.tab;
         if (activeTab === 'search') {
           displaySearchStickers();
@@ -1160,142 +1668,61 @@ async function loadChatData() {
       }
     }
 
-    // Закрепление сообщения
-    async function pinMessage(messageId) {
-      try {
-        const messageRef = database.ref(`messages/${currentChatId}/${messageId}`);
-        const snapshot = await messageRef.once('value');
-        const messageData = snapshot.val();
-        const decryptedData = decryptData(messageData.encryptedData);
-        
-        const pinnedData = {
-          messageId: messageId,
-          content: decryptedData.content,
-          type: decryptedData.type,
-          sender: decryptedData.sender,
-          pinnedBy: currentUser,
-          pinnedAt: Date.now(),
-          timestamp: decryptedData.timestamp
-        };
-        
-        const encryptedPinnedData = encryptData(pinnedData);
-        
-        await database.ref(`pinnedMessages/${currentChatId}`).set({
-          encryptedData: encryptedPinnedData,
-          pinnedAt: Date.now()
-        });
-        
-        loadPinnedMessage();
-        
-      } catch (error) {
-        console.error('Ошибка закрепления сообщения:', error);
-      }
-    }
-
-    // Открепление сообщения
-    async function unpinMessage() {
-      try {
-        await database.ref(`pinnedMessages/${currentChatId}`).remove();
-        loadPinnedMessage();
-      } catch (error) {
-        console.error('Ошибка открепления сообщения:', error);
-      }
-    }
-
-    // Прокрутка к закреплённому сообщению
-    function scrollToPinnedMessage() {
-      const pinnedRef = database.ref(`pinnedMessages/${currentChatId}`);
-      pinnedRef.once('value').then((snapshot) => {
-        if (snapshot.exists()) {
-          const pinnedData = snapshot.val();
-          const decryptedData = decryptData(pinnedData.encryptedData);
-          if (decryptedData) {
-            const messageElement = document.querySelector(`[data-message-id="${decryptedData.messageId}"]`);
-            if (messageElement) {
-              messageElement.scrollIntoView({ behavior: 'smooth' });
-            }
-          }
-        }
-      });
-    }
-
-    // Вспомогательные функции
-    function formatTime(timestamp) {
-      return new Date(timestamp).toLocaleTimeString('ru-RU', { 
-        hour: '2-digit', 
-        minute: '2-digit' 
-      });
-    }
-    
-    function escapeHtml(text) {
-      const div = document.createElement('div');
-      div.textContent = text;
-      return div.innerHTML;
-    }
-    
-    function adjustTextareaHeight() {
-      const textarea = document.getElementById('messageInput');
-      textarea.style.height = 'auto';
-      textarea.style.height = Math.min(textarea.scrollHeight, 120) + 'px';
-    }
-
-    // Управление панелями
-    function openStickerPanel() {
-      document.getElementById('stickerPanel').style.display = 'flex';
-      displaySavedStickers();
-    }
-    
-    function closeStickerPanel() {
-      document.getElementById('stickerPanel').style.display = 'none';
-      document.getElementById('stickerSearch').value = '';
-    }
-    
-    function closeStickerView() {
-      document.getElementById('stickerView').style.display = 'none';
-    }
-    
-    function showContextMenu(event, messageId, messageData) {
-      event.preventDefault();
-      currentContextMessage = { messageId, messageData };
-      
-      const contextMenu = document.getElementById('contextMenu');
-      contextMenu.style.display = 'block';
-      contextMenu.style.left = Math.min(event.clientX, window.innerWidth - 250) + 'px';
-      contextMenu.style.top = Math.min(event.clientY, window.innerHeight - 150) + 'px';
-      
-      document.getElementById('overlay').style.display = 'block';
-    }
-    
-    function closeAllModals() {
-      document.getElementById('stickerPanel').style.display = 'none';
-      document.getElementById('stickerView').style.display = 'none';
-      document.getElementById('contextMenu').style.display = 'none';
-      document.getElementById('overlay').style.display = 'none';
-    }
-
-    // Настройка обработчиков событий
     function setupEventListeners() {
-      // Навигация
       document.getElementById('backButton').addEventListener('click', () => {
         window.location.href = 'https://hamburgerchat.github.io/main.html';
       });
       
-      // Отправка сообщения
-      document.getElementById('sendBtn').addEventListener('click', sendMessage);
-      document.getElementById('messageInput').addEventListener('keypress', (e) => {
+      document.getElementById('menuToggle').addEventListener('click', (e) => {
+        e.stopPropagation();
+        const menu = document.getElementById('chatMenu');
+        menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+        document.getElementById('overlay').style.display = 'block';
+      });
+      
+      document.querySelectorAll('.menu-item').forEach(item => {
+        item.addEventListener('click', function() {
+          handleMenuAction(this.dataset.action);
+        });
+      });
+      
+      document.querySelectorAll('.context-item, .reaction-btn').forEach(item => {
+        item.addEventListener('click', function() {
+          handleContextAction(this.dataset.action || this.dataset.reaction);
+        });
+      });
+      
+      const input = document.getElementById('messageInput');
+      const sendBtn = document.getElementById('sendButton');
+      
+      input.addEventListener('input', function() {
+        sendBtn.disabled = !this.value.trim();
+        this.style.height = 'auto';
+        this.style.height = Math.min(this.scrollHeight, 100) + 'px';
+      });
+      
+      input.addEventListener('keypress', (e) => {
         if (e.key === 'Enter' && !e.shiftKey) {
           e.preventDefault();
-          sendMessage();
+          if (!sendBtn.disabled) sendMessage();
         }
       });
       
-      document.getElementById('messageInput').addEventListener('input', adjustTextareaHeight);
+      sendBtn.addEventListener('click', sendMessage);
       
-      // Стикеры
-      document.getElementById('stickerBtn').addEventListener('click', openStickerPanel);
-      document.getElementById('closeStickerView').addEventListener('click', closeStickerView);
+      document.getElementById('attachmentBtn').addEventListener('click', () => {
+        document.getElementById('imageUpload').click();
+      });
       
-      // Вкладки стикеров
+      document.getElementById('imageUpload').addEventListener('change', handleImageUpload);
+      
+      document.getElementById('stickerBtn').addEventListener('click', (e) => {
+        e.stopPropagation();
+        const panel = document.getElementById('stickerPanel');
+        panel.style.display = panel.style.display === 'flex' ? 'none' : 'flex';
+        displaySavedStickers();
+      });
+      
       document.querySelectorAll('.sticker-tab').forEach(tab => {
         tab.addEventListener('click', function() {
           document.querySelectorAll('.sticker-tab').forEach(t => t.classList.remove('active'));
@@ -1309,7 +1736,6 @@ async function loadChatData() {
         });
       });
       
-      // Поиск стикеров
       document.getElementById('stickerSearch').addEventListener('input', (e) => {
         const query = e.target.value.toLowerCase();
         const packs = document.querySelectorAll('.sticker-pack');
@@ -1321,38 +1747,410 @@ async function loadChatData() {
         });
       });
       
-      // Закреплённое сообщение
-      document.getElementById('pinnedMessage').addEventListener('click', scrollToPinnedMessage);
+      document.getElementById('closeStickerView').addEventListener('click', closeStickerView);
+      
+      document.getElementById('cancelReply').addEventListener('click', cancelReply);
+      
+      document.getElementById('overlay').addEventListener('click', closeAllModals);
+      
+      document.getElementById('chatInfo').addEventListener('click', () => {
+        if (isGroupChat) {
+          window.open(`https://hamburgerchat.github.io/groupprofile.html?id=${currentChatId}`, '_blank');
+        } else {
+          const otherUser = getOtherParticipant();
+          if (otherUser) {
+            window.open(`https://hamburgerchat.github.io/profile.html?id=${otherUser}`, '_blank');
+          }
+        }
+      });
+
+      document.getElementById('pinnedMessageTop').addEventListener('click', scrollToPinnedMessage);
       document.getElementById('unpinBtn').addEventListener('click', (e) => {
         e.stopPropagation();
         unpinMessage();
       });
-      
-      // Контекстное меню
-      document.querySelectorAll('.context-item').forEach(item => {
-        item.addEventListener('click', function() {
-          const action = this.dataset.action;
-          handleContextAction(action, currentContextMessage);
-        });
-      });
-      
-      // Оверлей
-      document.getElementById('overlay').addEventListener('click', closeAllModals);
     }
     
-    function handleContextAction(action, context) {
+    function handleContextAction(action) {
+      if (!selectedMessage) return;
+      
       switch (action) {
-        case 'pin':
-          pinMessage(context.messageId);
-          break;
         case 'reply':
-          // Логика ответа
+          setReplyTo(selectedMessage);
+          break;
+        case 'copy':
+          navigator.clipboard.writeText(selectedMessage.text || '');
+          break;
+        case 'pin':
+          pinMessage(selectedMessage.id);
           break;
         case 'delete':
-          // Логика удаления
+          deleteMessage(selectedMessage.id);
+          break;
+        default:
+          if (action) toggleReaction(selectedMessage.id, action);
           break;
       }
       closeAllModals();
+    }
+
+    async function sendMessage() {
+      const input = document.getElementById('messageInput');
+      const text = input.value.trim();
+      if (!text) return;
+      
+      try {
+        const messageData = {
+          text: text,
+          sender: currentUser,
+          timestamp: Date.now(),
+          type: 'text',
+          replyTo: replyingTo,
+          delivered: false
+        };
+        
+        const encrypted = encryptData(messageData);
+        const messageId = Date.now().toString();
+        
+        await database.ref(`messages/${currentChatId}/${messageId}`).set({
+          encryptedData: encrypted,
+          timestamp: Date.now()
+        });
+        
+        setTimeout(async () => {
+          messageData.delivered = true;
+          const updatedEncrypted = encryptData(messageData);
+          await database.ref(`messages/${currentChatId}/${messageId}`).update({
+            encryptedData: updatedEncrypted
+          });
+        }, 1000);
+        
+        await updateLastMessage(text);
+        
+        input.value = '';
+        input.style.height = 'auto';
+        document.getElementById('sendButton').disabled = true;
+        cancelReply();
+        
+      } catch (error) {
+        alert('Ошибка отправки: ' + error.message);
+      }
+    }
+
+    async function sendSticker(sticker) {
+      try {
+        const messageData = {
+          sticker: sticker,
+          sender: currentUser,
+          timestamp: Date.now(),
+          type: 'sticker',
+          delivered: false
+        };
+        
+        const encrypted = encryptData(messageData);
+        const messageId = Date.now().toString();
+        
+        await database.ref(`messages/${currentChatId}/${messageId}`).set({
+          encryptedData: encrypted,
+          timestamp: Date.now()
+        });
+        
+        setTimeout(async () => {
+          messageData.delivered = true;
+          const updatedEncrypted = encryptData(messageData);
+          await database.ref(`messages/${currentChatId}/${messageId}`).update({
+            encryptedData: updatedEncrypted
+          });
+        }, 1000);
+        
+        await updateLastMessage('Стикер');
+        
+      } catch (error) {
+        alert('Ошибка отправки стикера: ' + error.message);
+      }
+    }
+
+    async function handleImageUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      
+      try {
+        const sendBtn = document.getElementById('sendButton');
+        const originalHTML = sendBtn.innerHTML;
+        sendBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+        sendBtn.disabled = true;
+        
+        const dataUrl = await new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = e => resolve(e.target.result);
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
+        });
+        
+        const apiKey = "02cf7a0dc37b8a8adaedc9784752a3db";
+        const formData = new FormData();
+        formData.append("image", dataUrl.split(",")[1]);
+        formData.append("key", apiKey);
+
+        const response = await fetch("https://api.imgbb.com/1/upload", {
+          method: "POST",
+          body: formData,
+        });
+        
+        const data = await response.json();
+        const imageUrl = data.data?.url;
+        
+        if (!imageUrl) throw new Error('Загрузка не удалась');
+        
+        const messageData = {
+          text: document.getElementById('messageInput').value.trim(),
+          image: imageUrl,
+          sender: currentUser,
+          timestamp: Date.now(),
+          type: 'image',
+          delivered: false
+        };
+        
+        const encrypted = encryptData(messageData);
+        const messageId = Date.now().toString();
+        
+        await database.ref(`messages/${currentChatId}/${messageId}`).set({
+          encryptedData: encrypted,
+          timestamp: Date.now()
+        });
+        
+        setTimeout(async () => {
+          messageData.delivered = true;
+          const updatedEncrypted = encryptData(messageData);
+          await database.ref(`messages/${currentChatId}/${messageId}`).update({
+            encryptedData: updatedEncrypted
+          });
+        }, 1000);
+        
+        await updateLastMessage('Изображение');
+        
+        document.getElementById('messageInput').value = '';
+        document.getElementById('imageUpload').value = '';
+        cancelReply();
+        
+      } catch (error) {
+        alert('Ошибка загрузки: ' + error.message);
+      } finally {
+        const sendBtn = document.getElementById('sendButton');
+        sendBtn.innerHTML = '<i class="fas fa-paper-plane"></i>';
+        sendBtn.disabled = !document.getElementById('messageInput').value.trim();
+      }
+    }
+
+    async function updateLastMessage(lastMessage) {
+      if (!currentChatData) return;
+      
+      try {
+        currentChatData.lastMessage = lastMessage;
+        currentChatData.lastMessageTime = Date.now();
+        
+        const encryptedData = encryptData(currentChatData);
+        
+        await database.ref(`chats/${currentChatId}`).update({
+          encryptedData: encryptedData
+        });
+        
+      } catch (error) {
+        console.error('Ошибка обновления последнего сообщения:', error);
+      }
+    }
+
+    function setReplyTo(message) {
+      replyingTo = message.id;
+      document.getElementById('replyContent').textContent = message.text || 'Сообщение';
+      document.getElementById('replyContainer').style.display = 'flex';
+      document.getElementById('messageInput').focus();
+    }
+
+    function cancelReply() {
+      replyingTo = null;
+      document.getElementById('replyContainer').style.display = 'none';
+    }
+
+    async function toggleReaction(messageId, reaction) {
+      try {
+        const message = allMessages.get(messageId);
+        if (!message) return;
+        
+        if (!message.reactions) message.reactions = {};
+        if (!message.reactions[reaction]) message.reactions[reaction] = [];
+        
+        const userIndex = message.reactions[reaction].indexOf(currentUser);
+        
+        if (userIndex > -1) {
+          message.reactions[reaction].splice(userIndex, 1);
+          if (message.reactions[reaction].length === 0) {
+            delete message.reactions[reaction];
+          }
+        } else {
+          message.reactions[reaction].push(currentUser);
+        }
+        
+        const encrypted = encryptData(message);
+        await database.ref(`messages/${currentChatId}/${messageId}`).update({
+          encryptedData: encrypted
+        });
+        
+      } catch (error) {
+        console.error('Ошибка реакции:', error);
+      }
+    }
+
+    function handleMenuAction(action) {
+      switch (action) {
+        case 'mute':
+          toggleMute();
+          break;
+        case 'clear':
+          clearHistory();
+          break;
+        case 'leave':
+          leaveGroup();
+          break;
+      }
+      closeAllModals();
+    }
+
+    function toggleMute() {
+      const muted = JSON.parse(localStorage.getItem('hamburger_muted_chats') || '[]');
+      const isMuted = muted.includes(currentChatId);
+      
+      if (isMuted) {
+        muted.splice(muted.indexOf(currentChatId), 1);
+        alert('Уведомления включены');
+      } else {
+        muted.push(currentChatId);
+        alert('Уведомления отключены');
+      }
+      
+      localStorage.setItem('hamburger_muted_chats', JSON.stringify(muted));
+    }
+
+    async function clearHistory() {
+      if (!confirm('Очистить историю чата?')) return;
+      
+      try {
+        await database.ref(`messages/${currentChatId}`).remove();
+        document.getElementById('messagesContainer').innerHTML = `
+          <div style="text-align: center; padding: 2rem; color: var(--text-secondary);">
+            <div style="font-size: 3rem; margin-bottom: 1rem;">💬</div>
+            <h3>Нет сообщений</h3>
+            <p>История чата очищена</p>
+          </div>
+        `;
+        allMessages.clear();
+        displayedMessageIds.clear();
+      } catch (error) {
+        alert('Ошибка при очистке истории');
+      }
+    }
+
+    async function leaveGroup() {
+      if (!isGroupChat) return;
+      
+      if (!confirm('Вы уверены, что хотите покинуть группу?')) return;
+      
+      try {
+        await database.ref(`userChats/${currentUserId}/${currentChatId}`).remove();
+        
+        if (currentChatData.participants && Array.isArray(currentChatData.participants)) {
+          const index = currentChatData.participants.indexOf(currentUser);
+          if (index > -1) {
+            currentChatData.participants.splice(index, 1);
+            
+            await createServiceMessage(`${currentUser} покинул(а) группу`);
+            
+            const encrypted = encryptData(currentChatData);
+            await database.ref(`chats/${currentChatId}`).update({ 
+              encryptedData: encrypted 
+            });
+          }
+        }
+        
+        alert('Вы вышли из группы');
+        window.location.href = 'https://hamburgerchat.github.io/main.html';
+        
+      } catch (error) {
+        alert('Ошибка при выходе из группы: ' + error.message);
+      }
+    }
+
+    async function deleteMessage(messageId) {
+      if (!confirm('Удалить это сообщение?')) return;
+      
+      try {
+        await database.ref(`messages/${currentChatId}/${messageId}`).remove();
+      } catch (error) {
+        alert('Ошибка при удалении сообщения');
+      }
+    }
+
+    async function createServiceMessage(text) {
+      const messageData = {
+        text: text,
+        type: 'service',
+        timestamp: Date.now()
+      };
+      
+      const encrypted = encryptData(messageData);
+      const messageId = Date.now().toString();
+      
+      await database.ref(`messages/${currentChatId}/${messageId}`).set({
+        encryptedData: encrypted,
+        timestamp: Date.now()
+      });
+    }
+
+    function openImage(url) {
+      window.open(url, '_blank');
+    }
+
+    function scrollToMessage(messageId) {
+      const messageElement = document.querySelector(`[data-message-id="${messageId}"]`);
+      if (messageElement) {
+        messageElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        messageElement.style.backgroundColor = 'var(--service-bg)';
+        setTimeout(() => {
+          messageElement.style.backgroundColor = '';
+        }, 2000);
+      }
+    }
+
+    function getOtherParticipant() {
+      if (!currentChatData.participants || !Array.isArray(currentChatData.participants)) return null;
+      return currentChatData.participants.find(p => p !== currentUser);
+    }
+
+    function formatTime(timestamp) {
+      if (!timestamp) return '';
+      const date = new Date(timestamp);
+      return date.toLocaleTimeString('ru-RU', { 
+        hour: '2-digit', minute: '2-digit' 
+      });
+    }
+
+    function scrollToBottom() {
+      const container = document.getElementById('messagesContainer');
+      setTimeout(() => {
+        container.scrollTop = container.scrollHeight;
+      }, 100);
+    }
+
+    function closeStickerView() {
+      document.getElementById('stickerView').style.display = 'none';
+    }
+
+    function closeAllModals() {
+      document.getElementById('chatMenu').style.display = 'none';
+      document.getElementById('messageContextMenu').style.display = 'none';
+      document.getElementById('stickerPanel').style.display = 'none';
+      document.getElementById('stickerView').style.display = 'none';
+      document.getElementById('overlay').style.display = 'none';
     }
   </script>
 </body>
