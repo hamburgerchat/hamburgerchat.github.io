@@ -25,7 +25,6 @@
       --hover-bg: #f3f4f6;
       --danger-color: #ef4444;
       --success-color: #10b981;
-      --scale: 1;
     }
 
     [data-theme="dark"] {
@@ -56,7 +55,6 @@
       flex-direction: column;
       overflow: hidden;
       transition: all 0.3s ease;
-      font-size: calc(1rem * var(--scale));
     }
     
     .app-container {
@@ -66,13 +64,11 @@
       background: var(--bg-primary);
       width: 100%;
       position: relative;
-      transform: scale(var(--scale));
-      transform-origin: top center;
     }
     
     .header {
       background: var(--bg-primary);
-      padding: calc(0.8rem * var(--scale)) calc(1rem * var(--scale));
+      padding: 0.8rem 1rem;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -85,12 +81,12 @@
     .logo {
       display: flex;
       align-items: center;
-      gap: calc(0.5rem * var(--scale));
+      gap: 0.5rem;
     }
     
     .logo-icon {
-      width: calc(35px * var(--scale));
-      height: calc(35px * var(--scale));
+      width: 35px;
+      height: 35px;
       background: var(--accent-gradient);
       border-radius: 50%;
       display: flex;
@@ -100,11 +96,11 @@
     
     .logo-icon i {
       color: white;
-      font-size: calc(1rem * var(--scale));
+      font-size: 1rem;
     }
     
     .logo-text {
-      font-size: calc(1.3rem * var(--scale));
+      font-size: 1.3rem;
       font-weight: 700;
       color: var(--text-primary);
     }
@@ -112,17 +108,17 @@
     .header-actions {
       display: flex;
       align-items: center;
-      gap: calc(0.8rem * var(--scale));
+      gap: 0.8rem;
     }
     
     .search-toggle, .menu-toggle {
-      width: calc(38px * var(--scale));
-      height: calc(38px * var(--scale));
+      width: 38px;
+      height: 38px;
       border-radius: 50%;
       border: none;
       background: transparent;
       color: var(--text-secondary);
-      font-size: calc(1.1rem * var(--scale));
+      font-size: 1.1rem;
       cursor: pointer;
       display: flex;
       align-items: center;
@@ -135,90 +131,18 @@
     }
     
     .profile-btn {
-      width: calc(38px * var(--scale));
-      height: calc(38px * var(--scale));
+      width: 38px;
+      height: 38px;
       border-radius: 50%;
       border: none;
       background: var(--accent-gradient);
       color: white;
       font-weight: 600;
-      font-size: calc(1rem * var(--scale));
+      font-size: 1rem;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-    }
-    
-    /* Папки */
-    .folders-container {
-      background: var(--bg-secondary);
-      padding: calc(0.8rem * var(--scale)) calc(1rem * var(--scale));
-      border-bottom: 1px solid var(--border-color);
-      overflow-x: auto;
-      white-space: nowrap;
-      scrollbar-width: none;
-      -ms-overflow-style: none;
-    }
-    
-    .folders-container::-webkit-scrollbar {
-      display: none;
-    }
-    
-    .folders {
-      display: inline-flex;
-      gap: calc(0.5rem * var(--scale));
-    }
-    
-    .folder {
-      background: var(--card-bg);
-      border: 1px solid var(--border-color);
-      border-radius: calc(1rem * var(--scale));
-      padding: calc(0.6rem * var(--scale)) calc(1rem * var(--scale));
-      cursor: pointer;
-      transition: all 0.2s ease;
-      font-size: calc(0.9rem * var(--scale));
-      font-weight: 500;
-      color: var(--text-primary);
-      display: flex;
-      align-items: center;
-      gap: calc(0.5rem * var(--scale));
-      box-shadow: var(--shadow);
-    }
-    
-    .folder:hover {
-      background: var(--hover-bg);
-    }
-    
-    .folder.active {
-      background: var(--accent-color);
-      color: white;
-      border-color: var(--accent-color);
-    }
-    
-    .folder-count {
-      background: var(--bg-tertiary);
-      color: var(--text-secondary);
-      border-radius: calc(1rem * var(--scale));
-      padding: calc(0.1rem * var(--scale)) calc(0.4rem * var(--scale));
-      font-size: calc(0.7rem * var(--scale));
-      font-weight: 600;
-    }
-    
-    .folder.active .folder-count {
-      background: rgba(255,255,255,0.2);
-      color: white;
-    }
-    
-    .add-folder {
-      background: transparent;
-      border: 1px dashed var(--border-color);
-      color: var(--text-secondary);
-    }
-    
-    .add-folder:hover {
-      background: var(--hover-bg);
-      border-color: var(--accent-color);
-      color: var(--accent-color);
     }
     
     .chats-container {
@@ -228,7 +152,7 @@
     }
     
     .loading-container {
-      display: flex;
+      display: none;
       flex-direction: column;
       align-items: center;
       justify-content: center;
@@ -238,13 +162,13 @@
     }
     
     .loading-spinner {
-      width: calc(40px * var(--scale));
-      height: calc(40px * var(--scale));
+      width: 40px;
+      height: 40px;
       border: 3px solid var(--border-color);
       border-top: 3px solid var(--accent-color);
       border-radius: 50%;
       animation: spin 1s linear infinite;
-      margin-bottom: calc(1rem * var(--scale));
+      margin-bottom: 1rem;
     }
     
     @keyframes spin {
@@ -259,29 +183,29 @@
     }
     
     .no-chats-icon {
-      width: calc(80px * var(--scale));
-      height: calc(80px * var(--scale));
+      width: 80px;
+      height: 80px;
       background: var(--accent-gradient);
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      margin: 0 auto calc(1.5rem * var(--scale));
+      margin: 0 auto 1.5rem;
     }
     
     .no-chats-icon i {
       color: white;
-      font-size: calc(2rem * var(--scale));
+      font-size: 2rem;
     }
     
     .no-chats h3 {
-      margin-bottom: calc(0.8rem * var(--scale));
+      margin-bottom: 0.8rem;
       font-weight: 600;
-      font-size: calc(1.3rem * var(--scale));
+      font-size: 1.3rem;
     }
     
     .no-chats p {
-      font-size: calc(1rem * var(--scale));
+      font-size: 1rem;
       line-height: 1.5;
     }
     
@@ -293,7 +217,7 @@
     .chat-item {
       display: flex;
       align-items: center;
-      padding: calc(0.9rem * var(--scale)) calc(1rem * var(--scale));
+      padding: 0.9rem 1rem;
       background: var(--bg-primary);
       border-bottom: 1px solid var(--border-color);
       cursor: pointer;
@@ -311,16 +235,16 @@
     }
     
     .chat-avatar {
-      width: calc(48px * var(--scale));
-      height: calc(48px * var(--scale));
+      width: 48px;
+      height: 48px;
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
       font-weight: 600;
-      font-size: calc(1.1rem * var(--scale));
+      font-size: 1.1rem;
       color: white;
-      margin-right: calc(1rem * var(--scale));
+      margin-right: 1rem;
       background: var(--accent-gradient);
       flex-shrink: 0;
     }
@@ -339,22 +263,22 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: calc(0.3rem * var(--scale));
+      margin-bottom: 0.3rem;
     }
     
     .chat-name {
       font-weight: 600;
-      font-size: calc(1rem * var(--scale));
+      font-size: 1rem;
       color: var(--text-primary);
     }
     
     .chat-time {
-      font-size: calc(0.8rem * var(--scale));
+      font-size: 0.8rem;
       color: var(--text-tertiary);
     }
     
     .chat-last-message {
-      font-size: calc(0.9rem * var(--scale));
+      font-size: 0.9rem;
       color: var(--text-secondary);
       white-space: nowrap;
       overflow: hidden;
@@ -364,43 +288,43 @@
     .chat-meta {
       display: flex;
       align-items: center;
-      gap: calc(0.5rem * var(--scale));
-      margin-top: calc(0.3rem * var(--scale));
+      gap: 0.5rem;
+      margin-top: 0.3rem;
     }
     
     .chat-type {
       background: var(--accent-color);
       color: white;
-      padding: calc(0.1rem * var(--scale)) calc(0.6rem * var(--scale));
-      border-radius: calc(1rem * var(--scale));
-      font-size: calc(0.7rem * var(--scale));
+      padding: 0.1rem 0.6rem;
+      border-radius: 1rem;
+      font-size: 0.7rem;
       font-weight: 500;
     }
     
     .unread-badge {
       background: var(--danger-color);
       color: white;
-      width: calc(18px * var(--scale));
-      height: calc(18px * var(--scale));
+      width: 18px;
+      height: 18px;
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: calc(0.7rem * var(--scale));
+      font-size: 0.7rem;
       font-weight: 600;
     }
     
     .create-chat-btn {
       position: fixed;
-      bottom: calc(1.5rem * var(--scale));
-      right: calc(1.5rem * var(--scale));
-      width: calc(56px * var(--scale));
-      height: calc(56px * var(--scale));
+      bottom: 1.5rem;
+      right: 1.5rem;
+      width: 56px;
+      height: 56px;
       border-radius: 50%;
       border: none;
       background: var(--accent-gradient);
       color: white;
-      font-size: calc(1.5rem * var(--scale));
+      font-size: 1.5rem;
       cursor: pointer;
       box-shadow: 0 4px 15px rgba(255, 127, 80, 0.4);
       display: flex;
@@ -432,7 +356,7 @@
     .search-panel {
       background: var(--bg-primary);
       border-radius: 0 0 1.5rem 1.5rem;
-      padding: calc(1rem * var(--scale));
+      padding: 1rem;
       animation: slideDown 0.3s ease;
       max-height: 80vh;
       overflow: hidden;
@@ -453,8 +377,8 @@
     .search-header {
       display: flex;
       align-items: center;
-      gap: calc(1rem * var(--scale));
-      margin-bottom: calc(1rem * var(--scale));
+      gap: 1rem;
+      margin-bottom: 1rem;
     }
     
     .search-box {
@@ -462,13 +386,13 @@
       display: flex;
       align-items: center;
       background: var(--bg-secondary);
-      border-radius: calc(1.5rem * var(--scale));
-      padding: calc(0.8rem * var(--scale)) calc(1rem * var(--scale));
+      border-radius: 1.5rem;
+      padding: 0.8rem 1rem;
     }
     
     .search-box i {
       color: var(--text-secondary);
-      margin-right: calc(0.5rem * var(--scale));
+      margin-right: 0.5rem;
     }
     
     .search-box input {
@@ -476,18 +400,18 @@
       border: none;
       outline: none;
       background: transparent;
-      font-size: calc(1rem * var(--scale));
+      font-size: 1rem;
       color: var(--text-primary);
     }
     
     .close-search {
       background: none;
       border: none;
-      font-size: calc(1.3rem * var(--scale));
+      font-size: 1.3rem;
       color: var(--text-secondary);
       cursor: pointer;
-      width: calc(40px * var(--scale));
-      height: calc(40px * var(--scale));
+      width: 40px;
+      height: 40px;
       border-radius: 50%;
       display: flex;
       align-items: center;
@@ -504,32 +428,32 @@
     }
     
     .search-section {
-      margin-bottom: calc(1.5rem * var(--scale));
+      margin-bottom: 1.5rem;
     }
     
     .section-title {
-      font-size: calc(1rem * var(--scale));
+      font-size: 1rem;
       font-weight: 600;
       color: var(--text-primary);
-      margin-bottom: calc(0.8rem * var(--scale));
-      padding: 0 calc(0.5rem * var(--scale));
+      margin-bottom: 0.8rem;
+      padding: 0 0.5rem;
     }
     
     .recommended-chats {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: calc(0.8rem * var(--scale));
+      gap: 0.8rem;
     }
     
     .recommended-chat {
       background: var(--card-bg);
-      border-radius: calc(0.8rem * var(--scale));
-      padding: calc(1rem * var(--scale));
+      border-radius: 0.8rem;
+      padding: 1rem;
       cursor: pointer;
       transition: background 0.2s ease;
       display: flex;
       align-items: center;
-      gap: calc(0.8rem * var(--scale));
+      gap: 0.8rem;
       border: 1px solid var(--border-color);
     }
     
@@ -538,8 +462,8 @@
     }
     
     .recommended-avatar {
-      width: calc(40px * var(--scale));
-      height: calc(40px * var(--scale));
+      width: 40px;
+      height: 40px;
       border-radius: 50%;
       background: var(--accent-gradient);
       display: flex;
@@ -557,8 +481,8 @@
     
     .recommended-name {
       font-weight: 600;
-      font-size: calc(0.9rem * var(--scale));
-      margin-bottom: calc(0.2rem * var(--scale));
+      font-size: 0.9rem;
+      margin-bottom: 0.2rem;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -566,21 +490,18 @@
     }
     
     .recommended-members {
-      font-size: calc(0.8rem * var(--scale));
+      font-size: 0.8rem;
       color: var(--text-secondary);
     }
     
-    /* Остальные стили остаются аналогичными с добавлением var(--scale) */
-    /* Для экономии места опускаю полное дублирование всех стилей */
-    
     .search-result-item {
-      padding: calc(1rem * var(--scale));
+      padding: 1rem;
       cursor: pointer;
       border-bottom: 1px solid var(--border-color);
       transition: background 0.2s ease;
       display: flex;
       align-items: center;
-      gap: calc(1rem * var(--scale));
+      gap: 1rem;
     }
     
     .search-result-item:hover {
@@ -588,8 +509,8 @@
     }
     
     .result-avatar {
-      width: calc(45px * var(--scale));
-      height: calc(45px * var(--scale));
+      width: 45px;
+      height: 45px;
       border-radius: 50%;
       background: var(--accent-gradient);
       display: flex;
@@ -606,16 +527,16 @@
     }
     
     .result-type {
-      font-size: calc(0.8rem * var(--scale));
+      font-size: 0.8rem;
       color: var(--accent-color);
       font-weight: 600;
-      margin-bottom: calc(0.3rem * var(--scale));
+      margin-bottom: 0.3rem;
     }
     
     .result-name {
       font-weight: 500;
       color: var(--text-primary);
-      font-size: calc(1rem * var(--scale));
+      font-size: 1rem;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -638,7 +559,6 @@
     
     .settings-item {
       padding: 1rem 1.5rem;
-      cursor: pointer;
       transition: background 0.2s ease;
       display: flex;
       align-items: center;
@@ -681,17 +601,13 @@
       text-align: center;
     }
 
-    /* Контекстное меню для папок */
-    .folder-context-menu {
-      display: none;
-      position: fixed;
-      background: var(--card-bg);
-      border-radius: 0.8rem;
-      box-shadow: var(--shadow);
-      z-index: 1000;
-      animation: fadeIn 0.2s ease;
-      min-width: 180px;
-      border: 1px solid var(--border-color);
+    .logout-btn {
+      cursor: pointer;
+      color: var(--danger-color);
+    }
+
+    .logout-btn:hover {
+      background: rgba(239, 68, 68, 0.1);
     }
 
     .overlay {
@@ -736,13 +652,6 @@
       </div>
     </div>
     
-    <!-- Папки -->
-    <div class="folders-container" id="foldersContainer">
-      <div class="folders" id="folders">
-        <!-- Папки будут добавляться динамически -->
-      </div>
-    </div>
-    
     <!-- Список чатов -->
     <div class="chats-container">
       <div class="loading-container" id="loadingContainer">
@@ -772,9 +681,64 @@
   <!-- Оверлей для затемнения -->
   <div class="overlay" id="overlay"></div>
   
-  <!-- Остальные модальные окна и меню -->
-  <!-- (Поиск, настройки, создание чата и т.д. - аналогично предыдущей версии) -->
+  <!-- Панель поиска -->
+  <div class="search-overlay" id="searchOverlay">
+    <div class="search-panel">
+      <div class="search-header">
+        <div class="search-box">
+          <i class="fas fa-search"></i>
+          <input type="text" id="searchInput" placeholder="Поиск пользователей и чатов...">
+        </div>
+        <button class="close-search" id="closeSearch">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      
+      <div class="search-results" id="searchResultsContainer">
+        <div class="search-section" id="recommendedSection">
+          <div class="section-title">Рекомендуемые чаты</div>
+          <div class="recommended-chats" id="recommendedChats">
+            <!-- Рекомендуемые чаты -->
+          </div>
+        </div>
+        
+        <div class="search-section" id="searchResultsSection" style="display: none;">
+          <div class="section-title">Результаты поиска</div>
+          <div id="searchResults">
+            <!-- Результаты поиска -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
   
+  <!-- Меню настроек -->
+  <div class="settings-menu" id="settingsMenu">
+    <div class="settings-item">
+      <div class="settings-text">
+        Тема
+        <div class="theme-option">
+          <input type="radio" id="lightTheme" name="theme" value="light" checked>
+          <label for="lightTheme">Светлая</label>
+        </div>
+        <div class="theme-option">
+          <input type="radio" id="darkTheme" name="theme" value="dark">
+          <label for="darkTheme">Тёмная</label>
+        </div>
+      </div>
+    </div>
+    <div class="settings-item">
+      <div class="settings-text">
+        Масштаб интерфейса
+        <input type="range" id="scaleSlider" class="scale-slider" min="0.8" max="1.2" step="0.1" value="1">
+        <div class="current-scale" id="scaleValue">100%</div>
+      </div>
+    </div>
+    <div class="settings-item logout-btn" id="logoutBtn">
+      <div class="settings-text">Выйти из аккаунта</div>
+    </div>
+  </div>
+
   <script>
     // Инициализация Firebase
     const firebaseConfig = {
@@ -794,16 +758,26 @@
     let currentScale = parseFloat(localStorage.getItem('hamburger_scale') || '1');
     let pinnedChats = JSON.parse(localStorage.getItem('hamburger_pinned_chats') || '[]');
     let mutedChats = JSON.parse(localStorage.getItem('hamburger_muted_chats') || '[]');
-    let folders = JSON.parse(localStorage.getItem('hamburger_folders') || '[]');
-    let currentFolder = 'all';
-    let uploadedAvatarUrl = '';
-    let currentContextChat = null;
-    let allChats = [];
-    let seenChatIds = new Set(); // Для устранения дубликатов в поиске
 
     // Применяем настройки при загрузке
     document.documentElement.setAttribute('data-theme', currentTheme);
     document.documentElement.style.setProperty('--scale', currentScale);
+
+    // Функции шифрования/дешифрования
+    function encryptData(data) {
+      return CryptoJS.AES.encrypt(JSON.stringify(data), ENCRYPTION_KEY).toString();
+    }
+    
+    function decryptData(encryptedData) {
+      try {
+        const bytes = CryptoJS.AES.decrypt(encryptedData, ENCRYPTION_KEY);
+        const decrypted = bytes.toString(CryptoJS.enc.Utf8);
+        return decrypted ? JSON.parse(decrypted) : null;
+      } catch (e) {
+        console.error('Ошибка дешифрования:', e);
+        return null;
+      }
+    }
 
     // Инициализация при загрузке
     window.addEventListener('DOMContentLoaded', async () => {
@@ -819,8 +793,10 @@
       // Установка аватарки профиля
       document.getElementById('profileInitial').textContent = currentUser.charAt(0).toUpperCase();
       
-      // Инициализация папок
-      initializeFolders();
+      // Показываем загрузку
+      document.getElementById('loadingContainer').style.display = 'flex';
+      document.getElementById('chatList').style.display = 'none';
+      document.getElementById('noChats').style.display = 'none';
       
       // Загрузка чатов пользователя
       await loadUserChats();
@@ -832,119 +808,301 @@
       setupEventListeners();
     });
 
-    // Инициализация папок
-    function initializeFolders() {
-      // Автоматически создаем папку "Все" если её нет
-      if (!folders.find(f => f.id === 'all')) {
-        folders.unshift({
-          id: 'all',
-          name: 'Все',
-          type: 'system',
-          chatIds: allChats.map(chat => chat.id)
-        });
-      }
-      
-      renderFolders();
-    }
-
-    // Отрисовка папок
-    function renderFolders() {
-      const foldersContainer = document.getElementById('folders');
-      foldersContainer.innerHTML = '';
-
-      folders.forEach(folder => {
-        const folderElement = document.createElement('div');
-        folderElement.className = `folder ${folder.id === currentFolder ? 'active' : ''}`;
-        folderElement.dataset.folderId = folder.id;
+    // Загрузка чатов пользователя - ИСПРАВЛЕННАЯ ВЕРСИЯ
+    async function loadUserChats() {
+      try {
+        console.log('Начинаем загрузку чатов для пользователя:', currentUserId);
         
-        const chatCount = folder.id === 'all' ? allChats.length : 
-                         folder.chatIds ? folder.chatIds.length : 0;
+        const userChatsRef = database.ref(`userChats/${currentUserId}`);
+        const snapshot = await userChatsRef.once('value');
         
-        folderElement.innerHTML = `
-          <span>${folder.name}</span>
-          ${chatCount > 0 ? `<span class="folder-count">${chatCount}</span>` : ''}
-        `;
-        
-        folderElement.addEventListener('click', () => {
-          switchFolder(folder.id);
-        });
-        
-        // Контекстное меню для пользовательских папок
-        if (folder.type !== 'system') {
-          folderElement.addEventListener('contextmenu', (e) => {
-            e.preventDefault();
-            showFolderContextMenu(e, folder.id);
-          });
+        if (!snapshot.exists()) {
+          console.log('У пользователя нет чатов');
+          // Скрываем загрузку и показываем сообщение "нет чатов"
+          document.getElementById('loadingContainer').style.display = 'none';
+          document.getElementById('noChats').style.display = 'block';
+          return;
         }
         
-        foldersContainer.appendChild(folderElement);
-      });
-
-      // Кнопка добавления папки
-      const addFolder = document.createElement('div');
-      addFolder.className = 'folder add-folder';
-      addFolder.innerHTML = '<i class="fas fa-plus"></i>';
-      addFolder.addEventListener('click', createNewFolder);
-      foldersContainer.appendChild(addFolder);
-    }
-
-    // Переключение папки
-    function switchFolder(folderId) {
-      currentFolder = folderId;
-      renderFolders();
-      filterChatsByFolder();
-    }
-
-    // Фильтрация чатов по папке
-    function filterChatsByFolder() {
-      const chatItems = document.querySelectorAll('.chat-item');
-      
-      chatItems.forEach(item => {
-        const chatId = item.dataset.chatId;
-        const shouldShow = currentFolder === 'all' || 
-                          (folders.find(f => f.id === currentFolder)?.chatIds || []).includes(chatId);
+        const chats = snapshot.val();
+        console.log('Найдено чатов:', Object.keys(chats).length);
         
-        item.style.display = shouldShow ? 'flex' : 'none';
-      });
-      
-      // Показываем/скрываем сообщение "нет чатов"
-      const visibleChats = Array.from(chatItems).filter(item => item.style.display !== 'none');
-      document.getElementById('noChats').style.display = visibleChats.length === 0 ? 'block' : 'none';
-    }
-
-    // Создание новой папки
-    function createNewFolder() {
-      const folderName = prompt('Введите название папки:');
-      if (!folderName) return;
-      
-      const newFolder = {
-        id: 'folder_' + Date.now(),
-        name: folderName,
-        type: 'custom',
-        chatIds: []
-      };
-      
-      folders.push(newFolder);
-      localStorage.setItem('hamburger_folders', JSON.stringify(folders));
-      renderFolders();
-    }
-
-    // Контекстное меню для папок
-    function showFolderContextMenu(event, folderId) {
-      // Реализация контекстного меню для удаления папок
-      const folder = folders.find(f => f.id === folderId);
-      if (!folder || folder.type === 'system') return;
-      
-      if (confirm(`Удалить папку "${folder.name}"?`)) {
-        folders = folders.filter(f => f.id !== folderId);
-        localStorage.setItem('hamburger_folders', JSON.stringify(folders));
-        renderFolders();
+        const chatPromises = [];
+        const chatIds = [];
         
-        // Если удаляли текущую папку, переключаемся на "Все"
-        if (currentFolder === folderId) {
-          switchFolder('all');
+        for (const chatId in chats) {
+          chatIds.push(chatId);
+          chatPromises.push(loadChatData(chatId));
         }
+        
+        // Ждем загрузки всех чатов
+        const chatDataArray = await Promise.all(chatPromises);
+        
+        // Фильтруем null значения (чаты которые не удалось загрузить)
+        const validChats = chatDataArray.filter(chat => chat !== null);
+        
+        console.log('Успешно загружено чатов:', validChats.length);
+        
+        if (validChats.length === 0) {
+          // Если все чаты невалидные, показываем "нет чатов"
+          document.getElementById('loadingContainer').style.display = 'none';
+          document.getElementById('noChats').style.display = 'block';
+          return;
+        }
+        
+        // Отображаем чаты
+        validChats.forEach(chatData => {
+          displayChat(chatData.id, chatData.decryptedData);
+        });
+        
+        // Скрываем загрузку и показываем список чатов
+        document.getElementById('loadingContainer').style.display = 'none';
+        document.getElementById('chatList').style.display = 'flex';
+        
+        // Сортируем чаты: сначала закрепленные
+        sortChats();
+        
+      } catch (error) {
+        console.error('Ошибка загрузки чатов:', error);
+        // В случае ошибки тоже показываем "нет чатов"
+        document.getElementById('loadingContainer').style.display = 'none';
+        document.getElementById('noChats').style.display = 'block';
       }
+    }
+
+    // Загрузка данных конкретного чата
+    async function loadChatData(chatId) {
+      try {
+        const chatRef = database.ref(`chats/${chatId}`);
+        const snapshot = await chatRef.once('value');
+        
+        if (!snapshot.exists()) {
+          console.log('Чат не найден:', chatId);
+          return null;
+        }
+        
+        const chatData = snapshot.val();
+        const decryptedData = decryptData(chatData.encryptedData);
+        
+        if (!decryptedData) {
+          console.log('Не удалось расшифровать чат:', chatId);
+          return null;
+        }
+        
+        return {
+          id: chatId,
+          decryptedData: decryptedData
+        };
+      } catch (error) {
+        console.error('Ошибка загрузки чата', chatId, ':', error);
+        return null;
+      }
+    }
+
+    // Отображение чата
+    function displayChat(chatId, decryptedData) {
+      const chatItem = document.createElement('div');
+      chatItem.className = 'chat-item';
+      chatItem.dataset.chatId = chatId;
+      
+      if (pinnedChats.includes(chatId)) {
+        chatItem.classList.add('pinned');
+      }
+      
+      // Обработчики для чата
+      chatItem.addEventListener('click', () => {
+        window.location.href = `https://hamburgerchat.github.io/chat.html?=${chatId}`;
+      });
+      
+      const avatar = document.createElement('div');
+      avatar.className = 'chat-avatar';
+      
+      if (decryptedData.avatar) {
+        avatar.style.backgroundImage = `url(${decryptedData.avatar})`;
+        avatar.classList.add('has-image');
+      } else {
+        avatar.textContent = decryptedData.name.charAt(0).toUpperCase();
+      }
+      
+      const info = document.createElement('div');
+      info.className = 'chat-info';
+      
+      const header = document.createElement('div');
+      header.className = 'chat-header';
+      
+      const name = document.createElement('div');
+      name.className = 'chat-name';
+      name.textContent = decryptedData.name;
+      
+      const time = document.createElement('div');
+      time.className = 'chat-time';
+      time.textContent = formatTime(decryptedData.lastMessageTime || decryptedData.createdAt);
+      
+      header.appendChild(name);
+      header.appendChild(time);
+      
+      const lastMessage = document.createElement('div');
+      lastMessage.className = 'chat-last-message';
+      lastMessage.textContent = decryptedData.lastMessage || 'Нет сообщений';
+      
+      const meta = document.createElement('div');
+      meta.className = 'chat-meta';
+      
+      const type = document.createElement('div');
+      type.className = 'chat-type';
+      type.textContent = decryptedData.type === 'private' ? 'Личный' : 'Группа';
+      
+      meta.appendChild(type);
+      
+      info.appendChild(header);
+      info.appendChild(lastMessage);
+      info.appendChild(meta);
+      
+      chatItem.appendChild(avatar);
+      chatItem.appendChild(info);
+      
+      document.getElementById('chatList').appendChild(chatItem);
+    }
+
+    // Сортировка чатов
+    function sortChats() {
+      const chatItems = Array.from(document.getElementById('chatList').children);
+      
+      chatItems.sort((a, b) => {
+        const aPinned = pinnedChats.includes(a.dataset.chatId);
+        const bPinned = pinnedChats.includes(b.dataset.chatId);
+        
+        if (aPinned && !bPinned) return -1;
+        if (!aPinned && bPinned) return 1;
+        return 0;
+      });
+      
+      // Переставляем элементы в правильном порядке
+      const chatList = document.getElementById('chatList');
+      chatItems.forEach(item => chatList.appendChild(item));
+    }
+
+    // Форматирование времени
+    function formatTime(timestamp) {
+      if (!timestamp) return '';
+      
+      const date = new Date(timestamp);
+      const now = new Date();
+      const diff = now - date;
+      
+      if (diff < 24 * 60 * 60 * 1000) {
+        return date.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+      } else {
+        return date.toLocaleDateString('ru-RU');
+      }
+    }
+
+    // Настройка обработчиков событий
+    function setupEventListeners() {
+      // Переход в профиль
+      document.getElementById('profileBtn').addEventListener('click', () => {
+        window.location.href = 'https://hamburgerchat.github.io/profile.html';
+      });
+      
+      // Меню настроек
+      document.getElementById('menuToggle').addEventListener('click', (e) => {
+        e.stopPropagation();
+        const settingsMenu = document.getElementById('settingsMenu');
+        settingsMenu.style.display = settingsMenu.style.display === 'block' ? 'none' : 'block';
+        document.getElementById('overlay').style.display = settingsMenu.style.display === 'block' ? 'block' : 'none';
+        
+        // Настройка темы
+        setupThemeSettings();
+        // Настройка масштаба
+        setupScaleSettings();
+      });
+      
+      // Выход из аккаунта
+      document.getElementById('logoutBtn').addEventListener('click', () => {
+        localStorage.removeItem('hamburger_user');
+        localStorage.removeItem('hamburger_user_id');
+        localStorage.removeItem('hamburger_pinned_chats');
+        localStorage.removeItem('hamburger_muted_chats');
+        window.location.href = 'https://hamburgerchat.github.io/';
+      });
+      
+      // Поиск
+      document.getElementById('searchToggle').addEventListener('click', openSearch);
+      document.getElementById('closeSearch').addEventListener('click', closeSearchPanel);
+      document.getElementById('searchInput').addEventListener('input', handleSearch);
+      
+      // Создание чата
+      document.getElementById('createChatBtn').addEventListener('click', () => {
+        // Простое создание личного чата для демонстрации
+        const username = prompt('Введите имя пользователя для создания чата:');
+        if (username) {
+          createOrOpenPrivateChat(username, null);
+        }
+      });
+      
+      // Оверлей
+      document.getElementById('overlay').addEventListener('click', closeAllModals);
+    }
+
+    // Настройка темы
+    function setupThemeSettings() {
+      const lightTheme = document.getElementById('lightTheme');
+      const darkTheme = document.getElementById('darkTheme');
+      
+      // Устанавливаем текущее состояние
+      lightTheme.checked = currentTheme === 'light';
+      darkTheme.checked = currentTheme === 'dark';
+      
+      // Обработчики изменений
+      lightTheme.addEventListener('change', () => toggleTheme('light'));
+      darkTheme.addEventListener('change', () => toggleTheme('dark'));
+    }
+
+    // Настройка масштаба
+    function setupScaleSettings() {
+      const scaleSlider = document.getElementById('scaleSlider');
+      const scaleValue = document.getElementById('scaleValue');
+      
+      scaleSlider.value = currentScale;
+      scaleValue.textContent = Math.round(currentScale * 100) + '%';
+      
+      scaleSlider.addEventListener('input', (e) => {
+        const newScale = parseFloat(e.target.value);
+        currentScale = newScale;
+        scaleValue.textContent = Math.round(newScale * 100) + '%';
+        document.documentElement.style.setProperty('--scale', newScale);
+        localStorage.setItem('hamburger_scale', newScale.toString());
+      });
+    }
+
+    // Переключение темы
+    function toggleTheme(theme) {
+      currentTheme = theme;
+      document.documentElement.setAttribute('data-theme', theme);
+      localStorage.setItem('hamburger_theme', theme);
+    }
+
+    // Поиск
+    function openSearch() {
+      document.getElementById('searchOverlay').style.display = 'block';
+      document.getElementById('overlay').style.display = 'block';
+      document.getElementById('searchInput').focus();
+      document.getElementById('searchResultsSection').style.display = 'none';
+      document.getElementById('recommendedSection').style.display = 'block';
+      loadRecommendedChats();
+    }
+
+    function closeSearchPanel() {
+      document.getElementById('searchOverlay').style.display = 'none';
+      document.getElementById('overlay').style.display = 'none';
+      document.getElementById('searchInput').value = '';
+      document.getElementById('searchResults').innerHTML = '';
+    }
+
+    function closeAllModals() {
+      document.getElementById('searchOverlay').style.display = 'none';
+      document.getElementById('overlay').style.display = 'none';
+      document.getElementById('settingsMenu').style.display = 'none';
     }
 
     // Загрузка рекомендуемых чатов (топ 10 по количеству участников)
@@ -1019,50 +1177,72 @@
       });
     }
 
-    // Обновленный поиск без дубликатов
+    // Присоединение к публичному чату
+    async function joinPublicChat(chatId, chatData) {
+      try {
+        // Добавляем чат пользователю
+        await database.ref(`userChats/${currentUserId}/${chatId}`).set(true);
+        
+        closeAllModals();
+        window.location.href = `https://hamburgerchat.github.io/chat.html?=${chatId}`;
+        
+      } catch (error) {
+        console.error('Ошибка присоединения к чату:', error);
+        alert('Ошибка при присоединении к чату');
+      }
+    }
+
+    // Создание или открытие личного чата
+    async function createOrOpenPrivateChat(username, userId) {
+      try {
+        // Создаем новый личный чат
+        const chatId = 'chat_' + Date.now();
+        const chatData = {
+          name: username,
+          type: 'private',
+          participants: [currentUser, username],
+          createdBy: currentUser,
+          createdAt: Date.now(),
+          lastMessage: '',
+          lastMessageTime: Date.now()
+        };
+        
+        const encryptedData = encryptData(chatData);
+        
+        // Сохраняем чат
+        await database.ref(`chats/${chatId}`).set({
+          encryptedData: encryptedData,
+          createdAt: Date.now()
+        });
+        
+        // Добавляем чат пользователю
+        await database.ref(`userChats/${currentUserId}/${chatId}`).set(true);
+        
+        // Переходим к созданному чату
+        window.location.href = `https://hamburgerchat.github.io/chat.html?=${chatId}`;
+        
+      } catch (error) {
+        console.error('Ошибка создания личного чата:', error);
+        alert('Ошибка при создании чата');
+      }
+    }
+
+    // Обработка поиска
     async function handleSearch() {
-      const query = searchInput.value.trim().toLowerCase();
-      seenChatIds.clear();
+      const query = document.getElementById('searchInput').value.trim().toLowerCase();
       
       if (query.length === 0) {
-        searchResultsSection.style.display = 'none';
-        recommendedSection.style.display = 'block';
-        await loadRecommendedChats();
+        document.getElementById('searchResultsSection').style.display = 'none';
+        document.getElementById('recommendedSection').style.display = 'block';
         return;
       }
       
-      // Остальная логика поиска с проверкой seenChatIds
-      // Для предотвращения дубликатов
+      // Простая заглушка для поиска
+      document.getElementById('searchResultsSection').style.display = 'block';
+      document.getElementById('recommendedSection').style.display = 'none';
+      document.getElementById('searchResults').innerHTML = 
+        '<div style="padding: 1rem; text-align: center; color: var(--text-secondary);">Функция поиска в разработке</div>';
     }
-
-    // Настройки масштаба
-    function setupScaleSettings() {
-      const scaleSlider = document.getElementById('scaleSlider');
-      const scaleValue = document.getElementById('scaleValue');
-      
-      if (scaleSlider && scaleValue) {
-        scaleSlider.value = currentScale;
-        scaleValue.textContent = Math.round(currentScale * 100) + '%';
-        
-        scaleSlider.addEventListener('input', (e) => {
-          const newScale = parseFloat(e.target.value);
-          currentScale = newScale;
-          scaleValue.textContent = Math.round(newScale * 100) + '%';
-          document.documentElement.style.setProperty('--scale', newScale);
-          localStorage.setItem('hamburger_scale', newScale.toString());
-        });
-      }
-    }
-
-    // Переключение темы
-    function toggleTheme(theme) {
-      currentTheme = theme;
-      document.documentElement.setAttribute('data-theme', theme);
-      localStorage.setItem('hamburger_theme', theme);
-    }
-
-    // Остальные функции остаются аналогичными, но с добавлением работы с папками
-    // и обновленными обработчиками для тёмной темы и масштабирования
   </script>
 </body>
 </html>
