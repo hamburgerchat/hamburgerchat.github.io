@@ -783,46 +783,58 @@
       loadAllStickerPacks();
     });
 
-    // Загрузка данных чата
-    async function loadChatData() {
-      try {
-        const chatRef = database.ref(`chats/${currentChatId}`);
-        const snapshot = await chatRef.once('value');
-        
-        if (!snapshot.exists()) {
-          alert('Чат не найден');
-          window.location.href = 'https://hamburgerchat.github.io/main.html';
-          return;
-        }
-        
-        const chatData = snapshot.val();
-        currentChatData = decryptData(chatData.encryptedData);
-        
-        if (!currentChatData) {
-          alert('Ошибка загрузки чата');
-          return;
-        }
-        
-        // Обновление заголовка
-        document.getElementById('chatTitle').textContent = currentChatData.name;
-        document.getElementById('chatAvatarInitial').textContent = currentChatData.name.charAt(0).toUpperCase();
-        document.getElementById('chatStatus').textContent = 'В сети';
-        
-        if (currentChatData.avatar) {
-          document.getElementById('chatAvatar').style.backgroundImage = `url(${currentChatData.avatar})`;
-          document.getElementById('chatAvatar').classList.add('has-image');
-        }
-        
-        // Загрузка сообщений
-        loadMessages();
-        
-        // Загрузка закреплённого сообщения
-        loadPinnedMessage();
-        
-      } catch (error) {
-        console.error('Ошибка загрузки чата:', error);
-      }
+// Загрузка данных чата
+async function loadChatData() {
+  try {
+    console.log('Пытаюсь загрузить чат с ID:', currentChatId);
+    
+    const chatRef = database.ref(`chats/${currentChatId}`);
+    const snapshot = await chatRef.once('value');
+    
+    console.log('Данные чата из Firebase:', snapshot.val());
+    
+    if (!snapshot.exists()) {
+      console.error('Чат не найден в Firebase');
+      alert('Чат не найден');
+      window.location.href = 'https://hamburgerchat.github.io/main.html';
+      return;
     }
+    
+    const chatData = snapshot.val();
+    console.log('Зашифрованные данные чата:', chatData);
+    
+    currentChatData = decryptData(chatData.encryptedData);
+    console.log('Расшифрованные данные чата:', currentChatData);
+    
+    if (!currentChatData) {
+      console.error('Не удалось расшифровать данные чата');
+      alert('Ошибка загрузки чата');
+      return;
+    }
+    
+    // Обновление заголовка
+    document.getElementById('chatTitle').textContent = currentChatData.name;
+    document.getElementById('chatAvatarInitial').textContent = currentChatData.name.charAt(0).toUpperCase();
+    document.getElementById('chatStatus').textContent = 'В сети';
+    
+    if (currentChatData.avatar) {
+      document.getElementById('chatAvatar').style.backgroundImage = `url(${currentChatData.avatar})`;
+      document.getElementById('chatAvatar').classList.add('has-image');
+    }
+    
+    console.log('Чат успешно загружен:', currentChatData.name);
+    
+    // Загрузка сообщений
+    loadMessages();
+    
+    // Загрузка закреплённого сообщения
+    loadPinnedMessage();
+    
+  } catch (error) {
+    console.error('Ошибка загрузки чата:', error);
+    alert('Ошибка: ' + error.message);
+  }
+}
 
     // Загрузка сообщений
     function loadMessages() {
