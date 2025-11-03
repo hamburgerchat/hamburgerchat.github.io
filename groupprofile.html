@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hamburger — Профиль группы</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+  <style>
+    :root {
+      --bg-primary: #ffffff;
+      --bg-secondary: #f8f9fa;
+      --bg-tertiary: #f1f3f4;
+      --text-primary: #1f2937;
+      --text-secondary: #6b7280;
+      --text-tertiary: #9ca3af;
+      --border-color: #e5e7eb;
+      --accent-color: #ff7f50;
+      --accent-gradient: linear-gradient(135deg, #ff7f50, #ffcc70);
+      --shadow: 0 1px 3px rgba(0,0,0,0.1);
+      --card-bg: #ffffff;
+      --hover-bg: #f3f4f6;
+      --danger-color: #ef4444;
+      --success-color: #10b981;
+    }
+
+    [data-theme="dark"] {
+      --bg-primary: #111827;
+      --bg-secondary: #1f2937;
+      --bg-tertiary: #374151;
+      --text-primary: #f9fafb;
+      --text-secondary: #d1d5db;
+      --text-tertiary: #9ca3af;
+      --border-color: #374151;
+      --card-bg: #1f2937;
+      --hover-bg: #374151;
+      --shadow: 0 1px 3px rgba(0,0,0,0.3);
+    }
+
+    * { 
+      box-sizing: border-box; 
+      margin: 0; 
+      padding: 0; 
+      font-family: 'Inter', sans-serif; 
+    }
+    
+    body {
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+      transition: all 0.3s ease;
+    }
+    
+    .profile-container {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      background: var(--bg-primary);
+      width: 100%;
+      position: relative;
+    }
+    
+    .header {
+      background: var(--bg-primary);
+      padding: 0.8rem 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border-color);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    
+    .back-button {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: none;
+      background: transparent;
+      color: var(--text-secondary);
+      font-size: 1.1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+    }
+    
+    .back-button:hover {
+      background: var(--hover-bg);
+    }
+    
+    .header-title {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .edit-button {
+      padding: 0.6rem 1rem;
+      border: none;
+      border-radius: 0.8rem;
+      background: var(--accent-color);
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    
+    .edit-button:hover {
+      background: #ff6b35;
+    }
+    
+    .save-button {
+      padding: 0.6rem 1rem;
+      border: none;
+      border-radius: 0.8rem;
+      background: var(--success-color);
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: none;
+    }
+    
+    .save-button:hover {
+      background: #0da271;
+    }
+    
+    .cancel-button {
+      padding: 0.6rem 1rem;
+      border: none;
+      border-radius: 0.8rem;
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: none;
+    }
+    
+    .cancel-button:hover {
+      background: var(--hover-bg);
+    }
+    
+    .profile-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1.5rem 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+    
+    .profile-section {
+      background: var(--card-bg);
+      border-radius: 1rem;
+      padding: 1.5rem;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border-color);
+    }
+    
+    .profile-header {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    
+    .avatar-container {
+      position: relative;
+      width: 120px;
+      height: 120px;
+    }
+    
+    .group-avatar {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      background: var(--accent-gradient);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      color: white;
+      font-size: 2.5rem;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      background-size: cover;
+      background-position: center;
+    }
+    
+    .avatar-edit {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--accent-color);
+      color: white;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      display: none;
+    }
+    
+    .avatar-edit:hover {
+      background: #ff6b35;
+    }
+    
+    .group-name {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 0.5rem;
+    }
+    
+    .group-name-input {
+      width: 100%;
+      padding: 0.8rem 1rem;
+      border: 1px solid var(--border-color);
+      border-radius: 0.8rem;
+      font-size: 1.8rem;
+      font-weight: 700;
+      text-align: center;
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      display: none;
+    }
+    
+    .group-description {
+      font-size: 1rem;
+      color: var(--text-secondary);
+      line-height: 1.5;
+      max-width: 500px;
+    }
+    
+    .group-description-input {
+      width: 100%;
+      padding: 0.8rem 1rem;
+      border: 1px solid var(--border-color);
+      border-radius: 0.8rem;
+      font-size: 1rem;
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      resize: vertical;
+      min-height: 100px;
+      display: none;
+    }
+    
+    .section-title {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .section-title i {
+      color: var(--accent-color);
+    }
+    
+    .members-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 1rem;
+    }
+    
+    .member-item {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1rem;
+      background: var(--bg-secondary);
+      border-radius: 0.8rem;
+      transition: background 0.2s ease;
+    }
+    
+    .member-item:hover {
+      background: var(--hover-bg);
+    }
+    
+    .member-avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: var(--accent-gradient);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      color: white;
+    }
+    
+    .member-info {
+      flex: 1;
+    }
+    
+    .member-name {
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 0.2rem;
+    }
+    
+    .member-role {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+    }
+    
+    .role-creator {
+      color: var(--accent-color);
+      font-weight: 600;
+    }
+    
+    .role-admin {
+      color: #4ecdc4;
+      font-weight: 600;
+    }
+    
+    .loading-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      padding: 2rem;
+      color: var(--text-secondary);
+    }
+    
+    .loading-spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid var(--border-color);
+      border-top: 3px solid var(--accent-color);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-bottom: 1rem;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    .error-container {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      padding: 2rem;
+      text-align: center;
+    }
+    
+    .error-icon {
+      width: 80px;
+      height: 80px;
+      background: var(--danger-color);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1.5rem;
+    }
+    
+    .error-icon i {
+      color: white;
+      font-size: 2rem;
+    }
+    
+    .error-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 0.8rem;
+      color: var(--text-primary);
+    }
+    
+    .error-message {
+      color: var(--text-secondary);
+      margin-bottom: 1.5rem;
+      max-width: 400px;
+    }
+    
+    .back-home-btn {
+      padding: 0.8rem 1.5rem;
+      background: var(--accent-color);
+      color: white;
+      border: none;
+      border-radius: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    
+    .back-home-btn:hover {
+      background: #ff6b35;
+    }
+    
+    .avatar-upload {
+      display: none;
+    }
+    
+    @media (max-width: 768px) {
+      .members-list {
+        grid-template-columns: 1fr;
+      }
+      
+      .group-name {
+        font-size: 1.5rem;
+      }
+      
+      .group-name-input {
+        font-size: 1.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="profile-container">
+    <div class="header">
+      <div class="header-left">
+        <button class="back-button" id="backButton">
+          <i class="fas fa-arrow-left"></i>
+        </button>
+        <div class="header-title" id="headerTitle">Профиль группы</div>
+      </div>
+      <div class="header-actions">
+        <button class="cancel-button" id="cancelButton">Отмена</button>
+        <button class="save-button" id="saveButton">Сохранить</button>
+        <button class="edit-button" id="editButton">Редактировать</button>
+      </div>
+    </div>
+    
+    <div class="profile-content" id="profileContent">
+      <div class="loading-container" id="loadingContainer">
+        <div class="loading-spinner"></div>
+        <div>Загрузка данных группы...</div>
+      </div>
+      
+      <div class="error-container" id="errorContainer">
+        <div class="error-icon">
+          <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <div class="error-title">Группа не найдена</div>
+        <div class="error-message" id="errorMessage">Возможно, у вас нет доступа к этой группе или она была удалена.</div>
+        <button class="back-home-btn" id="backHomeBtn">На главную</button>
+      </div>
+      
+      <div class="profile-section" id="profileSection" style="display: none;">
+        <div class="profile-header">
+          <div class="avatar-container">
+            <div class="group-avatar" id="groupAvatar">
+              <span id="groupAvatarInitial">G</span>
+            </div>
+            <button class="avatar-edit" id="avatarEdit">
+              <i class="fas fa-camera"></i>
+            </button>
+            <input type="file" id="avatarUpload" class="avatar-upload" accept="image/*">
+          </div>
+          <div class="group-name" id="groupName">Название группы</div>
+          <input type="text" class="group-name-input" id="groupNameInput" placeholder="Введите название группы">
+          <div class="group-description" id="groupDescription">Описание группы</div>
+          <textarea class="group-description-input" id="groupDescriptionInput" placeholder="Введите описание группы"></textarea>
+        </div>
+      </div>
+      
+      <div class="profile-section" id="membersSection" style="display: none;">
+        <div class="section-title">
+          <i class="fas fa-users"></i>
+          <span>Участники группы</span>
+        </div>
+        <div class="members-list" id="membersList">
+          <!-- Участники будут добавляться динамически -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Инициализация Firebase
+    const firebaseConfig = {
+      databaseURL: "https://hamburgerchat-e8f2a-default-rtdb.firebaseio.com/"
+    };
+    
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+    const database = firebase.database();
+    
+    // Ключ для шифрования
+    const ENCRYPTION_KEY = "HamburgerSecureKey2024!";
+    
+    // Текущий пользователь и данные группы
+    let currentUser = null;
+    let currentUserId = null;
+    let currentGroupId = null;
+    let groupData = null;
+    let isEditing = false;
+    let uploadedAvatarUrl = '';
+
+    // Функции шифрования/дешифрования
+    function encryptData(data) {
+      return CryptoJS.AES.encrypt(JSON.stringify(data), ENCRYPTION_KEY).toString();
+    }
+    
+    function decryptData(encryptedData) {
+      try {
+        const bytes = CryptoJS.AES.decrypt(encryptedData, ENCRYPTION_KEY);
+        const decrypted = bytes.toString(CryptoJS.enc.Utf8);
+        return decrypted ? JSON.parse(decrypted) : null;
+      } catch (e) {
+        console.error('Ошибка дешифрования:', e);
+        return null;
+      }
+    }
+
+    // Получение ID группы из URL
+    function getGroupIdFromUrl() {
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get('id');
+    }
+
+    // Загрузка страницы
+    window.addEventListener('DOMContentLoaded', async () => {
+      // Применяем сохраненную тему
+      const savedTheme = localStorage.getItem('hamburger_theme') || 'light';
+      document.documentElement.setAttribute('data-theme', savedTheme);
+      
+      // Проверка авторизации
+      currentUser = localStorage.getItem('hamburger_user');
+      currentUserId = localStorage.getItem('hamburger_user_id');
+      
+      if (!currentUser || !currentUserId) {
+        window.location.href = 'https://hamburgerchat.github.io/';
+        return;
+      }
+      
+      // Получаем ID группы из URL
+      currentGroupId = getGroupIdFromUrl();
+      
+      if (!currentGroupId) {
+        showError('ID группы не указан');
+        return;
+      }
+      
+      // Загружаем данные группы
+      await loadGroupData();
+      
+      // Настраиваем обработчики событий
+      setupEventListeners();
+    });
+
+    // Загрузка данных группы
+    async function loadGroupData() {
+      try {
+        console.log('Загружаю группу с ID:', currentGroupId);
+        
+        const groupRef = database.ref(`chats/${currentGroupId}`);
+        const snapshot = await groupRef.once('value');
+        
+        if (!snapshot.exists()) {
+          throw new Error('Группа не найдена в базе данных');
+        }
+        
+        const chatData = snapshot.val();
+        console.log('Данные группы:', chatData);
+        
+        let decryptedData = null;
+        
+        if (chatData.encryptedData) {
+          decryptedData = decryptData(chatData.encryptedData);
+        } else if (chatData.name) {
+          decryptedData = chatData;
+        }
+        
+        if (!decryptedData) {
+          throw new Error('Не удалось расшифровать данные группы');
+        }
+        
+        // Проверяем, является ли группа группой
+        if (decryptedData.type !== 'group') {
+          throw new Error('Это не группа');
+        }
+        
+        // Проверяем, является ли пользователь участником группы
+        if (!decryptedData.participants || !decryptedData.participants[currentUserId]) {
+          throw new Error('Вы не являетесь участником этой группы');
+        }
+        
+        groupData = decryptedData;
+        console.log('Расшифрованные данные:', groupData);
+        
+        // Отображаем данные группы
+        displayGroupData();
+        
+        // Скрываем загрузку и показываем контент
+        document.getElementById('loadingContainer').style.display = 'none';
+        document.getElementById('profileSection').style.display = 'block';
+        document.getElementById('membersSection').style.display = 'block';
+        
+      } catch (error) {
+        console.error('Ошибка загрузки группы:', error);
+        showError(error.message);
+      }
+    }
+
+    // Отображение данных группы
+    function displayGroupData() {
+      // Аватар
+      const groupAvatar = document.getElementById('groupAvatar');
+      const groupAvatarInitial = document.getElementById('groupAvatarInitial');
+      
+      if (groupData.avatar) {
+        groupAvatar.style.backgroundImage = `url(${groupData.avatar})`;
+        groupAvatarInitial.style.display = 'none';
+      } else {
+        groupAvatarInitial.textContent = groupData.name ? groupData.name.charAt(0).toUpperCase() : 'G';
+      }
+      
+      // Название
+      document.getElementById('groupName').textContent = groupData.name || 'Без названия';
+      document.getElementById('groupNameInput').value = groupData.name || '';
+      
+      // Описание
+      document.getElementById('groupDescription').textContent = groupData.description || 'Описание отсутствует';
+      document.getElementById('groupDescriptionInput').value = groupData.description || '';
+      
+      // Участники
+      displayMembers();
+      
+      // Показываем кнопку редактирования только для создателя и админов
+      const isCreator = groupData.createdBy === currentUserId;
+      const isAdmin = groupData.admins && groupData.admins.includes(currentUser);
+      
+      if (isCreator || isAdmin) {
+        document.getElementById('editButton').style.display = 'block';
+      }
+    }
+
+    // Отображение участников
+    function displayMembers() {
+      const membersList = document.getElementById('membersList');
+      membersList.innerHTML = '';
+      
+      if (!groupData.participants) {
+        membersList.innerHTML = '<div style="padding: 1rem; text-align: center; color: var(--text-secondary);">Нет участников</div>';
+        return;
+      }
+      
+      // Получаем список участников
+      const participants = Object.keys(groupData.participants);
+      
+      // Для каждого участника создаем элемент
+      participants.forEach(userId => {
+        // В реальном приложении нужно загрузить данные пользователя по userId
+        // Здесь для простоты используем userId как имя
+        const memberItem = document.createElement('div');
+        memberItem.className = 'member-item';
+        
+        // Определяем роль
+        let role = 'Участник';
+        let roleClass = '';
+        
+        if (userId === groupData.createdBy) {
+          role = 'Создатель';
+          roleClass = 'role-creator';
+        } else if (groupData.admins && groupData.admins.includes(userId)) {
+          role = 'Администратор';
+          roleClass = 'role-admin';
+        }
+        
+        memberItem.innerHTML = `
+          <div class="member-avatar">${userId.charAt(0).toUpperCase()}</div>
+          <div class="member-info">
+            <div class="member-name">${userId}</div>
+            <div class="member-role ${roleClass}">${role}</div>
+          </div>
+        `;
+        
+        membersList.appendChild(memberItem);
+      });
+    }
+
+    // Настройка обработчиков событий
+    function setupEventListeners() {
+      // Кнопка назад
+      document.getElementById('backButton').addEventListener('click', () => {
+        window.location.href = `https://hamburgerchat.github.io/beta.html?id=${currentGroupId}`;
+      });
+      
+      // Кнопка редактирования
+      document.getElementById('editButton').addEventListener('click', enableEditing);
+      
+      // Кнопка сохранения
+      document.getElementById('saveButton').addEventListener('click', saveChanges);
+      
+      // Кнопка отмены
+      document.getElementById('cancelButton').addEventListener('click', cancelEditing);
+      
+      // Редактирование аватара
+      document.getElementById('avatarEdit').addEventListener('click', () => {
+        document.getElementById('avatarUpload').click();
+      });
+      
+      document.getElementById('avatarUpload').addEventListener('change', handleAvatarUpload);
+      
+      // Кнопка "На главную" на странице ошибки
+      document.getElementById('backHomeBtn').addEventListener('click', () => {
+        window.location.href = 'https://hamburgerchat.github.io/main.html';
+      });
+    }
+
+    // Включение режима редактирования
+    function enableEditing() {
+      isEditing = true;
+      
+      // Показываем поля ввода
+      document.getElementById('groupName').style.display = 'none';
+      document.getElementById('groupNameInput').style.display = 'block';
+      
+      document.getElementById('groupDescription').style.display = 'none';
+      document.getElementById('groupDescriptionInput').style.display = 'block';
+      
+      document.getElementById('avatarEdit').style.display = 'flex';
+      
+      // Меняем кнопки
+      document.getElementById('editButton').style.display = 'none';
+      document.getElementById('saveButton').style.display = 'block';
+      document.getElementById('cancelButton').style.display = 'block';
+    }
+
+    // Отключение режима редактирования
+    function disableEditing() {
+      isEditing = false;
+      
+      // Скрываем поля ввода
+      document.getElementById('groupName').style.display = 'block';
+      document.getElementById('groupNameInput').style.display = 'none';
+      
+      document.getElementById('groupDescription').style.display = 'block';
+      document.getElementById('groupDescriptionInput').style.display = 'none';
+      
+      document.getElementById('avatarEdit').style.display = 'none';
+      
+      // Меняем кнопки
+      document.getElementById('editButton').style.display = 'block';
+      document.getElementById('saveButton').style.display = 'none';
+      document.getElementById('cancelButton').style.display = 'none';
+      
+      // Сбрасываем значения
+      document.getElementById('groupNameInput').value = groupData.name || '';
+      document.getElementById('groupDescriptionInput').value = groupData.description || '';
+    }
+
+    // Отмена редактирования
+    function cancelEditing() {
+      disableEditing();
+    }
+
+    // Сохранение изменений
+    async function saveChanges() {
+      try {
+        const newName = document.getElementById('groupNameInput').value.trim();
+        const newDescription = document.getElementById('groupDescriptionInput').value.trim();
+        
+        if (!newName) {
+          alert('Введите название группы');
+          return;
+        }
+        
+        // Обновляем данные группы
+        groupData.name = newName;
+        groupData.description = newDescription;
+        
+        // Если загружен новый аватар
+        if (uploadedAvatarUrl) {
+          groupData.avatar = uploadedAvatarUrl;
+        }
+        
+        // Шифруем данные
+        const encryptedData = encryptData(groupData);
+        
+        // Сохраняем в Firebase
+        await database.ref(`chats/${currentGroupId}`).update({
+          encryptedData: encryptedData
+        });
+        
+        // Обновляем отображение
+        document.getElementById('groupName').textContent = newName;
+        document.getElementById('groupDescription').textContent = newDescription || 'Описание отсутствует';
+        
+        if (uploadedAvatarUrl) {
+          const groupAvatar = document.getElementById('groupAvatar');
+          const groupAvatarInitial = document.getElementById('groupAvatarInitial');
+          
+          groupAvatar.style.backgroundImage = `url(${uploadedAvatarUrl})`;
+          groupAvatarInitial.style.display = 'none';
+        }
+        
+        // Сбрасываем загруженный аватар
+        uploadedAvatarUrl = '';
+        
+        // Отключаем режим редактирования
+        disableEditing();
+        
+        alert('Изменения сохранены');
+        
+      } catch (error) {
+        console.error('Ошибка сохранения:', error);
+        alert('Ошибка при сохранении изменений: ' + error.message);
+      }
+    }
+
+    // Загрузка аватара
+    async function handleAvatarUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      
+      try {
+        // Показываем индикатор загрузки
+        const saveButton = document.getElementById('saveButton');
+        const originalText = saveButton.textContent;
+        saveButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+        saveButton.disabled = true;
+        
+        // Конвертируем в base64
+        const dataUrl = await new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = e => resolve(e.target.result);
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
+        });
+        
+        // Загружаем на imgbb
+        const apiKey = "02cf7a0dc37b8a8adaedc9784752a3db";
+        const formData = new FormData();
+        formData.append("image", dataUrl.split(",")[1]);
+        formData.append("key", apiKey);
+
+        const response = await fetch("https://api.imgbb.com/1/upload", {
+          method: "POST",
+          body: formData,
+        });
+        
+        const data = await response.json();
+        const imageUrl = data.data?.url;
+        
+        if (!imageUrl) throw new Error('Загрузка не удалась');
+        
+        // Сохраняем URL для использования при сохранении
+        uploadedAvatarUrl = imageUrl;
+        
+        // Показываем предпросмотр
+        const groupAvatar = document.getElementById('groupAvatar');
+        const groupAvatarInitial = document.getElementById('groupAvatarInitial');
+        
+        groupAvatar.style.backgroundImage = `url(${imageUrl})`;
+        groupAvatarInitial.style.display = 'none';
+        
+      } catch (error) {
+        console.error('Ошибка загрузки аватара:', error);
+        alert('Ошибка загрузки аватара: ' + error.message);
+      } finally {
+        // Восстанавливаем кнопку
+        const saveButton = document.getElementById('saveButton');
+        saveButton.textContent = 'Сохранить';
+        saveButton.disabled = false;
+        
+        // Сбрасываем значение input
+        event.target.value = '';
+      }
+    }
+
+    // Показать ошибку
+    function showError(message) {
+      document.getElementById('loadingContainer').style.display = 'none';
+      document.getElementById('errorContainer').style.display = 'flex';
+      document.getElementById('errorMessage').textContent = message;
+    }
+  </script>
+</body>
+</html>
