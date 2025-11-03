@@ -1,0 +1,1501 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hamburger — Профиль</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+  <style>
+    :root {
+      --bg-primary: #ffffff;
+      --bg-secondary: #f8f9fa;
+      --bg-tertiary: #f1f3f4;
+      --text-primary: #1f2937;
+      --text-secondary: #6b7280;
+      --text-tertiary: #9ca3af;
+      --border-color: #e5e7eb;
+      --accent-color: #ff7f50;
+      --accent-gradient: linear-gradient(135deg, #ff7f50, #ffcc70);
+      --shadow: 0 1px 3px rgba(0,0,0,0.1);
+      --card-bg: #ffffff;
+      --hover-bg: #f3f4f6;
+      --danger-color: #ef4444;
+      --success-color: #10b981;
+      --online-color: #10b981;
+      --offline-color: #9ca3af;
+    }
+
+    [data-theme="dark"] {
+      --bg-primary: #111827;
+      --bg-secondary: #1f2937;
+      --bg-tertiary: #374151;
+      --text-primary: #f9fafb;
+      --text-secondary: #d1d5db;
+      --text-tertiary: #9ca3af;
+      --border-color: #374151;
+      --card-bg: #1f2937;
+      --hover-bg: #374151;
+      --shadow: 0 1px 3px rgba(0,0,0,0.3);
+      --online-color: #10b981;
+      --offline-color: #6b7280;
+    }
+
+    * { 
+      box-sizing: border-box; 
+      margin: 0; 
+      padding: 0; 
+      font-family: 'Inter', sans-serif; 
+    }
+    
+    body {
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+      transition: all 0.3s ease;
+    }
+    
+    .profile-container {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      background: var(--bg-primary);
+      width: 100%;
+      position: relative;
+    }
+    
+    .header {
+      background: var(--bg-primary);
+      padding: 0.8rem 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border-color);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    
+    .back-button {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: none;
+      background: transparent;
+      color: var(--text-secondary);
+      font-size: 1.1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+    }
+    
+    .back-button:hover {
+      background: var(--hover-bg);
+    }
+    
+    .header-title {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .edit-button, .chat-button, .save-button, .cancel-button {
+      padding: 0.6rem 1rem;
+      border: none;
+      border-radius: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    
+    .edit-button, .chat-button {
+      background: var(--accent-color);
+      color: white;
+    }
+    
+    .edit-button:hover, .chat-button:hover {
+      background: #ff6b35;
+    }
+    
+    .save-button {
+      background: var(--success-color);
+      color: white;
+      display: none;
+    }
+    
+    .save-button:hover {
+      background: #0da271;
+    }
+    
+    .cancel-button {
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      display: none;
+    }
+    
+    .cancel-button:hover {
+      background: var(--hover-bg);
+    }
+    
+    .profile-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 0;
+    }
+    
+    .banner {
+      height: 180px;
+      background: var(--accent-gradient);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .banner-edit {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      background: rgba(0,0,0,0.5);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 36px;
+      height: 36px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      display: none;
+    }
+    
+    .profile-info {
+      padding: 0 1.5rem 1.5rem;
+      margin-top: -60px;
+      position: relative;
+      z-index: 10;
+    }
+    
+    .avatar-container {
+      position: relative;
+      width: 120px;
+      height: 120px;
+      margin-bottom: 1rem;
+    }
+    
+    .profile-avatar {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      background: var(--accent-gradient);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      color: white;
+      font-size: 2.5rem;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      background-size: cover;
+      background-position: center;
+      border: 4px solid var(--bg-primary);
+    }
+    
+    .avatar-edit {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--accent-color);
+      color: white;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      display: none;
+    }
+    
+    .avatar-edit:hover {
+      background: #ff6b35;
+    }
+    
+    .profile-name {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 0.5rem;
+    }
+    
+    .profile-name-input {
+      width: 100%;
+      padding: 0.8rem 1rem;
+      border: 1px solid var(--border-color);
+      border-radius: 0.8rem;
+      font-size: 1.8rem;
+      font-weight: 700;
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      display: none;
+    }
+    
+    .profile-status {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+    
+    .status-indicator {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+    
+    .status-online {
+      background: var(--online-color);
+    }
+    
+    .status-offline {
+      background: var(--offline-color);
+    }
+    
+    .status-text {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+    }
+    
+    .profile-description {
+      font-size: 1rem;
+      color: var(--text-secondary);
+      line-height: 1.5;
+      margin-bottom: 1.5rem;
+      white-space: pre-line;
+    }
+    
+    .profile-description-input {
+      width: 100%;
+      padding: 0.8rem 1rem;
+      border: 1px solid var(--border-color);
+      border-radius: 0.8rem;
+      font-size: 1rem;
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      resize: vertical;
+      min-height: 100px;
+      display: none;
+      line-height: 1.5;
+    }
+    
+    .profile-section {
+      background: var(--card-bg);
+      padding: 1.5rem;
+      margin: 1.5rem;
+      border-radius: 1rem;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border-color);
+    }
+    
+    .section-title {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .section-title i {
+      color: var(--accent-color);
+    }
+    
+    .share-link {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      background: var(--bg-secondary);
+      padding: 1rem;
+      border-radius: 0.8rem;
+      margin-bottom: 1rem;
+    }
+    
+    .link-text {
+      flex: 1;
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      word-break: break-all;
+    }
+    
+    .copy-link {
+      background: var(--accent-color);
+      color: white;
+      border: none;
+      border-radius: 0.5rem;
+      padding: 0.5rem 1rem;
+      cursor: pointer;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+    
+    .copy-link:hover {
+      background: #ff6b35;
+    }
+    
+    .members-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 1rem;
+    }
+    
+    .member-item {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1rem;
+      background: var(--bg-secondary);
+      border-radius: 0.8rem;
+      transition: background 0.2s ease;
+      cursor: pointer;
+    }
+    
+    .member-item:hover {
+      background: var(--hover-bg);
+    }
+    
+    .member-avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: var(--accent-gradient);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      color: white;
+      background-size: cover;
+      background-position: center;
+    }
+    
+    .member-info {
+      flex: 1;
+    }
+    
+    .member-name {
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 0.2rem;
+    }
+    
+    .member-role {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+    }
+    
+    .role-creator {
+      color: var(--accent-color);
+      font-weight: 600;
+    }
+    
+    .role-admin {
+      color: #4ecdc4;
+      font-weight: 600;
+    }
+    
+    .loading-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      padding: 2rem;
+      color: var(--text-secondary);
+    }
+    
+    .loading-spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid var(--border-color);
+      border-top: 3px solid var(--accent-color);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-bottom: 1rem;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    .error-container {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      padding: 2rem;
+      text-align: center;
+    }
+    
+    .error-icon {
+      width: 80px;
+      height: 80px;
+      background: var(--danger-color);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1.5rem;
+    }
+    
+    .error-icon i {
+      color: white;
+      font-size: 2rem;
+    }
+    
+    .error-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 0.8rem;
+      color: var(--text-primary);
+    }
+    
+    .error-message {
+      color: var(--text-secondary);
+      margin-bottom: 1.5rem;
+      max-width: 400px;
+    }
+    
+    .back-home-btn {
+      padding: 0.8rem 1.5rem;
+      background: var(--accent-color);
+      color: white;
+      border: none;
+      border-radius: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    
+    .back-home-btn:hover {
+      background: #ff6b35;
+    }
+    
+    .avatar-upload, .banner-upload {
+      display: none;
+    }
+    
+    .context-menu {
+      display: none;
+      position: fixed;
+      background: var(--card-bg);
+      border-radius: 0.8rem;
+      box-shadow: var(--shadow);
+      z-index: 1000;
+      animation: fadeIn 0.2s ease;
+      min-width: 200px;
+      border: 1px solid var(--border-color);
+    }
+    
+    .context-item {
+      padding: 1rem 1.5rem;
+      cursor: pointer;
+      transition: background 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+    
+    .context-item:last-child {
+      border-bottom: none;
+    }
+    
+    .context-item:hover {
+      background: var(--hover-bg);
+    }
+    
+    .context-icon {
+      width: 20px;
+      text-align: center;
+      color: #666;
+    }
+    
+    .context-text {
+      font-size: 0.9rem;
+      color: var(--text-primary);
+    }
+    
+    .context-danger {
+      color: var(--danger-color);
+    }
+    
+    .context-danger .context-icon {
+      color: var(--danger-color);
+    }
+    
+    .overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.3);
+      z-index: 999;
+    }
+    
+    @media (max-width: 768px) {
+      .members-list {
+        grid-template-columns: 1fr;
+      }
+      
+      .profile-name {
+        font-size: 1.5rem;
+      }
+      
+      .profile-name-input {
+        font-size: 1.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="profile-container">
+    <div class="header">
+      <div class="header-left">
+        <button class="back-button" id="backButton">
+          <i class="fas fa-arrow-left"></i>
+        </button>
+        <div class="header-title" id="headerTitle">Профиль</div>
+      </div>
+      <div class="header-actions">
+        <button class="cancel-button" id="cancelButton">Отмена</button>
+        <button class="save-button" id="saveButton">Сохранить</button>
+        <button class="chat-button" id="chatButton" style="display: none;">Перейти в чат</button>
+        <button class="edit-button" id="editButton" style="display: none;">Редактировать</button>
+      </div>
+    </div>
+    
+    <div class="profile-content" id="profileContent">
+      <div class="loading-container" id="loadingContainer">
+        <div class="loading-spinner"></div>
+        <div>Загрузка профиля...</div>
+      </div>
+      
+      <div class="error-container" id="errorContainer">
+        <div class="error-icon">
+          <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <div class="error-title">Профиль не найден</div>
+        <div class="error-message" id="errorMessage">Возможно, у вас нет доступа к этому профилю или он был удален.</div>
+        <button class="back-home-btn" id="backHomeBtn">На главную</button>
+      </div>
+      
+      <div id="profileData" style="display: none;">
+        <div class="banner" id="profileBanner">
+          <button class="banner-edit" id="bannerEdit">
+            <i class="fas fa-camera"></i>
+          </button>
+          <input type="file" id="bannerUpload" class="banner-upload" accept="image/*">
+        </div>
+        
+        <div class="profile-info">
+          <div class="avatar-container">
+            <div class="profile-avatar" id="profileAvatar">
+              <span id="profileAvatarInitial">U</span>
+            </div>
+            <button class="avatar-edit" id="avatarEdit">
+              <i class="fas fa-camera"></i>
+            </button>
+            <input type="file" id="avatarUpload" class="avatar-upload" accept="image/*">
+          </div>
+          
+          <div class="profile-name" id="profileName">Имя пользователя</div>
+          <input type="text" class="profile-name-input" id="profileNameInput" placeholder="Введите имя">
+          
+          <div class="profile-status" id="profileStatus">
+            <div class="status-indicator status-offline" id="statusIndicator"></div>
+            <div class="status-text" id="statusText">Не в сети</div>
+          </div>
+          
+          <div class="profile-description" id="profileDescription">Описание профиля</div>
+          <textarea class="profile-description-input" id="profileDescriptionInput" placeholder="Введите описание"></textarea>
+        </div>
+        
+        <div class="profile-section" id="shareSection" style="display: none;">
+          <div class="section-title">
+            <i class="fas fa-link"></i>
+            <span>Ссылка для приглашения</span>
+          </div>
+          <div class="share-link">
+            <div class="link-text" id="shareLinkText">https://hamburgerchat.github.io/chat.html?id=...</div>
+            <button class="copy-link" id="copyLinkButton">Копировать</button>
+          </div>
+        </div>
+        
+        <div class="profile-section" id="membersSection" style="display: none;">
+          <div class="section-title">
+            <i class="fas fa-users"></i>
+            <span>Участники</span>
+          </div>
+          <div class="members-list" id="membersList">
+            <!-- Участники будут добавляться динамически -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="overlay" id="overlay"></div>
+  
+  <!-- Контекстное меню для участников группы -->
+  <div class="context-menu" id="contextMenu">
+    <div class="context-item" data-action="makeAdmin">
+      <div class="context-icon">
+        <i class="fas fa-user-shield"></i>
+      </div>
+      <div class="context-text" id="makeAdminText">Сделать администратором</div>
+    </div>
+    <div class="context-item context-danger" data-action="removeFromGroup">
+      <div class="context-icon">
+        <i class="fas fa-user-times"></i>
+      </div>
+      <div class="context-text">Удалить из группы</div>
+    </div>
+  </div>
+
+  <script>
+    // Инициализация Firebase
+    const firebaseConfig = {
+      databaseURL: "https://hamburgerchat-e8f2a-default-rtdb.firebaseio.com/"
+    };
+    
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+    const database = firebase.database();
+    
+    // Ключ для шифрования
+    const ENCRYPTION_KEY = "HamburgerSecureKey2024!";
+    
+    // Текущий пользователь и данные профиля
+    let currentUser = null;
+    let currentUserId = null;
+    let profileId = null;
+    let profileData = null;
+    let isGroup = false;
+    let isOwnProfile = false;
+    let isEditing = false;
+    let isCreator = false;
+    let isAdmin = false;
+    let uploadedAvatarUrl = '';
+    let uploadedBannerUrl = '';
+    let currentContextMember = null;
+
+    // Функции шифрования/дешифрования
+    function encryptData(data) {
+      return CryptoJS.AES.encrypt(JSON.stringify(data), ENCRYPTION_KEY).toString();
+    }
+    
+    function decryptData(encryptedData) {
+      try {
+        const bytes = CryptoJS.AES.decrypt(encryptedData, ENCRYPTION_KEY);
+        const decrypted = bytes.toString(CryptoJS.enc.Utf8);
+        return decrypted ? JSON.parse(decrypted) : null;
+      } catch (e) {
+        console.error('Ошибка дешифрования:', e);
+        return null;
+      }
+    }
+
+    // Получение ID профиля из URL
+    function getProfileIdFromUrl() {
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get('id');
+    }
+
+    // Загрузка страницы
+    window.addEventListener('DOMContentLoaded', async () => {
+      // Применяем сохраненную тему
+      const savedTheme = localStorage.getItem('hamburger_theme') || 'light';
+      document.documentElement.setAttribute('data-theme', savedTheme);
+      
+      // Проверка авторизации
+      currentUser = localStorage.getItem('hamburger_user');
+      currentUserId = localStorage.getItem('hamburger_user_id');
+      
+      if (!currentUser || !currentUserId) {
+        window.location.href = 'https://hamburgerchat.github.io/';
+        return;
+      }
+      
+      // Получаем ID профиля из URL
+      profileId = getProfileIdFromUrl();
+      
+      // Если ID не указан, показываем профиль текущего пользователя
+      if (!profileId) {
+        profileId = currentUserId;
+        isOwnProfile = true;
+      } else {
+        isOwnProfile = profileId === currentUserId;
+      }
+      
+      // Загружаем данные профиля
+      await loadProfileData();
+      
+      // Настраиваем обработчики событий
+      setupEventListeners();
+    });
+
+    // Загрузка данных профиля
+    async function loadProfileData() {
+      try {
+        console.log('Загружаю профиль с ID:', profileId);
+        
+        // Сначала проверяем, является ли это группой
+        const chatRef = database.ref(`chats/${profileId}`);
+        const chatSnapshot = await chatRef.once('value');
+        
+        if (chatSnapshot.exists()) {
+          // Это группа
+          isGroup = true;
+          await loadGroupData(chatSnapshot);
+        } else {
+          // Это пользователь
+          isGroup = false;
+          await loadUserData();
+        }
+        
+      } catch (error) {
+        console.error('Ошибка загрузки профиля:', error);
+        showError(error.message);
+      }
+    }
+
+    // Загрузка данных группы
+    async function loadGroupData(chatSnapshot) {
+      try {
+        const chatData = chatSnapshot.val();
+        console.log('Данные группы:', chatData);
+        
+        let decryptedData = null;
+        
+        if (chatData.encryptedData) {
+          decryptedData = decryptData(chatData.encryptedData);
+        } else if (chatData.name) {
+          decryptedData = chatData;
+        }
+        
+        if (!decryptedData) {
+          throw new Error('Не удалось расшифровать данные группы');
+        }
+        
+        // Проверяем, является ли группа группой
+        if (decryptedData.type !== 'group') {
+          throw new Error('Это не группа');
+        }
+        
+        profileData = decryptedData;
+        console.log('Расшифрованные данные группы:', profileData);
+        
+        // Проверяем права доступа
+        isCreator = profileData.createdBy === currentUserId;
+        isAdmin = isCreator || (profileData.admins && profileData.admins.includes(currentUserId));
+        
+        // Отображаем данные группы
+        displayGroupData();
+        
+        // Скрываем загрузку и показываем контент
+        document.getElementById('loadingContainer').style.display = 'none';
+        document.getElementById('profileData').style.display = 'block';
+        document.getElementById('shareSection').style.display = 'block';
+        document.getElementById('membersSection').style.display = 'block';
+        
+        // Показываем кнопки в зависимости от прав
+        if (isAdmin) {
+          document.getElementById('editButton').style.display = 'block';
+        }
+        document.getElementById('chatButton').style.display = 'block';
+        
+      } catch (error) {
+        console.error('Ошибка загрузки группы:', error);
+        showError(error.message);
+      }
+    }
+
+    // Загрузка данных пользователя
+    async function loadUserData() {
+      try {
+        const userRef = database.ref(`users/${profileId}`);
+        const snapshot = await userRef.once('value');
+        
+        if (!snapshot.exists()) {
+          throw new Error('Пользователь не найден');
+        }
+        
+        const userData = snapshot.val();
+        console.log('Данные пользователя:', userData);
+        
+        let decryptedData = null;
+        
+        if (userData.encryptedData) {
+          decryptedData = decryptData(userData.encryptedData);
+        } else if (userData.username) {
+          decryptedData = userData;
+        }
+        
+        if (!decryptedData) {
+          throw new Error('Не удалось расшифровать данные пользователя');
+        }
+        
+        profileData = decryptedData;
+        console.log('Расшифрованные данные пользователя:', profileData);
+        
+        // Отображаем данные пользователя
+        displayUserData();
+        
+        // Скрываем загрузку и показываем контент
+        document.getElementById('loadingContainer').style.display = 'none';
+        document.getElementById('profileData').style.display = 'block';
+        
+        // Показываем кнопки
+        if (isOwnProfile) {
+          document.getElementById('editButton').style.display = 'block';
+        } else {
+          document.getElementById('chatButton').style.display = 'block';
+        }
+        
+      } catch (error) {
+        console.error('Ошибка загрузки пользователя:', error);
+        showError(error.message);
+      }
+    }
+
+    // Отображение данных группы
+    function displayGroupData() {
+      // Заголовок
+      document.getElementById('headerTitle').textContent = 'Профиль группы';
+      
+      // Баннер
+      const profileBanner = document.getElementById('profileBanner');
+      if (profileData.banner) {
+        profileBanner.style.backgroundImage = `url(${profileData.banner})`;
+        profileBanner.style.backgroundSize = 'cover';
+        profileBanner.style.backgroundPosition = 'center';
+      }
+      
+      // Аватар
+      const profileAvatar = document.getElementById('profileAvatar');
+      const profileAvatarInitial = document.getElementById('profileAvatarInitial');
+      
+      if (profileData.avatar) {
+        profileAvatar.style.backgroundImage = `url(${profileData.avatar})`;
+        profileAvatarInitial.style.display = 'none';
+      } else {
+        profileAvatarInitial.textContent = profileData.name ? profileData.name.charAt(0).toUpperCase() : 'G';
+      }
+      
+      // Название
+      document.getElementById('profileName').textContent = profileData.name || 'Без названия';
+      document.getElementById('profileNameInput').value = profileData.name || '';
+      
+      // Описание
+      document.getElementById('profileDescription').textContent = profileData.description || 'Описание отсутствует';
+      document.getElementById('profileDescriptionInput').value = profileData.description || '';
+      
+      // Скрываем статус для групп
+      document.getElementById('profileStatus').style.display = 'none';
+      
+      // Ссылка для приглашения
+      document.getElementById('shareLinkText').textContent = `https://hamburgerchat.github.io/chat.html?id=${profileId}`;
+      
+      // Участники
+      displayMembers();
+    }
+
+    // Отображение данных пользователя
+    function displayUserData() {
+      // Заголовок
+      document.getElementById('headerTitle').textContent = 'Профиль пользователя';
+      
+      // Баннер
+      const profileBanner = document.getElementById('profileBanner');
+      if (profileData.banner) {
+        profileBanner.style.backgroundImage = `url(${profileData.banner})`;
+        profileBanner.style.backgroundSize = 'cover';
+        profileBanner.style.backgroundPosition = 'center';
+      }
+      
+      // Аватар
+      const profileAvatar = document.getElementById('profileAvatar');
+      const profileAvatarInitial = document.getElementById('profileAvatarInitial');
+      
+      if (profileData.avatar) {
+        profileAvatar.style.backgroundImage = `url(${profileData.avatar})`;
+        profileAvatarInitial.style.display = 'none';
+      } else {
+        profileAvatarInitial.textContent = profileData.username ? profileData.username.charAt(0).toUpperCase() : 'U';
+      }
+      
+      // Имя
+      document.getElementById('profileName').textContent = profileData.username || 'Пользователь';
+      document.getElementById('profileNameInput').value = profileData.username || '';
+      
+      // Статус
+      const statusIndicator = document.getElementById('statusIndicator');
+      const statusText = document.getElementById('statusText');
+      
+      // В реальном приложении статус должен загружаться из базы данных
+      // Здесь для примера используем случайный статус
+      const isOnline = Math.random() > 0.5;
+      
+      if (isOnline) {
+        statusIndicator.className = 'status-indicator status-online';
+        statusText.textContent = 'В сети';
+      } else {
+        statusIndicator.className = 'status-indicator status-offline';
+        statusText.textContent = 'Не в сети';
+      }
+      
+      // Описание
+      document.getElementById('profileDescription').textContent = profileData.bio || 'Пользователь еще не добавил информацию о себе';
+      document.getElementById('profileDescriptionInput').value = profileData.bio || '';
+      
+      // Скрываем секции, которые не нужны для пользователя
+      document.getElementById('shareSection').style.display = 'none';
+      document.getElementById('membersSection').style.display = 'none';
+      
+      // Ссылка для профиля
+      if (isOwnProfile) {
+        document.getElementById('shareSection').style.display = 'block';
+        document.getElementById('shareLinkText').textContent = `https://hamburgerchat.github.io/profile.html?id=${profileId}`;
+      }
+    }
+
+    // Отображение участников группы
+    function displayMembers() {
+      const membersList = document.getElementById('membersList');
+      membersList.innerHTML = '';
+      
+      if (!profileData.participants) {
+        membersList.innerHTML = '<div style="padding: 1rem; text-align: center; color: var(--text-secondary);">Нет участников</div>';
+        return;
+      }
+      
+      // Получаем список участников
+      const participants = Object.keys(profileData.participants);
+      
+      // Для каждого участника создаем элемент
+      participants.forEach(userId => {
+        // В реальном приложении нужно загрузить данные пользователя по userId
+        // Здесь для простоты используем userId как имя
+        const memberItem = document.createElement('div');
+        memberItem.className = 'member-item';
+        memberItem.dataset.userId = userId;
+        
+        // Определяем роль
+        let role = 'Участник';
+        let roleClass = '';
+        
+        if (userId === profileData.createdBy) {
+          role = 'Создатель';
+          roleClass = 'role-creator';
+        } else if (profileData.admins && profileData.admins.includes(userId)) {
+          role = 'Администратор';
+          roleClass = 'role-admin';
+        }
+        
+        memberItem.innerHTML = `
+          <div class="member-avatar">${userId.charAt(0).toUpperCase()}</div>
+          <div class="member-info">
+            <div class="member-name">${userId}</div>
+            <div class="member-role ${roleClass}">${role}</div>
+          </div>
+        `;
+        
+        // Обработчики событий
+        memberItem.addEventListener('click', () => {
+          window.location.href = `https://hamburgerchat.github.io/profile.html?id=${userId}`;
+        });
+        
+        if ((isCreator || isAdmin) && userId !== currentUserId) {
+          memberItem.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            showContextMenu(e, userId, role);
+          });
+        }
+        
+        membersList.appendChild(memberItem);
+      });
+    }
+
+    // Показать контекстное меню
+    function showContextMenu(event, userId, role) {
+      event.preventDefault();
+      currentContextMember = userId;
+      
+      // Обновляем текст кнопок
+      const makeAdminText = document.getElementById('makeAdminText');
+      makeAdminText.textContent = role === 'Администратор' ? 'Убрать из администраторов' : 'Сделать администратором';
+      
+      const contextMenu = document.getElementById('contextMenu');
+      contextMenu.style.display = 'block';
+      contextMenu.style.left = Math.min(event.clientX, window.innerWidth - 250) + 'px';
+      contextMenu.style.top = Math.min(event.clientY, window.innerHeight - 300) + 'px';
+      
+      document.getElementById('overlay').style.display = 'block';
+    }
+
+    // Настройка обработчиков событий
+    function setupEventListeners() {
+      // Кнопка назад
+      document.getElementById('backButton').addEventListener('click', () => {
+        window.history.back();
+      });
+      
+      // Кнопка редактирования
+      document.getElementById('editButton').addEventListener('click', enableEditing);
+      
+      // Кнопка сохранения
+      document.getElementById('saveButton').addEventListener('click', saveChanges);
+      
+      // Кнопка отмены
+      document.getElementById('cancelButton').addEventListener('click', cancelEditing);
+      
+      // Кнопка перехода в чат
+      document.getElementById('chatButton').addEventListener('click', goToChat);
+      
+      // Редактирование аватара
+      document.getElementById('avatarEdit').addEventListener('click', () => {
+        document.getElementById('avatarUpload').click();
+      });
+      
+      document.getElementById('avatarUpload').addEventListener('change', handleAvatarUpload);
+      
+      // Редактирование баннера
+      document.getElementById('bannerEdit').addEventListener('click', () => {
+        document.getElementById('bannerUpload').click();
+      });
+      
+      document.getElementById('bannerUpload').addEventListener('change', handleBannerUpload);
+      
+      // Копирование ссылки
+      document.getElementById('copyLinkButton').addEventListener('click', copyLink);
+      
+      // Контекстное меню
+      document.querySelectorAll('.context-item').forEach(item => {
+        item.addEventListener('click', function() {
+          const action = this.dataset.action;
+          handleContextAction(action, currentContextMember);
+        });
+      });
+      
+      // Оверлей
+      document.getElementById('overlay').addEventListener('click', closeAllModals);
+      
+      // Кнопка "На главную" на странице ошибки
+      document.getElementById('backHomeBtn').addEventListener('click', () => {
+        window.location.href = 'https://hamburgerchat.github.io/main.html';
+      });
+    }
+
+    // Включение режима редактирования
+    function enableEditing() {
+      isEditing = true;
+      
+      // Показываем поля ввода
+      document.getElementById('profileName').style.display = 'none';
+      document.getElementById('profileNameInput').style.display = 'block';
+      
+      document.getElementById('profileDescription').style.display = 'none';
+      document.getElementById('profileDescriptionInput').style.display = 'block';
+      
+      document.getElementById('avatarEdit').style.display = 'flex';
+      
+      if (isGroup) {
+        document.getElementById('bannerEdit').style.display = 'flex';
+      }
+      
+      // Меняем кнопки
+      document.getElementById('editButton').style.display = 'none';
+      document.getElementById('chatButton').style.display = 'none';
+      document.getElementById('saveButton').style.display = 'block';
+      document.getElementById('cancelButton').style.display = 'block';
+    }
+
+    // Отключение режима редактирования
+    function disableEditing() {
+      isEditing = false;
+      
+      // Скрываем поля ввода
+      document.getElementById('profileName').style.display = 'block';
+      document.getElementById('profileNameInput').style.display = 'none';
+      
+      document.getElementById('profileDescription').style.display = 'block';
+      document.getElementById('profileDescriptionInput').style.display = 'none';
+      
+      document.getElementById('avatarEdit').style.display = 'none';
+      document.getElementById('bannerEdit').style.display = 'none';
+      
+      // Меняем кнопки
+      document.getElementById('editButton').style.display = 'block';
+      document.getElementById('chatButton').style.display = 'block';
+      document.getElementById('saveButton').style.display = 'none';
+      document.getElementById('cancelButton').style.display = 'none';
+      
+      // Сбрасываем значения
+      document.getElementById('profileNameInput').value = isGroup ? 
+        (profileData.name || '') : (profileData.username || '');
+      document.getElementById('profileDescriptionInput').value = isGroup ? 
+        (profileData.description || '') : (profileData.bio || '');
+    }
+
+    // Отмена редактирования
+    function cancelEditing() {
+      disableEditing();
+    }
+
+    // Сохранение изменений
+    async function saveChanges() {
+      try {
+        const newName = document.getElementById('profileNameInput').value.trim();
+        const newDescription = document.getElementById('profileDescriptionInput').value.trim();
+        
+        if (!newName) {
+          alert('Введите имя');
+          return;
+        }
+        
+        // Обновляем данные профиля
+        if (isGroup) {
+          profileData.name = newName;
+          profileData.description = newDescription;
+        } else {
+          profileData.username = newName;
+          profileData.bio = newDescription;
+        }
+        
+        // Если загружен новый аватар
+        if (uploadedAvatarUrl) {
+          profileData.avatar = uploadedAvatarUrl;
+        }
+        
+        // Если загружен новый баннер
+        if (uploadedBannerUrl) {
+          profileData.banner = uploadedBannerUrl;
+        }
+        
+        // Сохраняем в Firebase
+        if (isGroup) {
+          const encryptedData = encryptData(profileData);
+          await database.ref(`chats/${profileId}`).update({
+            encryptedData: encryptedData
+          });
+        } else {
+          const encryptedData = encryptData(profileData);
+          await database.ref(`users/${profileId}`).update({
+            encryptedData: encryptedData
+          });
+        }
+        
+        // Обновляем отображение
+        if (isGroup) {
+          document.getElementById('profileName').textContent = newName;
+          document.getElementById('profileDescription').textContent = newDescription || 'Описание отсутствует';
+        } else {
+          document.getElementById('profileName').textContent = newName;
+          document.getElementById('profileDescription').textContent = newDescription || 'Пользователь еще не добавил информацию о себе';
+        }
+        
+        if (uploadedAvatarUrl) {
+          const profileAvatar = document.getElementById('profileAvatar');
+          const profileAvatarInitial = document.getElementById('profileAvatarInitial');
+          
+          profileAvatar.style.backgroundImage = `url(${uploadedAvatarUrl})`;
+          profileAvatarInitial.style.display = 'none';
+        }
+        
+        if (uploadedBannerUrl) {
+          const profileBanner = document.getElementById('profileBanner');
+          profileBanner.style.backgroundImage = `url(${uploadedBannerUrl})`;
+          profileBanner.style.backgroundSize = 'cover';
+          profileBanner.style.backgroundPosition = 'center';
+        }
+        
+        // Сбрасываем загруженные изображения
+        uploadedAvatarUrl = '';
+        uploadedBannerUrl = '';
+        
+        // Отключаем режим редактирования
+        disableEditing();
+        
+        alert('Изменения сохранены');
+        
+      } catch (error) {
+        console.error('Ошибка сохранения:', error);
+        alert('Ошибка при сохранении изменений: ' + error.message);
+      }
+    }
+
+    // Переход в чат
+    function goToChat() {
+      if (isGroup) {
+        window.location.href = `https://hamburgerchat.github.io/chat.html?id=${profileId}`;
+      } else {
+        // Для пользователей создаем или открываем личный чат
+        window.location.href = `https://hamburgerchat.github.io/chat.html?id=${profileId}`;
+      }
+    }
+
+    // Копирование ссылки
+    function copyLink() {
+      const linkText = document.getElementById('shareLinkText').textContent;
+      navigator.clipboard.writeText(linkText).then(() => {
+        alert('Ссылка скопирована в буфер обмена');
+      }).catch(err => {
+        console.error('Ошибка копирования: ', err);
+        alert('Не удалось скопировать ссылку');
+      });
+    }
+
+    // Загрузка аватара
+    async function handleAvatarUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      
+      try {
+        // Показываем индикатор загрузки
+        const saveButton = document.getElementById('saveButton');
+        const originalText = saveButton.textContent;
+        saveButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+        saveButton.disabled = true;
+        
+        // Конвертируем в base64
+        const dataUrl = await new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = e => resolve(e.target.result);
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
+        });
+        
+        // Загружаем на imgbb
+        const apiKey = "02cf7a0dc37b8a8adaedc9784752a3db";
+        const formData = new FormData();
+        formData.append("image", dataUrl.split(",")[1]);
+        formData.append("key", apiKey);
+
+        const response = await fetch("https://api.imgbb.com/1/upload", {
+          method: "POST",
+          body: formData,
+        });
+        
+        const data = await response.json();
+        const imageUrl = data.data?.url;
+        
+        if (!imageUrl) throw new Error('Загрузка не удалась');
+        
+        // Сохраняем URL для использования при сохранении
+        uploadedAvatarUrl = imageUrl;
+        
+        // Показываем предпросмотр
+        const profileAvatar = document.getElementById('profileAvatar');
+        const profileAvatarInitial = document.getElementById('profileAvatarInitial');
+        
+        profileAvatar.style.backgroundImage = `url(${imageUrl})`;
+        profileAvatarInitial.style.display = 'none';
+        
+      } catch (error) {
+        console.error('Ошибка загрузки аватара:', error);
+        alert('Ошибка загрузки аватара: ' + error.message);
+      } finally {
+        // Восстанавливаем кнопку
+        const saveButton = document.getElementById('saveButton');
+        saveButton.textContent = 'Сохранить';
+        saveButton.disabled = false;
+        
+        // Сбрасываем значение input
+        event.target.value = '';
+      }
+    }
+
+    // Загрузка баннера
+    async function handleBannerUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      
+      try {
+        // Показываем индикатор загрузки
+        const saveButton = document.getElementById('saveButton');
+        const originalText = saveButton.textContent;
+        saveButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+        saveButton.disabled = true;
+        
+        // Конвертируем в base64
+        const dataUrl = await new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = e => resolve(e.target.result);
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
+        });
+        
+        // Загружаем на imgbb
+        const apiKey = "02cf7a0dc37b8a8adaedc9784752a3db";
+        const formData = new FormData();
+        formData.append("image", dataUrl.split(",")[1]);
+        formData.append("key", apiKey);
+
+        const response = await fetch("https://api.imgbb.com/1/upload", {
+          method: "POST",
+          body: formData,
+        });
+        
+        const data = await response.json();
+        const imageUrl = data.data?.url;
+        
+        if (!imageUrl) throw new Error('Загрузка не удалась');
+        
+        // Сохраняем URL для использования при сохранении
+        uploadedBannerUrl = imageUrl;
+        
+        // Показываем предпросмотр
+        const profileBanner = document.getElementById('profileBanner');
+        profileBanner.style.backgroundImage = `url(${imageUrl})`;
+        profileBanner.style.backgroundSize = 'cover';
+        profileBanner.style.backgroundPosition = 'center';
+        
+      } catch (error) {
+        console.error('Ошибка загрузки баннера:', error);
+        alert('Ошибка загрузки баннера: ' + error.message);
+      } finally {
+        // Восстанавливаем кнопку
+        const saveButton = document.getElementById('saveButton');
+        saveButton.textContent = 'Сохранить';
+        saveButton.disabled = false;
+        
+        // Сбрасываем значение input
+        event.target.value = '';
+      }
+    }
+
+    // Обработка действий контекстного меню
+    async function handleContextAction(action, userId) {
+      if (!userId) return;
+      
+      switch (action) {
+        case 'makeAdmin':
+          await toggleAdmin(userId);
+          break;
+        case 'removeFromGroup':
+          await removeFromGroup(userId);
+          break;
+      }
+      closeAllModals();
+    }
+
+    // Назначение/снятие администратора
+    async function toggleAdmin(userId) {
+      try {
+        if (!profileData.admins) {
+          profileData.admins = [];
+        }
+        
+        const isAdmin = profileData.admins.includes(userId);
+        
+        if (isAdmin) {
+          // Убираем из администраторов
+          profileData.admins = profileData.admins.filter(id => id !== userId);
+        } else {
+          // Добавляем в администраторы
+          profileData.admins.push(userId);
+        }
+        
+        const encryptedData = encryptData(profileData);
+        await database.ref(`chats/${profileId}`).update({
+          encryptedData: encryptedData
+        });
+        
+        // Обновляем отображение
+        displayMembers();
+        
+        alert(isAdmin ? 'Пользователь удален из администраторов' : 'Пользователь назначен администратором');
+        
+      } catch (error) {
+        console.error('Ошибка изменения прав:', error);
+        alert('Ошибка при изменении прав пользователя');
+      }
+    }
+
+    // Удаление из группы
+    async function removeFromGroup(userId) {
+      if (!confirm('Вы уверены, что хотите удалить этого пользователя из группы?')) return;
+      
+      try {
+        if (profileData.participants && Array.isArray(profileData.participants)) {
+          const index = profileData.participants.indexOf(userId);
+          if (index > -1) {
+            profileData.participants.splice(index, 1);
+          }
+        } else if (profileData.participants) {
+          delete profileData.participants[userId];
+        }
+        
+        // Убираем из администраторов, если был
+        if (profileData.admins && profileData.admins.includes(userId)) {
+          profileData.admins = profileData.admins.filter(id => id !== userId);
+        }
+        
+        const encryptedData = encryptData(profileData);
+        await database.ref(`chats/${profileId}`).update({
+          encryptedData: encryptedData
+        });
+        
+        // Удаляем чат из списка пользователя
+        await database.ref(`userChats/${userId}/${profileId}`).remove();
+        
+        // Обновляем отображение
+        displayMembers();
+        
+        alert('Пользователь удален из группы');
+        
+      } catch (error) {
+        console.error('Ошибка удаления пользователя:', error);
+        alert('Ошибка при удалении пользователя из группы');
+      }
+    }
+
+    // Показать ошибку
+    function showError(message) {
+      document.getElementById('loadingContainer').style.display = 'none';
+      document.getElementById('errorContainer').style.display = 'flex';
+      document.getElementById('errorMessage').textContent = message;
+    }
+
+    // Закрыть все модальные окна
+    function closeAllModals() {
+      document.getElementById('contextMenu').style.display = 'none';
+      document.getElementById('overlay').style.display = 'none';
+    }
+  </script>
+</body>
+</html>
