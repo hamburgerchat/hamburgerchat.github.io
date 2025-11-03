@@ -38,6 +38,9 @@
       --service-bg: rgba(255, 127, 80, 0.1);
       --service-text: #ff7f50;
       --read-color: #2563eb;
+      --notification-bg: rgba(0, 0, 0, 0.7);
+      --notification-text: #ffffff;
+      --link-color: #2563eb;
     }
 
     [data-theme="dark"] {
@@ -62,6 +65,9 @@
       --service-bg: rgba(253, 186, 116, 0.15);
       --service-text: #fdba74;
       --read-color: #60a5fa;
+      --notification-bg: rgba(255, 255, 255, 0.9);
+      --notification-text: #1e293b;
+      --link-color: #60a5fa;
     }
 
     * { 
@@ -318,6 +324,11 @@
       line-height: 1.4;
       color: var(--text-primary);
       word-wrap: break-word;
+    }
+    
+    .message-text a {
+      color: var(--link-color);
+      text-decoration: underline;
     }
     
     .message-image {
@@ -690,9 +701,11 @@
     
     .reaction-buttons {
       display: flex;
-      justify-content: space-around;
+      justify-content: space-between;
       padding: 0.8rem;
       border-bottom: 1px solid var(--border-color);
+      overflow-x: auto;
+      gap: 0.3rem;
     }
     
     .reaction-btn {
@@ -707,6 +720,7 @@
       font-size: 1.2rem;
       background: none;
       border: none;
+      flex-shrink: 0;
     }
     
     .reaction-btn:hover {
@@ -996,6 +1010,98 @@
     .scroll-to-bottom:hover {
       transform: translateY(-2px);
     }
+    
+    /* Стили для уведомлений */
+    .notification {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: var(--notification-bg);
+      color: var(--notification-text);
+      padding: 0.8rem 1.5rem;
+      border-radius: 1rem;
+      font-size: 0.9rem;
+      font-weight: 500;
+      z-index: 2000;
+      text-align: center;
+      max-width: 80%;
+      animation: notificationAppear 0.3s ease, notificationDisappear 0.3s ease 2.7s;
+      pointer-events: none;
+    }
+    
+    @keyframes notificationAppear {
+      from { opacity: 0; transform: translate(-50%, -40%); }
+      to { opacity: 1; transform: translate(-50%, -50%); }
+    }
+    
+    @keyframes notificationDisappear {
+      from { opacity: 1; transform: translate(-50%, -50%); }
+      to { opacity: 0; transform: translate(-50%, -60%); }
+    }
+    
+    /* Стили для кнопки входа в группу */
+    .join-group-container {
+      display: none;
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: var(--bg-primary);
+      z-index: 200;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      text-align: center;
+    }
+    
+    .join-group-icon {
+      width: 80px;
+      height: 80px;
+      background: var(--accent-gradient);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1.5rem;
+    }
+    
+    .join-group-icon i {
+      color: white;
+      font-size: 2rem;
+    }
+    
+    .join-group-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 0.8rem;
+      color: var(--text-primary);
+    }
+    
+    .join-group-description {
+      color: var(--text-secondary);
+      margin-bottom: 2rem;
+      max-width: 400px;
+      line-height: 1.5;
+    }
+    
+    .join-group-btn {
+      padding: 0.8rem 2rem;
+      background: var(--accent-color);
+      color: white;
+      border: none;
+      border-radius: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    
+    .join-group-btn:hover {
+      background: #ff6b35;
+      transform: translateY(-2px);
+    }
 
     @media (max-width: 480px) {
       .messages-container {
@@ -1020,6 +1126,11 @@
       .scroll-to-bottom {
         bottom: 90px;
         right: 15px;
+      }
+      
+      /* Исправление для мобильных устройств - панель ввода не перекрывает сообщения */
+      .messages-container {
+        padding-bottom: 100px;
       }
     }
   </style>
@@ -1046,6 +1157,18 @@
           <i class="fas fa-ellipsis-v"></i>
         </button>
       </div>
+    </div>
+    
+    <!-- Контейнер для входа в группу -->
+    <div class="join-group-container" id="joinGroupContainer">
+      <div class="join-group-icon">
+        <i class="fas fa-users"></i>
+      </div>
+      <div class="join-group-title" id="joinGroupTitle">Присоединиться к группе</div>
+      <div class="join-group-description" id="joinGroupDescription">
+        Вы не являетесь участником этой группы. Присоединитесь, чтобы начать общение.
+      </div>
+      <button class="join-group-btn" id="joinGroupBtn">Присоединиться</button>
     </div>
     
     <div class="pinned-message-top" id="pinnedMessageTop">
@@ -1146,12 +1269,8 @@
 
   <div class="message-context-menu" id="messageContextMenu">
     <div class="context-header">Сообщение</div>
-    <div class="reaction-buttons">
-      <button class="reaction-btn" data-reaction="👍">👍</button>
-      <button class="reaction-btn" data-reaction="❤️">❤️</button>
-      <button class="reaction-btn" data-reaction="😂">😂</button>
-      <button class="reaction-btn" data-reaction="😮">😮</button>
-      <button class="reaction-btn" data-reaction="😢">😢</button>
+    <div class="reaction-buttons" id="reactionButtons">
+      <!-- Реакции будут добавлены динамически -->
     </div>
     <div class="context-item" data-action="reply">
       <div class="context-icon">
@@ -1196,6 +1315,7 @@
     let currentChatId = null;
     let currentChatData = null;
     let isGroupChat = false;
+    let isGroupMember = false;
     let replyingTo = null;
     let selectedMessage = null;
     let allMessages = new Map();
@@ -1203,10 +1323,24 @@
     let longPressTimer = null;
     let stickerPacks = JSON.parse(localStorage.getItem('hamburger_sticker_packs') || '[]');
     let allStickerPacks = [];
+    let reactionPages = [];
+    let currentReactionPage = 0;
+
+    // Расширенный список реакций
+    const allReactions = [
+      '👍', '❤️', '😂', '😮', '😢', '😡', '👏', '🔥', '⭐', '🎉',
+      '🙏', '👎', '💩', '🤔', '🤯', '😍', '🥰', '😎', '🤩', '😭',
+      '🙌', '💯', '🤮', '💔', '👀', '🤝', '✌️', '🤘', '👌', '💪'
+    ];
 
     document.addEventListener('DOMContentLoaded', function() {
       const savedTheme = localStorage.getItem('hamburger_theme') || 'light';
       document.documentElement.setAttribute('data-theme', savedTheme);
+      
+      // Разбиваем реакции на страницы по 8 штук
+      for (let i = 0; i < allReactions.length; i += 8) {
+        reactionPages.push(allReactions.slice(i, i + 8));
+      }
     });
 
     function encryptData(data) {
@@ -1251,7 +1385,60 @@
       setupEventListeners();
       loadAllStickerPacks();
       setupScrollToBottom();
+      setupReactionButtons();
     });
+
+    function setupReactionButtons() {
+      const container = document.getElementById('reactionButtons');
+      container.innerHTML = '';
+      
+      // Добавляем кнопки навигации
+      if (reactionPages.length > 1) {
+        const prevBtn = document.createElement('button');
+        prevBtn.className = 'reaction-btn';
+        prevBtn.innerHTML = '<i class="fas fa-chevron-left"></i>';
+        prevBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          if (currentReactionPage > 0) {
+            currentReactionPage--;
+            setupReactionButtons();
+          }
+        });
+        container.appendChild(prevBtn);
+      }
+      
+      // Добавляем реакции текущей страницы
+      const currentPage = reactionPages[currentReactionPage] || [];
+      currentPage.forEach(reaction => {
+        const btn = document.createElement('button');
+        btn.className = 'reaction-btn';
+        btn.dataset.reaction = reaction;
+        btn.textContent = reaction;
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          if (selectedMessage) {
+            toggleReaction(selectedMessage.id, reaction);
+            closeAllModals();
+          }
+        });
+        container.appendChild(btn);
+      });
+      
+      // Добавляем кнопки навигации
+      if (reactionPages.length > 1) {
+        const nextBtn = document.createElement('button');
+        nextBtn.className = 'reaction-btn';
+        nextBtn.innerHTML = '<i class="fas fa-chevron-right"></i>';
+        nextBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          if (currentReactionPage < reactionPages.length - 1) {
+            currentReactionPage++;
+            setupReactionButtons();
+          }
+        });
+        container.appendChild(nextBtn);
+      }
+    }
 
     function setupScrollToBottom() {
       const scrollBtn = document.getElementById('scrollToBottom');
@@ -1305,10 +1492,29 @@
         currentChatData = decryptedData;
         console.log('Расшифрованные данные:', currentChatData);
         
+        // Проверяем, является ли пользователь участником группы
+        isGroupChat = currentChatData.type === 'group';
+        if (isGroupChat) {
+          isGroupMember = currentChatData.participants && 
+                         (Array.isArray(currentChatData.participants) ? 
+                          currentChatData.participants.includes(currentUser) : 
+                          currentChatData.participants[currentUserId]);
+        } else {
+          isGroupMember = true; // Для личных чатов всегда показываем чат
+        }
+        
         updateChatHeader();
-        await loadMessages();
-        await loadPinnedMessage();
-        document.getElementById('loadingContainer').style.display = 'none';
+        
+        if (isGroupMember) {
+          await loadMessages();
+          await loadPinnedMessage();
+          document.getElementById('loadingContainer').style.display = 'none';
+          document.getElementById('joinGroupContainer').style.display = 'none';
+        } else {
+          document.getElementById('loadingContainer').style.display = 'none';
+          document.getElementById('joinGroupContainer').style.display = 'flex';
+          document.getElementById('joinGroupTitle').textContent = `Присоединиться к "${currentChatData.name}"`;
+        }
         
       } catch (error) {
         console.error('Ошибка загрузки чата:', error);
@@ -1467,6 +1673,14 @@
         }
       }
       
+      // Обработка ссылок в тексте
+      let messageText = message.text || '';
+      if (messageText) {
+        // Простая регулярка для поиска URL
+        const urlRegex = /(https?:\/\/[^\s]+)/g;
+        messageText = messageText.replace(urlRegex, '<a href="$1" target="_blank" onclick="event.stopPropagation()">$1</a>');
+      }
+      
       let content = '';
       if (message.image) {
         content = `
@@ -1476,7 +1690,7 @@
             ${role}
           </div>` : ''}
           <img src="${message.image}" class="message-image" onclick="openImage('${message.image}')">
-          ${message.text ? `<div class="message-text">${message.text}</div>` : ''}
+          ${messageText ? `<div class="message-text">${messageText}</div>` : ''}
           ${reactions}
           <div class="message-time">${formatTime(message.timestamp)} ${statusIcons}</div>
         `;
@@ -1498,7 +1712,7 @@
             <div class="sender-name" onclick="openUserProfile('${message.sender}')">${message.sender}</div>
             ${role}
           </div>` : ''}
-          <div class="message-text">${message.text || ''}</div>
+          <div class="message-text">${messageText}</div>
           ${reactions}
           <div class="message-time">${formatTime(message.timestamp)} ${statusIcons}</div>
         `;
@@ -1509,7 +1723,7 @@
       setupMessageInteractions(messageEl, message);
       container.appendChild(messageEl);
       
-      if (!message.delivered) {
+      if (!message.delivered && !isUpdate) {
         scrollToBottom();
       }
     }
@@ -1523,6 +1737,7 @@
         existingMessage.remove();
         displayMessage(message);
         
+        // Восстанавливаем позицию прокрутки, чтобы сообщение не прыгало
         container.scrollTop = scrollBefore;
       }
     }
@@ -1641,6 +1856,9 @@
         });
         
         loadPinnedMessage();
+        
+        // Показываем уведомление
+        showNotification(`${currentUser} закрепил(а) сообщение`);
         
       } catch (error) {
         console.error('Ошибка закрепления сообщения:', error);
@@ -1947,6 +2165,9 @@
         e.stopPropagation();
         unpinMessage();
       });
+      
+      // Кнопка присоединения к группе
+      document.getElementById('joinGroupBtn').addEventListener('click', joinGroup);
     }
     
     function handleContextAction(action) {
@@ -1973,6 +2194,11 @@
     }
 
     async function sendMessage() {
+      if (!isGroupMember && isGroupChat) {
+        alert('Вы не являетесь участником этой группы');
+        return;
+      }
+      
       const input = document.getElementById('messageInput');
       const text = input.value.trim();
       if (!text) return;
@@ -2016,6 +2242,11 @@
     }
 
     async function handleImageUpload(event) {
+      if (!isGroupMember && isGroupChat) {
+        alert('Вы не являетесь участником этой группы');
+        return;
+      }
+      
       const file = event.target.files[0];
       if (!file) return;
       
@@ -2118,6 +2349,11 @@
     }
 
     async function toggleReaction(messageId, reaction) {
+      if (!isGroupMember && isGroupChat) {
+        alert('Вы не являетесь участником этой группы');
+        return;
+      }
+      
       try {
         const message = allMessages.get(messageId);
         if (!message) return;
@@ -2208,7 +2444,8 @@
           if (index > -1) {
             currentChatData.participants.splice(index, 1);
             
-            await createServiceMessage(`${currentUser} покинул(а) группу`);
+            // Показываем уведомление
+            showNotification(`${currentUser} покинул(а) группу`);
             
             const encrypted = encryptData(currentChatData);
             await database.ref(`chats/${currentChatId}`).update({ 
@@ -2222,6 +2459,44 @@
         
       } catch (error) {
         alert('Ошибка при выходе из группы: ' + error.message);
+      }
+    }
+
+    // Присоединение к группе
+    async function joinGroup() {
+      try {
+        if (!currentChatData.participants) {
+          currentChatData.participants = [];
+        }
+        
+        if (Array.isArray(currentChatData.participants)) {
+          if (!currentChatData.participants.includes(currentUser)) {
+            currentChatData.participants.push(currentUser);
+          }
+        } else {
+          currentChatData.participants[currentUserId] = true;
+        }
+        
+        const encrypted = encryptData(currentChatData);
+        await database.ref(`chats/${currentChatId}`).update({ 
+          encryptedData: encrypted 
+        });
+        
+        // Добавляем чат в список пользователя
+        await database.ref(`userChats/${currentUserId}/${currentChatId}`).set(true);
+        
+        // Показываем уведомление
+        showNotification(`${currentUser} присоединился(ась) к группе`);
+        
+        // Обновляем интерфейс
+        isGroupMember = true;
+        document.getElementById('joinGroupContainer').style.display = 'none';
+        await loadMessages();
+        await loadPinnedMessage();
+        
+      } catch (error) {
+        console.error('Ошибка присоединения к группе:', error);
+        alert('Ошибка при присоединении к группе: ' + error.message);
       }
     }
 
@@ -2296,6 +2571,22 @@
       document.getElementById('stickerPanel').style.display = 'none';
       document.getElementById('stickerView').style.display = 'none';
       document.getElementById('overlay').style.display = 'none';
+    }
+    
+    // Функция для показа уведомлений
+    function showNotification(text) {
+      const notification = document.createElement('div');
+      notification.className = 'notification';
+      notification.textContent = text;
+      
+      document.body.appendChild(notification);
+      
+      // Удаляем уведомление через 3 секунды
+      setTimeout(() => {
+        if (notification.parentNode) {
+          notification.parentNode.removeChild(notification);
+        }
+      }, 3000);
     }
   </script>
 </body>
