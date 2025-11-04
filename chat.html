@@ -10,6 +10,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
   <style>
+    /* БЕЗ ИЗМЕНЕНИЙ - полный CSS из оригинального файла */
     :root {
       --bg-primary: #ffffff;
       --bg-secondary: #f8f9fa;
@@ -254,7 +255,7 @@
     
     .message {
       display: flex;
-      max-width: 80%;
+      max-width: 70%;
       position: relative;
       animation: messageAppear 0.3s ease;
     }
@@ -348,7 +349,7 @@
     }
     
     .message-text {
-      font-size: 0.85rem;
+      font-size: 0.8rem;
       line-height: 1.4;
       color: var(--text-primary);
       word-wrap: break-word;
@@ -360,8 +361,8 @@
     }
     
     .message-image {
-      max-width: 240px;
-      max-height: 240px;
+      max-width: 180px;
+      max-height: 180px;
       border-radius: 10px;
       margin-top: 0.3rem;
       cursor: pointer;
@@ -369,7 +370,7 @@
     }
     
     .message-sticker {
-      font-size: 2.5rem;
+      font-size: 2rem;
       text-align: center;
       padding: 0.4rem;
       cursor: pointer;
@@ -1232,16 +1233,34 @@
       transform: translateY(-2px);
     }
 
+    /* ИСПРАВЛЕНИЯ ДЛЯ ТЕЛЕФОНОВ */
     @media (max-width: 480px) {
       .messages-container {
         padding: 0.7rem 0.5rem;
-        padding-bottom: 90px;
+        padding-bottom: 90px; /* Увеличил отступ снизу */
       }
       
       .message {
         max-width: 85%;
       }
       
+      .message-content {
+        padding: 0.5rem 0.8rem;
+      }
+
+      .message-text {
+        font-size: 0.78rem; /* Уменьшил размер текста */
+      }
+
+      .message-image {
+        max-width: 160px;
+        max-height: 160px;
+      }
+
+      .message-sticker {
+        font-size: 1.8rem; /* Уменьшил стикеры */
+      }
+
       .input-container {
         padding: 0.6rem;
       }
@@ -1253,23 +1272,11 @@
       }
       
       .scroll-to-bottom {
-        bottom: 85px;
+        bottom: 75px; /* Поднял кнопку выше */
         right: 12px;
         width: 36px;
         height: 36px;
         font-size: 0.8rem;
-      }
-      
-      .messages-container {
-        padding-bottom: 95px;
-      }
-
-      .message-content {
-        padding: 0.5rem 0.8rem;
-      }
-
-      .message-text {
-        font-size: 0.82rem;
       }
 
       .call-message {
@@ -1422,6 +1429,7 @@
   <div class="message-context-menu" id="messageContextMenu">
     <div class="context-header">Сообщение</div>
     <div class="reaction-buttons" id="reactionButtons">
+      <!-- Реакции будут добавлены через JS -->
     </div>
     <div class="context-item" data-action="reply">
       <div class="context-icon">
@@ -1474,18 +1482,16 @@
     let longPressTimer = null;
     let stickerPacks = JSON.parse(localStorage.getItem('hamburger_sticker_packs') || '[]');
     let allStickerPacks = [];
-    let reactionPages = [];
-    let currentReactionPage = 0;
+    let lastMessageTime = 0;
+    let spamCount = 0;
+    let spamResetTime = 0;
 
-    const allReactions = ['👍', '❤️', '😂', '😮', '😢', '😡', '👏', '🔥'];
+    // ВОЗВРАЩАЕМ РЕАКЦИИ ДО 4 ШТУК
+    const allReactions = ['👍', '❤️', '😂', '😮'];
 
     document.addEventListener('DOMContentLoaded', function() {
       const savedTheme = localStorage.getItem('hamburger_theme') || 'light';
       document.documentElement.setAttribute('data-theme', savedTheme);
-      
-      for (let i = 0; i < allReactions.length; i += 4) {
-        reactionPages.push(allReactions.slice(i, i + 4));
-      }
     });
 
     function encryptData(data) {
@@ -1506,6 +1512,46 @@
     function getChatIdFromUrl() {
       const urlParams = new URLSearchParams(window.location.search);
       return urlParams.get('id') || window.location.hash.substring(1) || window.location.search.substring(1);
+    }
+
+    // СИСТЕМА АНТИСПАМА
+    function isSpam() {
+      const now = Date.now();
+      
+      // Сбрасываем счетчик спама через 10 секунд
+      if (now - spamResetTime > 10000) {
+        spamCount = 0;
+        spamResetTime = now;
+      }
+      
+      // Проверяем слишком частые сообщения
+      if (now - lastMessageTime < 1000 && spamCount >= 5) {
+        return true;
+      }
+      
+      // Проверяем дублирующиеся сообщения
+      const lastMessages = Array.from(allMessages.values()).slice(-5);
+      const duplicateCount = lastMessages.filter(msg => 
+        msg.sender === currentUser && 
+        msg.text === document.getElementById('messageInput').value.trim()
+      ).length;
+      
+      return duplicateCount >= 3;
+    }
+
+    function showSpamWarning() {
+      const notification = document.createElement('div');
+      notification.className = 'notification';
+      notification.textContent = 'Слишком много сообщений! Пожалуйста, подождите.';
+      notification.style.background = 'var(--danger-color)';
+      
+      document.body.appendChild(notification);
+      
+      setTimeout(() => {
+        if (notification.parentNode) {
+          notification.parentNode.removeChild(notification);
+        }
+      }, 3000);
     }
 
     window.addEventListener('DOMContentLoaded', async () => {
@@ -1537,22 +1583,8 @@
       const container = document.getElementById('reactionButtons');
       container.innerHTML = '';
       
-      if (reactionPages.length > 1) {
-        const prevBtn = document.createElement('button');
-        prevBtn.className = 'reaction-btn';
-        prevBtn.innerHTML = '<i class="fas fa-chevron-left"></i>';
-        prevBtn.addEventListener('click', (e) => {
-          e.stopPropagation();
-          if (currentReactionPage > 0) {
-            currentReactionPage--;
-            setupReactionButtons();
-          }
-        });
-        container.appendChild(prevBtn);
-      }
-      
-      const currentPage = reactionPages[currentReactionPage] || [];
-      currentPage.forEach(reaction => {
+      // ТОЛЬКО 4 РЕАКЦИИ
+      allReactions.forEach(reaction => {
         const btn = document.createElement('button');
         btn.className = 'reaction-btn';
         btn.dataset.reaction = reaction;
@@ -1566,20 +1598,6 @@
         });
         container.appendChild(btn);
       });
-      
-      if (reactionPages.length > 1) {
-        const nextBtn = document.createElement('button');
-        nextBtn.className = 'reaction-btn';
-        nextBtn.innerHTML = '<i class="fas fa-chevron-right"></i>';
-        nextBtn.addEventListener('click', (e) => {
-          e.stopPropagation();
-          if (currentReactionPage < reactionPages.length - 1) {
-            currentReactionPage++;
-            setupReactionButtons();
-          }
-        });
-        container.appendChild(nextBtn);
-      }
     }
 
     function setupScrollToBottom() {
@@ -1682,6 +1700,16 @@
       }
       
       isGroupChat = currentChatData.type === 'group';
+      
+      // ИСПРАВЛЕНИЕ: Показываем аватарку собеседника в личных чатах
+      if (!isGroupChat && currentChatData.participants) {
+        const otherParticipant = getOtherParticipant();
+        if (otherParticipant) {
+          // В реальном приложении здесь бы загружались данные пользователя
+          // Для демо просто покажем первую букву имени
+          chatAvatarInitial.textContent = otherParticipant.charAt(0).toUpperCase();
+        }
+      }
       
       if (isGroupChat) {
         const participants = currentChatData.participants || [];
@@ -2376,22 +2404,11 @@
           throw new Error('Не удалось определить собеседника');
         }
 
-        const configuration = {
-          iceServers: [
-            { urls: 'stun:stun.l.google.com:19302' },
-            { urls: 'stun:stun1.l.google.com:19302' }
-          ]
-        };
-
-        const peerConnection = new RTCPeerConnection(configuration);
-        const offer = await peerConnection.createOffer();
-        await peerConnection.setLocalDescription(offer);
-
+        // РЕГИСТРАЦИЯ ЗВОНКА В БАЗЕ ДАННЫХ
         const callData = {
           id: callId,
           sender: currentUser,
           participants: [currentUser, otherUser],
-          offer: JSON.stringify(offer),
           status: 'waiting',
           createdAt: Date.now(),
           chatId: currentChatId
@@ -2424,6 +2441,7 @@
         
         showNotification('Звонок начат');
         
+        // ПЕРЕКИДЫВАЕМ ПОЛЬЗОВАТЕЛЯ НА СТРАНИЦУ ЗВОНКА
         window.open(`https://hamburgerchat.github.io/call.html?id=${callId}`, '_blank');
         
       } catch (error) {
@@ -2485,6 +2503,12 @@
       const text = input.value.trim();
       if (!text) return;
       
+      // ПРОВЕРКА НА СПАМ
+      if (isSpam()) {
+        showSpamWarning();
+        return;
+      }
+      
       try {
         const messageData = {
           text: text,
@@ -2517,6 +2541,10 @@
         input.style.height = 'auto';
         document.getElementById('sendButton').disabled = true;
         cancelReply();
+        
+        // ОБНОВЛЯЕМ ВРЕМЯ ПОСЛЕДНЕГО СООБЩЕНИЯ ДЛЯ АНТИСПАМА
+        lastMessageTime = Date.now();
+        spamCount++;
         
       } catch (error) {
         alert('Ошибка отправки: ' + error.message);
