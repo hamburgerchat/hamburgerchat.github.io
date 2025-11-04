@@ -249,12 +249,12 @@
       flex-direction: column;
       gap: 0.5rem;
       scroll-behavior: smooth;
-      padding-bottom: 80px;
+      padding-bottom: 100px;
     }
     
     .message {
       display: flex;
-      max-width: 85%;
+      max-width: 80%;
       position: relative;
       animation: messageAppear 0.3s ease;
     }
@@ -270,12 +270,12 @@
     }
     
     .message.group:not(.own) {
-      padding-left: 40px;
+      padding-left: 36px;
     }
     
     .message-avatar {
-      width: 32px;
-      height: 32px;
+      width: 28px;
+      height: 28px;
       border-radius: 50%;
       background: var(--accent-gradient);
       display: flex;
@@ -283,7 +283,7 @@
       justify-content: center;
       font-weight: 600;
       color: white;
-      font-size: 0.8rem;
+      font-size: 0.7rem;
       position: absolute;
       left: 0;
       bottom: 2px;
@@ -293,11 +293,11 @@
     
     .message-content {
       background: var(--message-bg);
-      border-radius: 18px;
-      padding: 0.7rem 1rem;
+      border-radius: 16px;
+      padding: 0.6rem 0.9rem;
       box-shadow: var(--shadow-light);
       position: relative;
-      min-width: 60px;
+      min-width: 50px;
       border: 1px solid rgba(0,0,0,0.05);
       cursor: pointer;
       transition: all 0.2s ease;
@@ -319,22 +319,22 @@
     .message-header {
       display: flex;
       align-items: center;
-      gap: 0.5rem;
+      gap: 0.4rem;
       margin-bottom: 0.2rem;
     }
     
     .sender-name {
       font-weight: 600;
-      font-size: 0.8rem;
+      font-size: 0.75rem;
       color: var(--text-primary);
       cursor: pointer;
     }
     
     .message-role {
-      font-size: 0.65rem;
+      font-size: 0.6rem;
       font-weight: 600;
-      padding: 0.1rem 0.4rem;
-      border-radius: 8px;
+      padding: 0.1rem 0.3rem;
+      border-radius: 6px;
       background: var(--role-member);
       color: white;
     }
@@ -348,7 +348,7 @@
     }
     
     .message-text {
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       line-height: 1.4;
       color: var(--text-primary);
       word-wrap: break-word;
@@ -360,18 +360,18 @@
     }
     
     .message-image {
-      max-width: 280px;
-      max-height: 280px;
-      border-radius: 12px;
-      margin-top: 0.4rem;
+      max-width: 240px;
+      max-height: 240px;
+      border-radius: 10px;
+      margin-top: 0.3rem;
       cursor: pointer;
       box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     }
     
     .message-sticker {
-      font-size: 3rem;
+      font-size: 2.5rem;
       text-align: center;
-      padding: 0.5rem;
+      padding: 0.4rem;
       cursor: pointer;
       transition: transform 0.2s ease;
     }
@@ -381,14 +381,14 @@
     }
     
     .message-time {
-      font-size: 0.7rem;
+      font-size: 0.65rem;
       color: var(--text-tertiary);
       text-align: right;
       margin-top: 0.2rem;
       display: flex;
       align-items: center;
       justify-content: flex-end;
-      gap: 0.3rem;
+      gap: 0.2rem;
     }
     
     .message.own .message-time {
@@ -402,7 +402,7 @@
     }
     
     .status-icon {
-      font-size: 0.6rem;
+      font-size: 0.55rem;
       color: var(--text-tertiary);
     }
     
@@ -412,20 +412,20 @@
     
     .reactions {
       display: flex;
-      gap: 0.3rem;
-      margin-top: 0.3rem;
+      gap: 0.2rem;
+      margin-top: 0.2rem;
       flex-wrap: wrap;
     }
     
     .reaction {
       background: var(--bg-secondary);
       border: 1px solid var(--border-color);
-      border-radius: 12px;
-      padding: 0.1rem 0.4rem;
-      font-size: 0.7rem;
+      border-radius: 10px;
+      padding: 0.1rem 0.3rem;
+      font-size: 0.65rem;
       display: flex;
       align-items: center;
-      gap: 0.2rem;
+      gap: 0.1rem;
       cursor: pointer;
       transition: all 0.2s ease;
       position: relative;
@@ -442,7 +442,7 @@
     }
     
     .reaction-count {
-      font-size: 0.6rem;
+      font-size: 0.55rem;
       color: var(--text-secondary);
     }
     
@@ -453,9 +453,9 @@
       transform: translateX(-50%);
       background: var(--card-bg);
       border: 1px solid var(--border-color);
-      border-radius: 8px;
-      padding: 0.5rem;
-      font-size: 0.7rem;
+      border-radius: 6px;
+      padding: 0.4rem;
+      font-size: 0.65rem;
       white-space: nowrap;
       z-index: 10;
       box-shadow: var(--shadow);
@@ -469,10 +469,10 @@
     .reply-preview {
       background: var(--reply-bg);
       border-left: 3px solid var(--accent-color);
-      padding: 0.4rem 0.6rem;
-      border-radius: 6px;
-      margin-bottom: 0.4rem;
-      font-size: 0.8rem;
+      padding: 0.3rem 0.5rem;
+      border-radius: 5px;
+      margin-bottom: 0.3rem;
+      font-size: 0.75rem;
       cursor: pointer;
     }
     
@@ -480,6 +480,7 @@
       font-weight: 600;
       color: var(--accent-color);
       margin-bottom: 0.1rem;
+      font-size: 0.7rem;
     }
     
     .reply-text {
@@ -487,11 +488,12 @@
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
+      font-size: 0.7rem;
     }
     
     .reply-container {
       background: var(--bg-primary);
-      padding: 0.6rem 1rem;
+      padding: 0.5rem 0.9rem;
       border-bottom: 1px solid var(--border-color);
       display: flex;
       align-items: center;
@@ -503,13 +505,13 @@
     }
     
     .reply-label {
-      font-size: 0.8rem;
+      font-size: 0.75rem;
       color: var(--text-secondary);
-      margin-bottom: 0.2rem;
+      margin-bottom: 0.1rem;
     }
     
     .reply-content {
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       color: var(--text-primary);
     }
     
@@ -518,11 +520,11 @@
       border: none;
       color: var(--text-secondary);
       cursor: pointer;
-      font-size: 1rem;
-      padding: 0.3rem;
+      font-size: 0.9rem;
+      padding: 0.2rem;
       border-radius: 50%;
-      width: 30px;
-      height: 30px;
+      width: 26px;
+      height: 26px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -534,11 +536,11 @@
     
     .input-container {
       background: var(--bg-primary);
-      padding: 0.8rem;
+      padding: 0.7rem;
       border-top: 1px solid var(--border-color);
       display: flex;
       align-items: flex-end;
-      gap: 0.6rem;
+      gap: 0.5rem;
       position: fixed;
       bottom: 0;
       left: 0;
@@ -548,13 +550,13 @@
     }
     
     .attachment-btn, .sticker-btn {
-      width: 40px;
-      height: 40px;
+      width: 36px;
+      height: 36px;
       border-radius: 50%;
       border: none;
       background: transparent;
       color: var(--text-secondary);
-      font-size: 1.1rem;
+      font-size: 1rem;
       cursor: pointer;
       display: flex;
       align-items: center;
@@ -576,12 +578,12 @@
     
     .message-input {
       width: 100%;
-      min-height: 40px;
-      max-height: 120px;
-      padding: 0.6rem 0.8rem;
+      min-height: 36px;
+      max-height: 100px;
+      padding: 0.5rem 0.7rem;
       border: 1px solid var(--border-color);
-      border-radius: 20px;
-      font-size: 0.9rem;
+      border-radius: 18px;
+      font-size: 0.85rem;
       resize: none;
       outline: none;
       background: var(--bg-secondary);
@@ -595,13 +597,13 @@
     }
     
     .send-button {
-      width: 40px;
-      height: 40px;
+      width: 36px;
+      height: 36px;
       border-radius: 50%;
       border: none;
       background: var(--accent-color);
       color: white;
-      font-size: 1rem;
+      font-size: 0.9rem;
       cursor: pointer;
       display: flex;
       align-items: center;
@@ -624,8 +626,8 @@
     
     .service-message {
       text-align: center;
-      margin: 0.8rem 0;
-      padding: 0.4rem 1rem;
+      margin: 0.6rem 0;
+      padding: 0.3rem 0.9rem;
       align-self: center;
       max-width: 80%;
     }
@@ -633,9 +635,9 @@
     .service-content {
       background: var(--service-bg);
       color: var(--service-text);
-      padding: 0.4rem 1.2rem;
-      border-radius: 16px;
-      font-size: 0.8rem;
+      padding: 0.3rem 1rem;
+      border-radius: 14px;
+      font-size: 0.75rem;
       font-weight: 500;
       display: inline-block;
       border: 1px solid var(--service-bg);
@@ -644,30 +646,30 @@
     .call-message {
       background: var(--service-bg);
       border: 1px solid var(--call-color);
-      border-radius: 18px;
-      padding: 1rem;
+      border-radius: 16px;
+      padding: 0.9rem;
       text-align: center;
-      max-width: 300px;
-      margin: 0.5rem auto;
+      max-width: 280px;
+      margin: 0.4rem auto;
     }
     
     .call-message-content {
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 0.8rem;
+      gap: 0.6rem;
     }
     
     .call-icon {
-      width: 50px;
-      height: 50px;
+      width: 45px;
+      height: 45px;
       border-radius: 50%;
       background: var(--call-color);
       display: flex;
       align-items: center;
       justify-content: center;
       color: white;
-      font-size: 1.5rem;
+      font-size: 1.3rem;
       animation: pulse 2s infinite;
     }
     
@@ -680,32 +682,33 @@
     .call-title {
       font-weight: 600;
       color: var(--call-color);
-      font-size: 1rem;
+      font-size: 0.9rem;
     }
     
     .call-description {
       color: var(--text-secondary);
-      font-size: 0.9rem;
+      font-size: 0.8rem;
     }
     
     .call-buttons {
       display: flex;
-      gap: 0.8rem;
-      margin-top: 0.5rem;
+      gap: 0.6rem;
+      margin-top: 0.4rem;
     }
     
     .call-accept-btn {
-      padding: 0.6rem 1.2rem;
+      padding: 0.5rem 1rem;
       background: var(--call-color);
       color: white;
       border: none;
-      border-radius: 20px;
+      border-radius: 18px;
       font-weight: 600;
       cursor: pointer;
       transition: all 0.2s ease;
       display: flex;
       align-items: center;
-      gap: 0.5rem;
+      gap: 0.4rem;
+      font-size: 0.8rem;
     }
     
     .call-accept-btn:hover {
@@ -714,17 +717,18 @@
     }
     
     .call-decline-btn {
-      padding: 0.6rem 1.2rem;
+      padding: 0.5rem 1rem;
       background: var(--danger-color);
       color: white;
       border: none;
-      border-radius: 20px;
+      border-radius: 18px;
       font-weight: 600;
       cursor: pointer;
       transition: all 0.2s ease;
       display: flex;
       align-items: center;
-      gap: 0.5rem;
+      gap: 0.4rem;
+      font-size: 0.8rem;
     }
     
     .call-decline-btn:hover {
@@ -738,11 +742,11 @@
       top: 60px;
       right: 1rem;
       background: var(--card-bg);
-      border-radius: 12px;
+      border-radius: 10px;
       box-shadow: var(--shadow);
       z-index: 1000;
       animation: fadeIn 0.2s ease;
-      min-width: 200px;
+      min-width: 180px;
       border: 1px solid var(--border-color);
     }
     
@@ -752,12 +756,12 @@
     }
     
     .menu-item {
-      padding: 1rem 1.2rem;
+      padding: 0.9rem 1rem;
       cursor: pointer;
       transition: background 0.2s ease;
       display: flex;
       align-items: center;
-      gap: 0.8rem;
+      gap: 0.7rem;
       border-bottom: 1px solid var(--border-color);
     }
     
@@ -770,13 +774,13 @@
     }
     
     .menu-icon {
-      width: 16px;
+      width: 14px;
       text-align: center;
       color: var(--text-secondary);
     }
     
     .menu-text {
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       color: var(--text-primary);
     }
     
@@ -803,40 +807,41 @@
       display: none;
       position: fixed;
       background: var(--card-bg);
-      border-radius: 12px;
+      border-radius: 10px;
       box-shadow: var(--shadow);
       z-index: 1001;
       animation: fadeIn 0.2s ease;
-      min-width: 180px;
+      min-width: 160px;
       border: 1px solid var(--border-color);
     }
     
     .context-header {
-      padding: 1rem;
+      padding: 0.9rem;
       border-bottom: 1px solid var(--border-color);
       text-align: center;
       font-weight: 600;
+      font-size: 0.85rem;
     }
     
     .reaction-buttons {
       display: flex;
       justify-content: space-between;
-      padding: 0.8rem;
+      padding: 0.7rem;
       border-bottom: 1px solid var(--border-color);
       overflow-x: auto;
-      gap: 0.3rem;
+      gap: 0.2rem;
     }
     
     .reaction-btn {
-      width: 32px;
-      height: 32px;
+      width: 28px;
+      height: 28px;
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
       transition: transform 0.2s ease;
-      font-size: 1.2rem;
+      font-size: 1rem;
       background: none;
       border: none;
       flex-shrink: 0;
@@ -848,12 +853,12 @@
     }
     
     .context-item {
-      padding: 0.8rem 1rem;
+      padding: 0.7rem 0.9rem;
       cursor: pointer;
       transition: background 0.2s ease;
       display: flex;
       align-items: center;
-      gap: 0.8rem;
+      gap: 0.7rem;
       border-bottom: 1px solid var(--border-color);
     }
     
@@ -866,13 +871,13 @@
     }
     
     .context-icon {
-      width: 16px;
+      width: 14px;
       text-align: center;
       color: var(--text-secondary);
     }
     
     .context-text {
-      font-size: 0.85rem;
+      font-size: 0.8rem;
       color: var(--text-primary);
     }
     
@@ -891,44 +896,45 @@
       left: 1rem;
       right: 1rem;
       background: var(--card-bg);
-      border-radius: 12px;
+      border-radius: 10px;
       box-shadow: var(--shadow);
-      padding: 1rem;
+      padding: 0.9rem;
       z-index: 1000;
-      max-height: 300px;
+      max-height: 280px;
       border: 1px solid var(--border-color);
       flex-direction: column;
     }
     
     .sticker-search {
-      margin-bottom: 1rem;
+      margin-bottom: 0.9rem;
     }
     
     .sticker-search input {
       width: 100%;
-      padding: 0.8rem 1rem;
+      padding: 0.7rem 0.9rem;
       border: 1px solid var(--border-color);
-      border-radius: 0.8rem;
+      border-radius: 0.7rem;
       background: var(--bg-secondary);
       color: var(--text-primary);
-      font-size: 1rem;
+      font-size: 0.9rem;
     }
     
     .sticker-tabs {
       display: flex;
       border-bottom: 1px solid var(--border-color);
-      margin-bottom: 1rem;
+      margin-bottom: 0.9rem;
     }
     
     .sticker-tab {
       flex: 1;
-      padding: 0.8rem;
+      padding: 0.7rem;
       text-align: center;
       background: none;
       border: none;
       cursor: pointer;
       color: var(--text-secondary);
       border-bottom: 2px solid transparent;
+      font-size: 0.8rem;
     }
     
     .sticker-tab.active {
@@ -940,14 +946,14 @@
       flex: 1;
       overflow-y: auto;
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-      gap: 0.8rem;
+      grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+      gap: 0.7rem;
     }
     
     .sticker-pack {
       background: var(--bg-secondary);
-      border-radius: 0.8rem;
-      padding: 1rem;
+      border-radius: 0.7rem;
+      padding: 0.9rem;
       cursor: pointer;
       text-align: center;
       transition: background 0.2s ease;
@@ -958,14 +964,14 @@
     }
     
     .sticker-pack img {
-      width: 50px;
-      height: 50px;
+      width: 45px;
+      height: 45px;
       object-fit: contain;
-      margin-bottom: 0.5rem;
+      margin-bottom: 0.4rem;
     }
     
     .sticker-pack-name {
-      font-size: 0.8rem;
+      font-size: 0.75rem;
       font-weight: 500;
       color: var(--text-primary);
     }
@@ -986,8 +992,8 @@
     
     .sticker-view-content {
       background: var(--bg-primary);
-      border-radius: 1rem;
-      padding: 1.5rem;
+      border-radius: 0.9rem;
+      padding: 1.3rem;
       max-width: 90%;
       max-height: 80%;
       overflow-y: auto;
@@ -995,14 +1001,14 @@
     
     .sticker-view-stickers {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-      gap: 0.8rem;
-      margin-bottom: 1rem;
+      grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+      gap: 0.7rem;
+      margin-bottom: 0.9rem;
     }
     
     .sticker-view-sticker {
       cursor: pointer;
-      border-radius: 0.5rem;
+      border-radius: 0.4rem;
       transition: transform 0.2s ease;
     }
     
@@ -1017,7 +1023,7 @@
     
     .sticker-view-actions {
       display: flex;
-      gap: 1rem;
+      gap: 0.9rem;
       justify-content: center;
     }
     
@@ -1025,20 +1031,22 @@
       background: var(--danger-color);
       color: white;
       border: none;
-      padding: 0.8rem 1.5rem;
-      border-radius: 0.8rem;
+      padding: 0.7rem 1.3rem;
+      border-radius: 0.7rem;
       cursor: pointer;
       font-weight: 600;
+      font-size: 0.8rem;
     }
     
     .add-sticker-pack {
       background: var(--success-color);
       color: white;
       border: none;
-      padding: 0.8rem 1.5rem;
-      border-radius: 0.8rem;
+      padding: 0.7rem 1.3rem;
+      border-radius: 0.7rem;
       cursor: pointer;
       font-weight: 600;
+      font-size: 0.8rem;
     }
     
     .loading-container {
@@ -1047,18 +1055,18 @@
       align-items: center;
       justify-content: center;
       height: 100%;
-      padding: 2rem;
+      padding: 1.8rem;
       color: var(--text-secondary);
     }
     
     .loading-spinner {
-      width: 40px;
-      height: 40px;
+      width: 36px;
+      height: 36px;
       border: 3px solid var(--border-color);
       border-top: 3px solid var(--accent-color);
       border-radius: 50%;
       animation: spin 1s linear infinite;
-      margin-bottom: 1rem;
+      margin-bottom: 0.9rem;
     }
     
     @keyframes spin {
@@ -1073,22 +1081,22 @@
     .pinned-message-top {
       background: var(--bg-secondary);
       border-left: 3px solid var(--accent-color);
-      padding: 0.8rem;
-      margin: 0 1rem 0.5rem 1rem;
-      border-radius: 0.5rem;
+      padding: 0.7rem;
+      margin: 0 0.9rem 0.4rem 0.9rem;
+      border-radius: 0.4rem;
       cursor: pointer;
       display: none;
     }
     
     .pinned-message-content {
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       color: var(--text-primary);
     }
     
     .pinned-message-info {
-      font-size: 0.7rem;
+      font-size: 0.65rem;
       color: var(--text-secondary);
-      margin-top: 0.3rem;
+      margin-top: 0.2rem;
     }
     
     .unpin-btn {
@@ -1097,15 +1105,16 @@
       color: var(--text-secondary);
       cursor: pointer;
       float: right;
-      padding: 0.2rem 0.5rem;
+      padding: 0.1rem 0.4rem;
+      font-size: 0.7rem;
     }
 
     .scroll-to-bottom {
       position: fixed;
       bottom: 80px;
-      right: 20px;
-      width: 44px;
-      height: 44px;
+      right: 15px;
+      width: 40px;
+      height: 40px;
       border-radius: 50%;
       background: var(--accent-color);
       color: white;
@@ -1119,6 +1128,7 @@
       transition: all 0.3s ease;
       opacity: 0;
       pointer-events: none;
+      font-size: 0.9rem;
     }
     
     .scroll-to-bottom.visible {
@@ -1137,9 +1147,9 @@
       transform: translate(-50%, -50%);
       background: var(--notification-bg);
       color: var(--notification-text);
-      padding: 0.8rem 1.5rem;
-      border-radius: 1rem;
-      font-size: 0.9rem;
+      padding: 0.7rem 1.3rem;
+      border-radius: 0.9rem;
+      font-size: 0.85rem;
       font-weight: 500;
       z-index: 2000;
       text-align: center;
@@ -1170,49 +1180,51 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 2rem;
+      padding: 1.8rem;
       text-align: center;
     }
     
     .join-group-icon {
-      width: 80px;
-      height: 80px;
+      width: 70px;
+      height: 70px;
       background: var(--accent-gradient);
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      margin-bottom: 1.5rem;
+      margin-bottom: 1.3rem;
     }
     
     .join-group-icon i {
       color: white;
-      font-size: 2rem;
+      font-size: 1.8rem;
     }
     
     .join-group-title {
-      font-size: 1.5rem;
+      font-size: 1.3rem;
       font-weight: 600;
-      margin-bottom: 0.8rem;
+      margin-bottom: 0.7rem;
       color: var(--text-primary);
     }
     
     .join-group-description {
       color: var(--text-secondary);
-      margin-bottom: 2rem;
-      max-width: 400px;
+      margin-bottom: 1.8rem;
+      max-width: 350px;
       line-height: 1.5;
+      font-size: 0.9rem;
     }
     
     .join-group-btn {
-      padding: 0.8rem 2rem;
+      padding: 0.7rem 1.8rem;
       background: var(--accent-color);
       color: white;
       border: none;
-      border-radius: 0.8rem;
+      border-radius: 0.7rem;
       font-weight: 600;
       cursor: pointer;
       transition: all 0.2s ease;
+      font-size: 0.9rem;
     }
     
     .join-group-btn:hover {
@@ -1222,31 +1234,53 @@
 
     @media (max-width: 480px) {
       .messages-container {
-        padding: 0.8rem 0.6rem;
-        padding-bottom: 80px;
+        padding: 0.7rem 0.5rem;
+        padding-bottom: 90px;
       }
       
       .message {
-        max-width: 90%;
+        max-width: 85%;
       }
       
       .input-container {
-        padding: 0.7rem;
+        padding: 0.6rem;
       }
       
       .sticker-panel {
         left: 0.5rem;
         right: 0.5rem;
-        bottom: 70px;
+        bottom: 65px;
       }
       
       .scroll-to-bottom {
-        bottom: 90px;
-        right: 15px;
+        bottom: 85px;
+        right: 12px;
+        width: 36px;
+        height: 36px;
+        font-size: 0.8rem;
       }
       
       .messages-container {
-        padding-bottom: 100px;
+        padding-bottom: 95px;
+      }
+
+      .message-content {
+        padding: 0.5rem 0.8rem;
+      }
+
+      .message-text {
+        font-size: 0.82rem;
+      }
+
+      .call-message {
+        max-width: 260px;
+        padding: 0.8rem;
+      }
+
+      .call-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 1.2rem;
       }
     }
   </style>
@@ -1443,18 +1477,14 @@
     let reactionPages = [];
     let currentReactionPage = 0;
 
-    const allReactions = [
-      '👍', '❤️', '😂', '😮', '😢', '😡', '👏', '🔥', '⭐', '🎉',
-      '🙏', '👎', '💩', '🤔', '🤯', '😍', '🥰', '😎', '🤩', '😭',
-      '🙌', '💯', '🤮', '💔', '👀', '🤝', '✌️', '🤘', '👌', '💪'
-    ];
+    const allReactions = ['👍', '❤️', '😂', '😮', '😢', '😡', '👏', '🔥'];
 
     document.addEventListener('DOMContentLoaded', function() {
       const savedTheme = localStorage.getItem('hamburger_theme') || 'light';
       document.documentElement.setAttribute('data-theme', savedTheme);
       
-      for (let i = 0; i < allReactions.length; i += 8) {
-        reactionPages.push(allReactions.slice(i, i + 8));
+      for (let i = 0; i < allReactions.length; i += 4) {
+        reactionPages.push(allReactions.slice(i, i + 4));
       }
     });
 
@@ -2252,7 +2282,7 @@
       input.addEventListener('input', function() {
         sendBtn.disabled = !this.value.trim();
         this.style.height = 'auto';
-        this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+        this.style.height = Math.min(this.scrollHeight, 100) + 'px';
       });
       
       input.addEventListener('keypress', (e) => {
@@ -2341,6 +2371,39 @@
       try {
         const callId = 'call_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
         
+        const otherUser = getOtherParticipant();
+        if (!otherUser) {
+          throw new Error('Не удалось определить собеседника');
+        }
+
+        const configuration = {
+          iceServers: [
+            { urls: 'stun:stun.l.google.com:19302' },
+            { urls: 'stun:stun1.l.google.com:19302' }
+          ]
+        };
+
+        const peerConnection = new RTCPeerConnection(configuration);
+        const offer = await peerConnection.createOffer();
+        await peerConnection.setLocalDescription(offer);
+
+        const callData = {
+          id: callId,
+          sender: currentUser,
+          participants: [currentUser, otherUser],
+          offer: JSON.stringify(offer),
+          status: 'waiting',
+          createdAt: Date.now(),
+          chatId: currentChatId
+        };
+
+        const encryptedCallData = encryptData(callData);
+        
+        await database.ref(`calls/${callId}`).set({
+          encryptedData: encryptedCallData,
+          createdAt: Date.now()
+        });
+
         const callMessageData = {
           type: 'call',
           callId: callId,
@@ -2360,6 +2423,8 @@
         await updateLastMessage('📞 Входящий звонок');
         
         showNotification('Звонок начат');
+        
+        window.open(`https://hamburgerchat.github.io/call.html?id=${callId}`, '_blank');
         
       } catch (error) {
         console.error('Ошибка начала звонка:', error);
