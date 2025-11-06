@@ -86,6 +86,8 @@
       display: flex;
       align-items: center;
       gap: 1rem;
+      flex: 1;
+      min-width: 0;
     }
     
     .back-button {
@@ -101,6 +103,7 @@
       align-items: center;
       justify-content: center;
       transition: all 0.2s ease;
+      flex-shrink: 0;
     }
     
     .back-button:hover {
@@ -111,12 +114,16 @@
       font-size: 1.2rem;
       font-weight: 600;
       color: var(--text-primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
     
     .header-actions {
       display: flex;
       align-items: center;
       gap: 0.5rem;
+      flex-shrink: 0;
     }
     
     .edit-button, .chat-button, .save-button, .cancel-button {
@@ -126,6 +133,8 @@
       font-weight: 600;
       cursor: pointer;
       transition: all 0.2s ease;
+      font-size: 0.9rem;
+      white-space: nowrap;
     }
     
     .edit-button, .chat-button {
@@ -245,6 +254,7 @@
       font-weight: 700;
       color: var(--text-primary);
       margin-bottom: 0.5rem;
+      word-break: break-word;
     }
     
     .profile-name-input {
@@ -291,6 +301,7 @@
       line-height: 1.5;
       margin-bottom: 1.5rem;
       white-space: pre-line;
+      word-break: break-word;
     }
     
     .profile-description-input {
@@ -356,6 +367,7 @@
       cursor: pointer;
       font-size: 0.8rem;
       font-weight: 600;
+      white-space: nowrap;
     }
     
     .copy-link:hover {
@@ -395,16 +407,21 @@
       color: white;
       background-size: cover;
       background-position: center;
+      flex-shrink: 0;
     }
     
     .member-info {
       flex: 1;
+      min-width: 0;
     }
     
     .member-name {
       font-weight: 600;
       color: var(--text-primary);
       margin-bottom: 0.2rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
     
     .member-role {
@@ -565,6 +582,32 @@
       z-index: 999;
     }
     
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+    
+    .stat-item {
+      text-align: center;
+      padding: 1rem;
+      background: var(--bg-secondary);
+      border-radius: 0.8rem;
+    }
+    
+    .stat-value {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--accent-color);
+      margin-bottom: 0.3rem;
+    }
+    
+    .stat-label {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+    }
+    
     @media (max-width: 768px) {
       .members-list {
         grid-template-columns: 1fr;
@@ -576,6 +619,65 @@
       
       .profile-name-input {
         font-size: 1.5rem;
+      }
+      
+      .header {
+        padding: 0.8rem 0.8rem;
+      }
+      
+      .header-actions {
+        gap: 0.3rem;
+      }
+      
+      .edit-button, .chat-button, .save-button, .cancel-button {
+        padding: 0.5rem 0.8rem;
+        font-size: 0.8rem;
+      }
+      
+      .profile-info {
+        padding: 0 1rem 1rem;
+      }
+      
+      .profile-section {
+        margin: 1rem;
+        padding: 1rem;
+      }
+      
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      
+      .avatar-container {
+        width: 100px;
+        height: 100px;
+      }
+      
+      .profile-avatar {
+        width: 100px;
+        height: 100px;
+        font-size: 2rem;
+      }
+      
+      .banner {
+        height: 150px;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .header-title {
+        font-size: 1rem;
+      }
+      
+      .profile-name {
+        font-size: 1.3rem;
+      }
+      
+      .profile-name-input {
+        font-size: 1.3rem;
       }
     }
   </style>
@@ -641,6 +743,21 @@
           
           <div class="profile-description" id="profileDescription">Описание профиля</div>
           <textarea class="profile-description-input" id="profileDescriptionInput" placeholder="Введите описание"></textarea>
+          
+          <div class="stats-grid" id="statsGrid" style="display: none;">
+            <div class="stat-item">
+              <div class="stat-value" id="membersCount">0</div>
+              <div class="stat-label">Участников</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-value" id="messagesCount">0</div>
+              <div class="stat-label">Сообщений</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-value" id="createdDate">-</div>
+              <div class="stat-label">Создан</div>
+            </div>
+          </div>
         </div>
         
         <div class="profile-section" id="shareSection" style="display: none;">
@@ -712,6 +829,7 @@
     let uploadedAvatarUrl = '';
     let uploadedBannerUrl = '';
     let currentContextMember = null;
+    let userProfilesCache = new Map();
 
     // Функции шифрования/дешифрования
     function encryptData(data) {
@@ -824,13 +942,17 @@
         isAdmin = isCreator || (profileData.admins && profileData.admins.includes(currentUserId));
         
         // Отображаем данные группы
-        displayGroupData();
+        await displayGroupData();
         
         // Скрываем загрузку и показываем контент
         document.getElementById('loadingContainer').style.display = 'none';
         document.getElementById('profileData').style.display = 'block';
         document.getElementById('shareSection').style.display = 'block';
         document.getElementById('membersSection').style.display = 'block';
+        document.getElementById('statsGrid').style.display = 'grid';
+        
+        // Загружаем статистику
+        await loadGroupStats();
         
         // Показываем кнопки в зависимости от прав
         if (isAdmin) {
@@ -893,7 +1015,7 @@
     }
 
     // Отображение данных группы
-    function displayGroupData() {
+    async function displayGroupData() {
       // Заголовок
       document.getElementById('headerTitle').textContent = 'Профиль группы';
       
@@ -931,7 +1053,37 @@
       document.getElementById('shareLinkText').textContent = `https://hamburgerchat.github.io/chat.html?id=${profileId}`;
       
       // Участники
-      displayMembers();
+      await displayMembers();
+    }
+
+    // Загрузка статистики группы
+    async function loadGroupStats() {
+      try {
+        // Подсчет участников
+        let membersCount = 0;
+        if (profileData.participants) {
+          if (Array.isArray(profileData.participants)) {
+            membersCount = profileData.participants.length;
+          } else {
+            membersCount = Object.keys(profileData.participants).length;
+          }
+        }
+        document.getElementById('membersCount').textContent = membersCount;
+        
+        // Подсчет сообщений
+        const messagesRef = database.ref(`messages/${profileId}`);
+        const snapshot = await messagesRef.once('value');
+        const messagesCount = snapshot.exists() ? Object.keys(snapshot.val()).length : 0;
+        document.getElementById('messagesCount').textContent = messagesCount;
+        
+        // Дата создания
+        if (profileData.createdAt) {
+          const date = new Date(profileData.createdAt);
+          document.getElementById('createdDate').textContent = date.toLocaleDateString('ru-RU');
+        }
+      } catch (error) {
+        console.error('Ошибка загрузки статистики:', error);
+      }
     }
 
     // Отображение данных пользователя
@@ -985,143 +1137,333 @@
       // Скрываем секции, которые не нужны для пользователя
       document.getElementById('shareSection').style.display = 'none';
       document.getElementById('membersSection').style.display = 'none';
-      
-      // Ссылка для профиля
-      if (isOwnProfile) {
-        document.getElementById('shareSection').style.display = 'block';
-        document.getElementById('shareLinkText').textContent = `https://hamburgerchat.github.io/profile.html?id=${profileId}`;
-      }
+      document.getElementById('statsGrid').style.display = 'none';
     }
 
     // Отображение участников группы
-    function displayMembers() {
+    async function displayMembers() {
       const membersList = document.getElementById('membersList');
       membersList.innerHTML = '';
       
       if (!profileData.participants) {
-        membersList.innerHTML = '<div style="padding: 1rem; text-align: center; color: var(--text-secondary);">Нет участников</div>';
+        membersList.innerHTML = '<div style="text-align: center; color: var(--text-secondary); padding: 2rem;">Участники не найдены</div>';
         return;
       }
       
       // Получаем список участников
-      const participants = Object.keys(profileData.participants);
+      let participants = [];
+      if (Array.isArray(profileData.participants)) {
+        participants = profileData.participants;
+      } else {
+        participants = Object.keys(profileData.participants);
+      }
       
-      // Для каждого участника создаем элемент
-      participants.forEach(userId => {
-        // В реальном приложении нужно загрузить данные пользователя по userId
-        // Здесь для простоты используем userId как имя
-        const memberItem = document.createElement('div');
-        memberItem.className = 'member-item';
-        memberItem.dataset.userId = userId;
-        
-        // Определяем роль
-        let role = 'Участник';
-        let roleClass = '';
-        
-        if (userId === profileData.createdBy) {
-          role = 'Создатель';
-          roleClass = 'role-creator';
-        } else if (profileData.admins && profileData.admins.includes(userId)) {
-          role = 'Администратор';
-          roleClass = 'role-admin';
+      // Загружаем данные каждого участника
+      for (const userId of participants) {
+        try {
+          const userData = await getUserProfile(userId);
+          const memberItem = createMemberItem(userId, userData);
+          membersList.appendChild(memberItem);
+        } catch (error) {
+          console.error(`Ошибка загрузки профиля участника ${userId}:`, error);
         }
-        
-        memberItem.innerHTML = `
-          <div class="member-avatar">${userId.charAt(0).toUpperCase()}</div>
-          <div class="member-info">
-            <div class="member-name">${userId}</div>
-            <div class="member-role ${roleClass}">${role}</div>
-          </div>
-        `;
-        
-        // Обработчики событий
-        memberItem.addEventListener('click', () => {
-          window.location.href = `https://hamburgerchat.github.io/profile.html?id=${userId}`;
+      }
+    }
+
+    // Получение профиля пользователя
+    async function getUserProfile(userId) {
+      // Проверяем кэш
+      if (userProfilesCache.has(userId)) {
+        return userProfilesCache.get(userId);
+      }
+      
+      const userRef = database.ref(`users/${userId}`);
+      const snapshot = await userRef.once('value');
+      
+      if (!snapshot.exists()) {
+        throw new Error('Пользователь не найден');
+      }
+      
+      const userData = snapshot.val();
+      let decryptedData = null;
+      
+      if (userData.encryptedData) {
+        decryptedData = decryptData(userData.encryptedData);
+      } else if (userData.username) {
+        decryptedData = userData;
+      }
+      
+      if (!decryptedData) {
+        throw new Error('Не удалось расшифровать данные пользователя');
+      }
+      
+      // Сохраняем в кэш
+      userProfilesCache.set(userId, decryptedData);
+      
+      return decryptedData;
+    }
+
+    // Создание элемента участника
+    function createMemberItem(userId, userData) {
+      const memberItem = document.createElement('div');
+      memberItem.className = 'member-item';
+      memberItem.dataset.userId = userId;
+      
+      // Определяем роль
+      let role = 'Участник';
+      let roleClass = '';
+      
+      if (userId === profileData.createdBy) {
+        role = 'Создатель';
+        roleClass = 'role-creator';
+      } else if (profileData.admins && profileData.admins.includes(userId)) {
+        role = 'Администратор';
+        roleClass = 'role-admin';
+      }
+      
+      // Создаем аватар
+      const avatar = document.createElement('div');
+      avatar.className = 'member-avatar';
+      
+      if (userData.avatar) {
+        avatar.style.backgroundImage = `url(${userData.avatar})`;
+      } else {
+        const initial = userData.username ? userData.username.charAt(0).toUpperCase() : 'U';
+        avatar.textContent = initial;
+      }
+      
+      // Создаем информацию об участнике
+      const memberInfo = document.createElement('div');
+      memberInfo.className = 'member-info';
+      
+      const memberName = document.createElement('div');
+      memberName.className = 'member-name';
+      memberName.textContent = userData.username || 'Пользователь';
+      
+      const memberRole = document.createElement('div');
+      memberRole.className = `member-role ${roleClass}`;
+      memberRole.textContent = role;
+      
+      memberInfo.appendChild(memberName);
+      memberInfo.appendChild(memberRole);
+      
+      memberItem.appendChild(avatar);
+      memberItem.appendChild(memberInfo);
+      
+      // Добавляем обработчик контекстного меню для администраторов
+      if (isAdmin && userId !== currentUserId && userId !== profileData.createdBy) {
+        memberItem.addEventListener('contextmenu', (e) => {
+          e.preventDefault();
+          showContextMenu(e, userId);
         });
-        
-        if ((isCreator || isAdmin) && userId !== currentUserId) {
-          memberItem.addEventListener('contextmenu', (e) => {
-            e.preventDefault();
-            showContextMenu(e, userId, role);
-          });
-        }
-        
-        membersList.appendChild(memberItem);
+      }
+      
+      // Добавляем обработчик клика для перехода в профиль
+      memberItem.addEventListener('click', () => {
+        window.location.href = `https://hamburgerchat.github.io/profile.html?id=${userId}`;
+      });
+      
+      return memberItem;
+    }
+
+    // Показ контекстного меню
+    function showContextMenu(event, userId) {
+      const contextMenu = document.getElementById('contextMenu');
+      const overlay = document.getElementById('overlay');
+      
+      // Позиционируем меню
+      contextMenu.style.left = `${event.clientX}px`;
+      contextMenu.style.top = `${event.clientY}px`;
+      contextMenu.style.display = 'block';
+      overlay.style.display = 'block';
+      
+      // Сохраняем текущего участника
+      currentContextMember = userId;
+      
+      // Настраиваем текст в зависимости от роли
+      const makeAdminText = document.getElementById('makeAdminText');
+      const isAlreadyAdmin = profileData.admins && profileData.admins.includes(userId);
+      
+      if (isAlreadyAdmin) {
+        makeAdminText.textContent = 'Убрать из администраторов';
+      } else {
+        makeAdminText.textContent = 'Сделать администратором';
+      }
+      
+      // Обработчики закрытия меню
+      const closeMenu = () => {
+        contextMenu.style.display = 'none';
+        overlay.style.display = 'none';
+      };
+      
+      overlay.addEventListener('click', closeMenu);
+      
+      // Обработчики действий в меню
+      const contextItems = contextMenu.querySelectorAll('.context-item');
+      contextItems.forEach(item => {
+        item.addEventListener('click', () => {
+          const action = item.dataset.action;
+          handleContextAction(action, userId);
+          closeMenu();
+        });
       });
     }
 
-    // Показать контекстное меню
-    function showContextMenu(event, userId, role) {
-      event.preventDefault();
-      currentContextMember = userId;
-      
-      // Обновляем текст кнопок
-      const makeAdminText = document.getElementById('makeAdminText');
-      makeAdminText.textContent = role === 'Администратор' ? 'Убрать из администраторов' : 'Сделать администратором';
-      
-      const contextMenu = document.getElementById('contextMenu');
-      contextMenu.style.display = 'block';
-      contextMenu.style.left = Math.min(event.clientX, window.innerWidth - 250) + 'px';
-      contextMenu.style.top = Math.min(event.clientY, window.innerHeight - 300) + 'px';
-      
-      document.getElementById('overlay').style.display = 'block';
+    // Обработка действий контекстного меню
+    async function handleContextAction(action, userId) {
+      try {
+        if (action === 'makeAdmin') {
+          await toggleAdminStatus(userId);
+        } else if (action === 'removeFromGroup') {
+          await removeFromGroup(userId);
+        }
+      } catch (error) {
+        console.error('Ошибка выполнения действия:', error);
+        alert('Ошибка: ' + error.message);
+      }
+    }
+
+    // Переключение статуса администратора
+    async function toggleAdminStatus(userId) {
+      try {
+        // Получаем текущий список администраторов
+        let admins = profileData.admins || [];
+        const isAlreadyAdmin = admins.includes(userId);
+        
+        if (isAlreadyAdmin) {
+          // Убираем из администраторов
+          admins = admins.filter(id => id !== userId);
+        } else {
+          // Добавляем в администраторы
+          admins.push(userId);
+        }
+        
+        // Обновляем данные в профиле
+        profileData.admins = admins;
+        
+        // Шифруем обновленные данные
+        const encryptedData = encryptData(profileData);
+        
+        // Сохраняем в базу данных
+        await database.ref(`chats/${profileId}`).update({
+          encryptedData: encryptedData
+        });
+        
+        // Обновляем отображение участников
+        await displayMembers();
+        
+        alert(isAlreadyAdmin ? 'Пользователь убран из администраторов' : 'Пользователь назначен администратором');
+        
+      } catch (error) {
+        console.error('Ошибка изменения статуса администратора:', error);
+        throw error;
+      }
+    }
+
+    // Удаление участника из группы
+    async function removeFromGroup(userId) {
+      try {
+        if (!confirm('Вы уверены, что хотите удалить этого участника из группы?')) {
+          return;
+        }
+        
+        // Получаем текущий список участников
+        let participants = [];
+        if (Array.isArray(profileData.participants)) {
+          participants = profileData.participants.filter(id => id !== userId);
+        } else {
+          participants = Object.keys(profileData.participants).filter(id => id !== userId);
+        }
+        
+        // Обновляем данные в профиле
+        profileData.participants = participants;
+        
+        // Если пользователь был администратором, убираем его из списка администраторов
+        if (profileData.admins && profileData.admins.includes(userId)) {
+          profileData.admins = profileData.admins.filter(id => id !== userId);
+        }
+        
+        // Шифруем обновленные данные
+        const encryptedData = encryptData(profileData);
+        
+        // Сохраняем в базу данных
+        await database.ref(`chats/${profileId}`).update({
+          encryptedData: encryptedData
+        });
+        
+        // Обновляем отображение участников
+        await displayMembers();
+        
+        // Обновляем статистику
+        await loadGroupStats();
+        
+        alert('Пользователь удален из группы');
+        
+      } catch (error) {
+        console.error('Ошибка удаления участника:', error);
+        throw error;
+      }
     }
 
     // Настройка обработчиков событий
     function setupEventListeners() {
-      // Кнопка назад
+      // Кнопка "Назад"
       document.getElementById('backButton').addEventListener('click', () => {
         window.history.back();
       });
       
-      // Кнопка редактирования
-      document.getElementById('editButton').addEventListener('click', enableEditing);
+      // Кнопка "Редактировать"
+      document.getElementById('editButton').addEventListener('click', () => {
+        startEditing();
+      });
       
-      // Кнопка сохранения
-      document.getElementById('saveButton').addEventListener('click', saveChanges);
+      // Кнопка "Сохранить"
+      document.getElementById('saveButton').addEventListener('click', () => {
+        saveChanges();
+      });
       
-      // Кнопка отмены
-      document.getElementById('cancelButton').addEventListener('click', cancelEditing);
+      // Кнопка "Отмена"
+      document.getElementById('cancelButton').addEventListener('click', () => {
+        cancelEditing();
+      });
       
-      // Кнопка перехода в чат
-      document.getElementById('chatButton').addEventListener('click', goToChat);
+      // Кнопка "Перейти в чат"
+      document.getElementById('chatButton').addEventListener('click', () => {
+        window.location.href = `https://hamburgerchat.github.io/chat.html?id=${profileId}`;
+      });
       
-      // Редактирование аватара
+      // Кнопка "Копировать ссылку"
+      document.getElementById('copyLinkButton').addEventListener('click', () => {
+        copyToClipboard(document.getElementById('shareLinkText').textContent);
+        alert('Ссылка скопирована в буфер обмена');
+      });
+      
+      // Кнопка "На главную"
+      document.getElementById('backHomeBtn').addEventListener('click', () => {
+        window.location.href = 'https://hamburgerchat.github.io/';
+      });
+      
+      // Редактирование аватарки
       document.getElementById('avatarEdit').addEventListener('click', () => {
         document.getElementById('avatarUpload').click();
       });
       
-      document.getElementById('avatarUpload').addEventListener('change', handleAvatarUpload);
+      document.getElementById('avatarUpload').addEventListener('change', (e) => {
+        handleImageUpload(e, 'avatar');
+      });
       
       // Редактирование баннера
       document.getElementById('bannerEdit').addEventListener('click', () => {
         document.getElementById('bannerUpload').click();
       });
       
-      document.getElementById('bannerUpload').addEventListener('change', handleBannerUpload);
-      
-      // Копирование ссылки
-      document.getElementById('copyLinkButton').addEventListener('click', copyLink);
-      
-      // Контекстное меню
-      document.querySelectorAll('.context-item').forEach(item => {
-        item.addEventListener('click', function() {
-          const action = this.dataset.action;
-          handleContextAction(action, currentContextMember);
-        });
-      });
-      
-      // Оверлей
-      document.getElementById('overlay').addEventListener('click', closeAllModals);
-      
-      // Кнопка "На главную" на странице ошибки
-      document.getElementById('backHomeBtn').addEventListener('click', () => {
-        window.location.href = 'https://hamburgerchat.github.io/main.html';
+      document.getElementById('bannerUpload').addEventListener('change', (e) => {
+        handleImageUpload(e, 'banner');
       });
     }
 
-    // Включение режима редактирования
-    function enableEditing() {
+    // Начало редактирования
+    function startEditing() {
       isEditing = true;
       
       // Показываем поля ввода
@@ -1131,21 +1473,19 @@
       document.getElementById('profileDescription').style.display = 'none';
       document.getElementById('profileDescriptionInput').style.display = 'block';
       
+      // Показываем кнопки редактирования аватара и баннера
       document.getElementById('avatarEdit').style.display = 'flex';
+      document.getElementById('bannerEdit').style.display = 'flex';
       
-      if (isGroup) {
-        document.getElementById('bannerEdit').style.display = 'flex';
-      }
-      
-      // Меняем кнопки
-      document.getElementById('editButton').style.display = 'none';
-      document.getElementById('chatButton').style.display = 'none';
+      // Показываем кнопки сохранения и отмены
       document.getElementById('saveButton').style.display = 'block';
       document.getElementById('cancelButton').style.display = 'block';
+      document.getElementById('editButton').style.display = 'none';
+      document.getElementById('chatButton').style.display = 'none';
     }
 
-    // Отключение режима редактирования
-    function disableEditing() {
+    // Отмена редактирования
+    function cancelEditing() {
       isEditing = false;
       
       // Скрываем поля ввода
@@ -1155,35 +1495,42 @@
       document.getElementById('profileDescription').style.display = 'block';
       document.getElementById('profileDescriptionInput').style.display = 'none';
       
+      // Скрываем кнопки редактирования аватара и баннера
       document.getElementById('avatarEdit').style.display = 'none';
       document.getElementById('bannerEdit').style.display = 'none';
       
-      // Меняем кнопки
-      document.getElementById('editButton').style.display = 'block';
-      document.getElementById('chatButton').style.display = 'block';
+      // Скрываем кнопки сохранения и отмены
       document.getElementById('saveButton').style.display = 'none';
       document.getElementById('cancelButton').style.display = 'none';
       
-      // Сбрасываем значения
-      document.getElementById('profileNameInput').value = isGroup ? 
-        (profileData.name || '') : (profileData.username || '');
-      document.getElementById('profileDescriptionInput').value = isGroup ? 
-        (profileData.description || '') : (profileData.bio || '');
-    }
-
-    // Отмена редактирования
-    function cancelEditing() {
-      disableEditing();
+      // Показываем кнопки в зависимости от типа профиля
+      if (isGroup) {
+        if (isAdmin) {
+          document.getElementById('editButton').style.display = 'block';
+        }
+        document.getElementById('chatButton').style.display = 'block';
+      } else {
+        if (isOwnProfile) {
+          document.getElementById('editButton').style.display = 'block';
+        } else {
+          document.getElementById('chatButton').style.display = 'block';
+        }
+      }
+      
+      // Сбрасываем значения полей ввода
+      document.getElementById('profileNameInput').value = profileData.name || profileData.username || '';
+      document.getElementById('profileDescriptionInput').value = profileData.description || profileData.bio || '';
     }
 
     // Сохранение изменений
     async function saveChanges() {
       try {
+        // Получаем новые значения
         const newName = document.getElementById('profileNameInput').value.trim();
         const newDescription = document.getElementById('profileDescriptionInput').value.trim();
         
         if (!newName) {
-          alert('Введите имя');
+          alert('Пожалуйста, введите имя');
           return;
         }
         
@@ -1191,29 +1538,40 @@
         if (isGroup) {
           profileData.name = newName;
           profileData.description = newDescription;
+          
+          // Обновляем аватар, если загружен новый
+          if (uploadedAvatarUrl) {
+            profileData.avatar = uploadedAvatarUrl;
+          }
+          
+          // Обновляем баннер, если загружен новый
+          if (uploadedBannerUrl) {
+            profileData.banner = uploadedBannerUrl;
+          }
         } else {
           profileData.username = newName;
           profileData.bio = newDescription;
+          
+          // Обновляем аватар, если загружен новый
+          if (uploadedAvatarUrl) {
+            profileData.avatar = uploadedAvatarUrl;
+          }
+          
+          // Обновляем баннер, если загружен новый
+          if (uploadedBannerUrl) {
+            profileData.banner = uploadedBannerUrl;
+          }
         }
         
-        // Если загружен новый аватар
-        if (uploadedAvatarUrl) {
-          profileData.avatar = uploadedAvatarUrl;
-        }
+        // Шифруем обновленные данные
+        const encryptedData = encryptData(profileData);
         
-        // Если загружен новый баннер
-        if (uploadedBannerUrl) {
-          profileData.banner = uploadedBannerUrl;
-        }
-        
-        // Сохраняем в Firebase
+        // Сохраняем в базу данных
         if (isGroup) {
-          const encryptedData = encryptData(profileData);
           await database.ref(`chats/${profileId}`).update({
             encryptedData: encryptedData
           });
         } else {
-          const encryptedData = encryptData(profileData);
           await database.ref(`users/${profileId}`).update({
             encryptedData: encryptedData
           });
@@ -1221,280 +1579,86 @@
         
         // Обновляем отображение
         if (isGroup) {
-          document.getElementById('profileName').textContent = newName;
-          document.getElementById('profileDescription').textContent = newDescription || 'Описание отсутствует';
+          await displayGroupData();
         } else {
-          document.getElementById('profileName').textContent = newName;
-          document.getElementById('profileDescription').textContent = newDescription || 'Пользователь еще не добавил информацию о себе';
-        }
-        
-        if (uploadedAvatarUrl) {
-          const profileAvatar = document.getElementById('profileAvatar');
-          const profileAvatarInitial = document.getElementById('profileAvatarInitial');
-          
-          profileAvatar.style.backgroundImage = `url(${uploadedAvatarUrl})`;
-          profileAvatarInitial.style.display = 'none';
-        }
-        
-        if (uploadedBannerUrl) {
-          const profileBanner = document.getElementById('profileBanner');
-          profileBanner.style.backgroundImage = `url(${uploadedBannerUrl})`;
-          profileBanner.style.backgroundSize = 'cover';
-          profileBanner.style.backgroundPosition = 'center';
+          displayUserData();
         }
         
         // Сбрасываем загруженные изображения
         uploadedAvatarUrl = '';
         uploadedBannerUrl = '';
         
-        // Отключаем режим редактирования
-        disableEditing();
+        // Завершаем редактирование
+        cancelEditing();
         
         alert('Изменения сохранены');
         
       } catch (error) {
         console.error('Ошибка сохранения:', error);
-        alert('Ошибка при сохранении изменений: ' + error.message);
+        alert('Ошибка сохранения: ' + error.message);
       }
     }
 
-    // Переход в чат
-    function goToChat() {
-      if (isGroup) {
-        window.location.href = `https://hamburgerchat.github.io/chat.html?id=${profileId}`;
-      } else {
-        // Для пользователей создаем или открываем личный чат
-        window.location.href = `https://hamburgerchat.github.io/chat.html?id=${profileId}`;
-      }
-    }
-
-    // Копирование ссылки
-    function copyLink() {
-      const linkText = document.getElementById('shareLinkText').textContent;
-      navigator.clipboard.writeText(linkText).then(() => {
-        alert('Ссылка скопирована в буфер обмена');
-      }).catch(err => {
-        console.error('Ошибка копирования: ', err);
-        alert('Не удалось скопировать ссылку');
-      });
-    }
-
-    // Загрузка аватара
-    async function handleAvatarUpload(event) {
+    // Обработка загрузки изображений
+    function handleImageUpload(event, type) {
       const file = event.target.files[0];
       if (!file) return;
       
-      try {
-        // Показываем индикатор загрузки
-        const saveButton = document.getElementById('saveButton');
-        const originalText = saveButton.textContent;
-        saveButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-        saveButton.disabled = true;
-        
-        // Конвертируем в base64
-        const dataUrl = await new Promise((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onload = e => resolve(e.target.result);
-          reader.onerror = reject;
-          reader.readAsDataURL(file);
-        });
-        
-        // Загружаем на imgbb
-        const apiKey = "02cf7a0dc37b8a8adaedc9784752a3db";
-        const formData = new FormData();
-        formData.append("image", dataUrl.split(",")[1]);
-        formData.append("key", apiKey);
-
-        const response = await fetch("https://api.imgbb.com/1/upload", {
-          method: "POST",
-          body: formData,
-        });
-        
-        const data = await response.json();
-        const imageUrl = data.data?.url;
-        
-        if (!imageUrl) throw new Error('Загрузка не удалась');
-        
-        // Сохраняем URL для использования при сохранении
-        uploadedAvatarUrl = imageUrl;
-        
-        // Показываем предпросмотр
-        const profileAvatar = document.getElementById('profileAvatar');
-        const profileAvatarInitial = document.getElementById('profileAvatarInitial');
-        
-        profileAvatar.style.backgroundImage = `url(${imageUrl})`;
-        profileAvatarInitial.style.display = 'none';
-        
-      } catch (error) {
-        console.error('Ошибка загрузки аватара:', error);
-        alert('Ошибка загрузки аватара: ' + error.message);
-      } finally {
-        // Восстанавливаем кнопку
-        const saveButton = document.getElementById('saveButton');
-        saveButton.textContent = 'Сохранить';
-        saveButton.disabled = false;
-        
-        // Сбрасываем значение input
-        event.target.value = '';
+      // Проверяем тип файла
+      if (!file.type.match('image.*')) {
+        alert('Пожалуйста, выберите изображение');
+        return;
       }
-    }
-
-    // Загрузка баннера
-    async function handleBannerUpload(event) {
-      const file = event.target.files[0];
-      if (!file) return;
       
-      try {
-        // Показываем индикатор загрузки
-        const saveButton = document.getElementById('saveButton');
-        const originalText = saveButton.textContent;
-        saveButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-        saveButton.disabled = true;
-        
-        // Конвертируем в base64
-        const dataUrl = await new Promise((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onload = e => resolve(e.target.result);
-          reader.onerror = reject;
-          reader.readAsDataURL(file);
-        });
-        
-        // Загружаем на imgbb
-        const apiKey = "02cf7a0dc37b8a8adaedc9784752a3db";
-        const formData = new FormData();
-        formData.append("image", dataUrl.split(",")[1]);
-        formData.append("key", apiKey);
-
-        const response = await fetch("https://api.imgbb.com/1/upload", {
-          method: "POST",
-          body: formData,
-        });
-        
-        const data = await response.json();
-        const imageUrl = data.data?.url;
-        
-        if (!imageUrl) throw new Error('Загрузка не удалась');
-        
-        // Сохраняем URL для использования при сохранении
-        uploadedBannerUrl = imageUrl;
-        
-        // Показываем предпросмотр
-        const profileBanner = document.getElementById('profileBanner');
-        profileBanner.style.backgroundImage = `url(${imageUrl})`;
-        profileBanner.style.backgroundSize = 'cover';
-        profileBanner.style.backgroundPosition = 'center';
-        
-      } catch (error) {
-        console.error('Ошибка загрузки баннера:', error);
-        alert('Ошибка загрузки баннера: ' + error.message);
-      } finally {
-        // Восстанавливаем кнопку
-        const saveButton = document.getElementById('saveButton');
-        saveButton.textContent = 'Сохранить';
-        saveButton.disabled = false;
-        
-        // Сбрасываем значение input
-        event.target.value = '';
+      // Проверяем размер файла (максимум 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        alert('Размер изображения не должен превышать 5MB');
+        return;
       }
-    }
-
-    // Обработка действий контекстного меню
-    async function handleContextAction(action, userId) {
-      if (!userId) return;
       
-      switch (action) {
-        case 'makeAdmin':
-          await toggleAdmin(userId);
-          break;
-        case 'removeFromGroup':
-          await removeFromGroup(userId);
-          break;
-      }
-      closeAllModals();
-    }
-
-    // Назначение/снятие администратора
-    async function toggleAdmin(userId) {
-      try {
-        if (!profileData.admins) {
-          profileData.admins = [];
-        }
-        
-        const isAdmin = profileData.admins.includes(userId);
-        
-        if (isAdmin) {
-          // Убираем из администраторов
-          profileData.admins = profileData.admins.filter(id => id !== userId);
-        } else {
-          // Добавляем в администраторы
-          profileData.admins.push(userId);
-        }
-        
-        const encryptedData = encryptData(profileData);
-        await database.ref(`chats/${profileId}`).update({
-          encryptedData: encryptedData
-        });
-        
-        // Обновляем отображение
-        displayMembers();
-        
-        alert(isAdmin ? 'Пользователь удален из администраторов' : 'Пользователь назначен администратором');
-        
-      } catch (error) {
-        console.error('Ошибка изменения прав:', error);
-        alert('Ошибка при изменении прав пользователя');
-      }
-    }
-
-    // Удаление из группы
-    async function removeFromGroup(userId) {
-      if (!confirm('Вы уверены, что хотите удалить этого пользователя из группы?')) return;
+      const reader = new FileReader();
       
-      try {
-        if (profileData.participants && Array.isArray(profileData.participants)) {
-          const index = profileData.participants.indexOf(userId);
-          if (index > -1) {
-            profileData.participants.splice(index, 1);
-          }
-        } else if (profileData.participants) {
-          delete profileData.participants[userId];
+      reader.onload = (e) => {
+        const imageUrl = e.target.result;
+        
+        if (type === 'avatar') {
+          // Обновляем аватар
+          const profileAvatar = document.getElementById('profileAvatar');
+          profileAvatar.style.backgroundImage = `url(${imageUrl})`;
+          document.getElementById('profileAvatarInitial').style.display = 'none';
+          
+          // Сохраняем URL для последующего сохранения
+          uploadedAvatarUrl = imageUrl;
+        } else if (type === 'banner') {
+          // Обновляем баннер
+          const profileBanner = document.getElementById('profileBanner');
+          profileBanner.style.backgroundImage = `url(${imageUrl})`;
+          profileBanner.style.backgroundSize = 'cover';
+          profileBanner.style.backgroundPosition = 'center';
+          
+          // Сохраняем URL для последующего сохранения
+          uploadedBannerUrl = imageUrl;
         }
-        
-        // Убираем из администраторов, если был
-        if (profileData.admins && profileData.admins.includes(userId)) {
-          profileData.admins = profileData.admins.filter(id => id !== userId);
-        }
-        
-        const encryptedData = encryptData(profileData);
-        await database.ref(`chats/${profileId}`).update({
-          encryptedData: encryptedData
-        });
-        
-        // Удаляем чат из списка пользователя
-        await database.ref(`userChats/${userId}/${profileId}`).remove();
-        
-        // Обновляем отображение
-        displayMembers();
-        
-        alert('Пользователь удален из группы');
-        
-      } catch (error) {
-        console.error('Ошибка удаления пользователя:', error);
-        alert('Ошибка при удалении пользователя из группы');
-      }
+      };
+      
+      reader.readAsDataURL(file);
     }
 
-    // Показать ошибку
+    // Копирование в буфер обмена
+    function copyToClipboard(text) {
+      const textarea = document.createElement('textarea');
+      textarea.value = text;
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textarea);
+    }
+
+    // Показ ошибки
     function showError(message) {
       document.getElementById('loadingContainer').style.display = 'none';
       document.getElementById('errorContainer').style.display = 'flex';
       document.getElementById('errorMessage').textContent = message;
-    }
-
-    // Закрыть все модальные окна
-    function closeAllModals() {
-      document.getElementById('contextMenu').style.display = 'none';
-      document.getElementById('overlay').style.display = 'none';
     }
   </script>
 </body>
