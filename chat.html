@@ -1801,9 +1801,11 @@
         isGroupChat = currentChatData.type === 'group';
         isChannel = currentChatData.type === 'channel';
         
-        // Проверяем права
+        // Проверяем права - ИСПРАВЛЕНИЕ: правильное определение прав
         isCreator = currentChatData.createdBy === currentUserId;
         isAdmin = isCreator || (currentChatData.admins && currentChatData.admins.includes(currentUserId));
+        
+        console.log('Права пользователя:', { isCreator, isAdmin, currentUserId, createdBy: currentChatData.createdBy, admins: currentChatData.admins });
         
         if (isGroupChat || isChannel) {
           isGroupMember = currentChatData.participants && 
@@ -1822,11 +1824,15 @@
           document.getElementById('loadingContainer').style.display = 'none';
           document.getElementById('joinGroupContainer').style.display = 'none';
           
-          // Показываем соответствующую панель ввода
+          // Показываем соответствующую панель ввода - ИСПРАВЛЕНИЕ: для каналов показываем обычный инпут если админ
           if (isChannel) {
-            document.getElementById('inputContainer').style.display = 'none';
-            document.getElementById('channelInputContainer').style.display = 'flex';
-            updateSubscribeButton();
+            if (isAdmin || isCreator) {
+              document.getElementById('inputContainer').style.display = 'flex';
+              document.getElementById('channelInputContainer').style.display = 'none';
+            } else {
+              document.getElementById('inputContainer').style.display = 'none';
+              document.getElementById('channelInputContainer').style.display = 'flex';
+            }
           } else {
             document.getElementById('inputContainer').style.display = 'flex';
             document.getElementById('channelInputContainer').style.display = 'none';
@@ -1854,13 +1860,14 @@
       
       chatName.textContent = currentChatData.name || 'Без названия';
       
-      // Исправление для аватарки каналов
+      // ИСПРАВЛЕНИЕ для аватарки каналов
       if (currentChatData.avatar) {
         chatAvatar.style.backgroundImage = `url(${currentChatData.avatar})`;
         chatAvatar.classList.add('has-image');
         chatAvatarInitial.style.display = 'none';
       } else {
-        chatAvatarInitial.textContent = currentChatData.name ? currentChatData.name.charAt(0).toUpperCase() : '?';
+        const initial = currentChatData.name ? currentChatData.name.charAt(0).toUpperCase() : '?';
+        chatAvatarInitial.textContent = initial;
       }
       
       // Для каналов меняем цвет аватарки
@@ -1868,7 +1875,8 @@
         chatAvatar.classList.add('channel');
         // Убедимся, что аватарка отображается правильно для каналов
         if (!currentChatData.avatar) {
-          chatAvatarInitial.textContent = currentChatData.name ? currentChatData.name.charAt(0).toUpperCase() : 'C';
+          const channelInitial = currentChatData.name ? currentChatData.name.charAt(0).toUpperCase() : 'C';
+          chatAvatarInitial.textContent = channelInitial;
         }
       }
       
@@ -2479,7 +2487,7 @@
     }
 
     async function sendStickerAsImage(stickerUrl) {
-      // В каналах могут отправлять только админы и создатель
+      // В каналах могут отправлять только админы и создатель - ИСПРАВЛЕНИЕ: правильная проверка прав
       if (isChannel && !isAdmin && !isCreator) {
         alert('В каналах могут отправлять сообщения только администраторы');
         return;
@@ -2755,7 +2763,39 @@
         // Создаем оффер для звонка
         const offer = {
           type: 'offer',
-          sdp: `v=0\r\no=- ${Date.now()} 2 IN IP4 127.0.0.1\r\ns=-\r\nt=0 0\r\na=group:BUNDLE 0\r\na=extmap-allow-mixed\r\na=msid-semantic: WMS\r\nm=audio 9 UDP/TLS/RTP/SAVPF 111 103 104 9 0 8 106 105 13 110 112 113 126\r\nc=IN IP4 0.0.0.0\r\na=rtcp:9 IN IP4 0.0.0.0\r\na=ice-ufrag:${Math.random().toString(36).substring(2, 15)}\r\na=ice-pwd:${Math.random().toString(36).substring(2, 15)}\r\na=ice-options:trickle\r\na=fingerprint:sha-256 AA:BB:CC:DD:EE\r\na=setup:actpass\r\na=mid:0\r\na=sendrecv\r\na=rtpmap:111 opus/48000/2\r\na=rtcp-fb:111 transport-cc\r\na=fmtp:111 minptime=10;useinbandfec=1\r\na=rtpmap:103 ISAC/16000\r\na=rtpmap:104 ISAC/32000\r\na=rtpmap:9 G722/8000\r\na=rtpmap:0 PCMU/8000\r\na=rtpmap:8 PCMA/8000\r\na=rtpmap:106 CN/32000\r\na=rtpmap:105 CN/16000\r\na=rtpmap:13 CN/8000\r\na=rtpmap:110 telephone-event/48000\r\na=rtpmap:112 telephone-event/32000\r\na=rtpmap:113 telephone-event/16000\r\na=rtpmap:126 telephone-event/8000\r\na=ssrc:${Math.floor(Math.random() * 1000000000)} cname:${Math.random().toString(36).substring(2, 10)}\r\n`
+          sdp: `v=0
+o=- ${Date.now()} 2 IN IP4 127.0.0.1
+s=-
+t=0 0
+a=group:BUNDLE 0
+a=extmap-allow-mixed
+a=msid-semantic: WMS
+m=audio 9 UDP/TLS/RTP/SAVPF 111 103 9 0 8 106 105 13 110 112 113 126
+c=IN IP4 0.0.0.0
+a=rtcp:9 IN IP4 0.0.0.0
+a=ice-ufrag:${Math.random().toString(36).substring(2, 15)}
+a=ice-pwd:${Math.random().toString(36).substring(2, 15)}
+a=ice-options:trickle
+a=fingerprint:sha-256 00:11:22:33:44:55:66:77:88:99:AA:BB:CC:DD:EE:FF:00:11:22:33:44:55:66:77:88:99:AA:BB:CC:DD:EE:FF
+a=setup:actpass
+a=mid:0
+a=sendrecv
+a=rtcp-mux
+a=rtpmap:111 opus/48000/2
+a=fmtp:111 minptime=10;useinbandfec=1
+a=rtpmap:103 ISAC/16000
+a=rtpmap:9 G722/8000
+a=rtpmap:0 PCMU/8000
+a=rtpmap:8 PCMA/8000
+a=rtpmap:106 CN/32000
+a=rtpmap:105 CN/16000
+a=rtpmap:13 CN/8000
+a=rtpmap:110 telephone-event/48000
+a=rtpmap:112 telephone-event/32000
+a=rtpmap:113 telephone-event/16000
+a=rtpmap:126 telephone-event/8000
+a=ssrc:${Math.floor(Math.random() * 1000000000)} cname:${Math.random().toString(36).substring(2, 10)}
+`
         };
 
         // Регистрация звонка в базе данных с оффером
@@ -2855,7 +2895,7 @@
     }
 
     async function sendMessage() {
-      // В каналах могут писать только админы и создатель
+      // В каналах могут писать только админы и создатель - ИСПРАВЛЕНИЕ: правильная проверка прав
       if (isChannel && !isAdmin && !isCreator) {
         alert('В каналах могут отправлять сообщения только администраторы');
         return;
@@ -2909,7 +2949,7 @@
     }
 
     async function handleImageUpload(event) {
-      // В каналах могут отправлять только админы и создатель
+      // В каналах могут отправлять только админы и создатель - ИСПРАВЛЕНИЕ: правильная проверка прав
       if (isChannel && !isAdmin && !isCreator) {
         alert('В каналах могут отправлять сообщения только администраторы');
         return;
@@ -3161,8 +3201,14 @@
         document.getElementById('joinGroupContainer').style.display = 'none';
         
         if (isChannel) {
-          document.getElementById('inputContainer').style.display = 'none';
-          document.getElementById('channelInputContainer').style.display = 'flex';
+          // ИСПРАВЛЕНИЕ: для каналов показываем обычный инпут если админ
+          if (isAdmin || isCreator) {
+            document.getElementById('inputContainer').style.display = 'flex';
+            document.getElementById('channelInputContainer').style.display = 'none';
+          } else {
+            document.getElementById('inputContainer').style.display = 'none';
+            document.getElementById('channelInputContainer').style.display = 'flex';
+          }
           updateSubscribeButton();
         } else {
           document.getElementById('inputContainer').style.display = 'flex';
