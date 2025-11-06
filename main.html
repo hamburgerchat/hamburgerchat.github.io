@@ -69,7 +69,7 @@
     
     .header {
       background: var(--bg-primary);
-      padding: 0.8rem 1rem;
+      padding: 0.7rem 1rem;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -86,8 +86,8 @@
     }
     
     .logo-icon {
-      width: 35px;
-      height: 35px;
+      width: 32px;
+      height: 32px;
       background: var(--accent-gradient);
       border-radius: 50%;
       display: flex;
@@ -97,11 +97,11 @@
     
     .logo-icon i {
       color: white;
-      font-size: 1rem;
+      font-size: 0.9rem;
     }
     
     .logo-text {
-      font-size: 1.3rem;
+      font-size: 1.1rem;
       font-weight: 700;
       color: var(--text-primary);
     }
@@ -109,17 +109,17 @@
     .header-actions {
       display: flex;
       align-items: center;
-      gap: 0.8rem;
+      gap: 0.5rem;
     }
     
     .search-toggle, .menu-toggle {
-      width: 38px;
-      height: 38px;
+      width: 36px;
+      height: 36px;
       border-radius: 50%;
       border: none;
       background: transparent;
       color: var(--text-secondary);
-      font-size: 1.1rem;
+      font-size: 1rem;
       cursor: pointer;
       display: flex;
       align-items: center;
@@ -132,24 +132,26 @@
     }
     
     .profile-btn {
-      width: 38px;
-      height: 38px;
+      width: 36px;
+      height: 36px;
       border-radius: 50%;
       border: none;
       background: var(--accent-gradient);
       color: white;
       font-weight: 600;
-      font-size: 1rem;
+      font-size: 0.9rem;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
+      background-size: cover;
+      background-position: center;
     }
     
     /* Папки */
     .folders-container {
       background: var(--bg-secondary);
-      padding: 0.8rem 1rem;
+      padding: 0.7rem 1rem;
       border-bottom: 1px solid var(--border-color);
       overflow-x: auto;
       white-space: nowrap;
@@ -163,23 +165,24 @@
     
     .folders {
       display: inline-flex;
-      gap: 0.5rem;
+      gap: 0.4rem;
     }
     
     .folder {
       background: var(--card-bg);
       border: 1px solid var(--border-color);
-      border-radius: 1rem;
-      padding: 0.6rem 1rem;
+      border-radius: 0.8rem;
+      padding: 0.5rem 0.8rem;
       cursor: pointer;
       transition: all 0.2s ease;
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       font-weight: 500;
       color: var(--text-primary);
       display: flex;
       align-items: center;
-      gap: 0.5rem;
+      gap: 0.4rem;
       box-shadow: var(--shadow);
+      position: relative;
     }
     
     .folder:hover {
@@ -195,9 +198,9 @@
     .folder-count {
       background: var(--bg-tertiary);
       color: var(--text-secondary);
-      border-radius: 1rem;
+      border-radius: 0.8rem;
       padding: 0.1rem 0.4rem;
-      font-size: 0.7rem;
+      font-size: 0.65rem;
       font-weight: 600;
     }
     
@@ -236,8 +239,8 @@
     }
     
     .loading-spinner {
-      width: 40px;
-      height: 40px;
+      width: 36px;
+      height: 36px;
       border: 3px solid var(--border-color);
       border-top: 3px solid var(--accent-color);
       border-radius: 50%;
@@ -252,35 +255,35 @@
     
     .no-chats {
       text-align: center;
-      padding: 3rem 2rem;
+      padding: 2rem 1.5rem;
       color: var(--text-secondary);
       display: none;
     }
     
     .no-chats-icon {
-      width: 80px;
-      height: 80px;
+      width: 70px;
+      height: 70px;
       background: var(--accent-gradient);
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      margin: 0 auto 1.5rem;
+      margin: 0 auto 1rem;
     }
     
     .no-chats-icon i {
       color: white;
-      font-size: 2rem;
+      font-size: 1.8rem;
     }
     
     .no-chats h3 {
-      margin-bottom: 0.8rem;
+      margin-bottom: 0.6rem;
       font-weight: 600;
-      font-size: 1.3rem;
+      font-size: 1.1rem;
     }
     
     .no-chats p {
-      font-size: 1rem;
+      font-size: 0.9rem;
       line-height: 1.5;
     }
     
@@ -292,12 +295,13 @@
     .chat-item {
       display: flex;
       align-items: center;
-      padding: 0.9rem 1rem;
+      padding: 0.8rem 1rem;
       background: var(--bg-primary);
       border-bottom: 1px solid var(--border-color);
       cursor: pointer;
       transition: background 0.2s ease;
       position: relative;
+      -webkit-tap-highlight-color: transparent;
     }
     
     .chat-item:hover {
@@ -310,21 +314,18 @@
     }
     
     .chat-avatar {
-      width: 48px;
-      height: 48px;
+      width: 44px;
+      height: 44px;
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
       font-weight: 600;
-      font-size: 1.1rem;
+      font-size: 1rem;
       color: white;
-      margin-right: 1rem;
+      margin-right: 0.8rem;
       background: var(--accent-gradient);
       flex-shrink: 0;
-    }
-    
-    .chat-avatar.has-image {
       background-size: cover;
       background-position: center;
     }
@@ -338,22 +339,27 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 0.3rem;
+      margin-bottom: 0.2rem;
     }
     
     .chat-name {
       font-weight: 600;
-      font-size: 1rem;
+      font-size: 0.95rem;
       color: var(--text-primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
     
     .chat-time {
-      font-size: 0.8rem;
+      font-size: 0.75rem;
       color: var(--text-tertiary);
+      flex-shrink: 0;
+      margin-left: 0.5rem;
     }
     
     .chat-last-message {
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       color: var(--text-secondary);
       white-space: nowrap;
       overflow: hidden;
@@ -363,17 +369,21 @@
     .chat-meta {
       display: flex;
       align-items: center;
-      gap: 0.5rem;
-      margin-top: 0.3rem;
+      gap: 0.4rem;
+      margin-top: 0.2rem;
     }
     
     .chat-type {
       background: var(--accent-color);
       color: white;
-      padding: 0.1rem 0.6rem;
-      border-radius: 1rem;
-      font-size: 0.7rem;
+      padding: 0.1rem 0.5rem;
+      border-radius: 0.8rem;
+      font-size: 0.65rem;
       font-weight: 500;
+    }
+    
+    .type-channel {
+      background: #8b5cf6;
     }
     
     .unread-badge {
@@ -385,21 +395,21 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 0.7rem;
+      font-size: 0.65rem;
       font-weight: 600;
     }
     
     .create-chat-btn {
       position: fixed;
-      bottom: 1.5rem;
-      right: 1.5rem;
-      width: 56px;
-      height: 56px;
+      bottom: 1.2rem;
+      right: 1.2rem;
+      width: 52px;
+      height: 52px;
       border-radius: 50%;
       border: none;
       background: var(--accent-gradient);
       color: white;
-      font-size: 1.5rem;
+      font-size: 1.3rem;
       cursor: pointer;
       box-shadow: 0 4px 15px rgba(255, 127, 80, 0.4);
       display: flex;
@@ -414,7 +424,7 @@
       box-shadow: 0 6px 20px rgba(255, 127, 80, 0.6);
     }
 
-    /* Поиск как в твоей версии */
+    /* Поиск */
     .search-overlay {
       display: none;
       position: fixed;
@@ -430,7 +440,7 @@
     
     .search-panel {
       background: var(--bg-primary);
-      border-radius: 0 0 1.5rem 1.5rem;
+      border-radius: 0 0 1.2rem 1.2rem;
       padding: 1rem;
       animation: slideDown 0.3s ease;
       max-height: 80vh;
@@ -452,7 +462,7 @@
     .search-header {
       display: flex;
       align-items: center;
-      gap: 1rem;
+      gap: 0.8rem;
       margin-bottom: 1rem;
     }
     
@@ -461,8 +471,8 @@
       display: flex;
       align-items: center;
       background: var(--bg-secondary);
-      border-radius: 1.5rem;
-      padding: 0.8rem 1rem;
+      border-radius: 1.2rem;
+      padding: 0.7rem 1rem;
     }
     
     .search-box i {
@@ -475,22 +485,23 @@
       border: none;
       outline: none;
       background: transparent;
-      font-size: 1rem;
+      font-size: 0.95rem;
       color: var(--text-primary);
     }
     
     .close-search {
       background: none;
       border: none;
-      font-size: 1.3rem;
+      font-size: 1.2rem;
       color: var(--text-secondary);
       cursor: pointer;
-      width: 40px;
-      height: 40px;
+      width: 36px;
+      height: 36px;
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
+      flex-shrink: 0;
     }
     
     .close-search:hover {
@@ -503,32 +514,32 @@
     }
     
     .search-section {
-      margin-bottom: 1.5rem;
+      margin-bottom: 1.2rem;
     }
     
     .section-title {
-      font-size: 1rem;
+      font-size: 0.95rem;
       font-weight: 600;
       color: var(--text-primary);
-      margin-bottom: 0.8rem;
+      margin-bottom: 0.7rem;
       padding: 0 0.5rem;
     }
     
     .recommended-chats {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 0.8rem;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 0.7rem;
     }
     
     .recommended-chat {
       background: var(--card-bg);
-      border-radius: 0.8rem;
-      padding: 1rem;
+      border-radius: 0.7rem;
+      padding: 0.9rem;
       cursor: pointer;
       transition: background 0.2s ease;
       display: flex;
       align-items: center;
-      gap: 0.8rem;
+      gap: 0.7rem;
       border: 1px solid var(--border-color);
     }
     
@@ -537,8 +548,8 @@
     }
     
     .recommended-avatar {
-      width: 40px;
-      height: 40px;
+      width: 36px;
+      height: 36px;
       border-radius: 50%;
       background: var(--accent-gradient);
       display: flex;
@@ -547,6 +558,8 @@
       font-weight: 600;
       color: white;
       flex-shrink: 0;
+      background-size: cover;
+      background-position: center;
     }
     
     .recommended-info {
@@ -556,7 +569,7 @@
     
     .recommended-name {
       font-weight: 600;
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       margin-bottom: 0.2rem;
       white-space: nowrap;
       overflow: hidden;
@@ -565,11 +578,64 @@
     }
     
     .recommended-members {
-      font-size: 0.8rem;
+      font-size: 0.75rem;
       color: var(--text-secondary);
     }
 
-    /* Меню создания как в твоей версии */
+    /* Результаты поиска */
+    .search-result-item {
+      display: flex;
+      align-items: center;
+      padding: 0.9rem;
+      background: var(--card-bg);
+      border-radius: 0.7rem;
+      margin-bottom: 0.5rem;
+      cursor: pointer;
+      transition: background 0.2s ease;
+      border: 1px solid var(--border-color);
+    }
+    
+    .search-result-item:hover {
+      background: var(--hover-bg);
+    }
+    
+    .result-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--accent-gradient);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      color: white;
+      margin-right: 0.8rem;
+      flex-shrink: 0;
+      background-size: cover;
+      background-position: center;
+    }
+    
+    .result-info {
+      flex: 1;
+      min-width: 0;
+    }
+    
+    .result-type {
+      font-size: 0.7rem;
+      color: var(--text-secondary);
+      margin-bottom: 0.2rem;
+    }
+    
+    .result-name {
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: var(--text-primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Меню создания */
     .create-menu {
       display: none;
       position: fixed;
@@ -577,7 +643,7 @@
       left: 0;
       width: 100%;
       background: var(--bg-primary);
-      border-radius: 1.5rem 1.5rem 0 0;
+      border-radius: 1.2rem 1.2rem 0 0;
       box-shadow: 0 -4px 20px rgba(0,0,0,0.15);
       z-index: 1000;
       animation: slideUp 0.3s ease;
@@ -589,30 +655,30 @@
     }
     
     .create-header {
-      padding: 1.5rem 1.5rem 1rem;
+      padding: 1.2rem 1.5rem 0.8rem;
       border-bottom: 1px solid var(--border-color);
     }
     
     .create-title {
-      font-size: 1.3rem;
+      font-size: 1.1rem;
       font-weight: 600;
       color: var(--text-primary);
-      margin-bottom: 0.5rem;
+      margin-bottom: 0.4rem;
     }
     
     .create-subtitle {
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       color: var(--text-secondary);
     }
     
     .create-options {
-      padding: 1rem 0;
+      padding: 0.8rem 0;
     }
     
     .create-option {
       display: flex;
       align-items: center;
-      padding: 1.2rem 1.5rem;
+      padding: 1rem 1.5rem;
       cursor: pointer;
       transition: background 0.2s ease;
     }
@@ -622,16 +688,20 @@
     }
     
     .option-icon {
-      width: 44px;
-      height: 44px;
+      width: 40px;
+      height: 40px;
       border-radius: 50%;
       background: var(--accent-gradient);
       display: flex;
       align-items: center;
       justify-content: center;
       color: white;
-      font-size: 1.2rem;
-      margin-right: 1rem;
+      font-size: 1.1rem;
+      margin-right: 0.8rem;
+    }
+    
+    .option-icon.channel {
+      background: linear-gradient(135deg, #8b5cf6, #c4b5fd);
     }
     
     .option-info {
@@ -640,13 +710,13 @@
     
     .option-title {
       font-weight: 600;
-      font-size: 1rem;
+      font-size: 0.95rem;
       color: var(--text-primary);
       margin-bottom: 0.2rem;
     }
     
     .option-desc {
-      font-size: 0.8rem;
+      font-size: 0.75rem;
       color: var(--text-secondary);
     }
     
@@ -656,31 +726,267 @@
       right: 1.5rem;
       background: none;
       border: none;
-      font-size: 1.5rem;
+      font-size: 1.3rem;
       color: var(--text-secondary);
       cursor: pointer;
     }
 
-    /* Контекстное меню как в твоей версии */
-    .context-menu {
+    /* Формы создания */
+    .create-form {
       display: none;
       position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background: var(--bg-primary);
+      border-radius: 1.2rem 1.2rem 0 0;
+      box-shadow: 0 -4px 20px rgba(0,0,0,0.15);
+      z-index: 1001;
+      animation: slideUp 0.3s ease;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    
+    .form-header {
+      padding: 1.2rem 1.5rem 0.8rem;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    
+    .form-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    
+    .back-button {
+      background: none;
+      border: none;
+      font-size: 1.2rem;
+      color: var(--text-secondary);
+      cursor: pointer;
+    }
+    
+    .form-content {
+      padding: 1.2rem;
+    }
+    
+    .form-group {
+      margin-bottom: 1.2rem;
+    }
+    
+    .form-label {
+      display: block;
+      margin-bottom: 0.4rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      font-size: 0.85rem;
+    }
+    
+    .form-input, .form-textarea, .form-select {
+      width: 100%;
+      padding: 0.7rem 0.9rem;
+      border: 1px solid var(--border-color);
+      border-radius: 0.7rem;
+      font-size: 0.95rem;
+      transition: border 0.2s ease;
+    }
+    
+    .form-input:focus, .form-textarea:focus, .form-select:focus {
+      border-color: var(--accent-color);
+      outline: none;
+    }
+    
+    .avatar-upload-container {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    
+    .avatar-preview {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: var(--accent-gradient);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 600;
+      font-size: 1.2rem;
+      background-size: cover;
+      background-position: center;
+      flex-shrink: 0;
+    }
+    
+    .upload-avatar-btn {
+      padding: 0.6rem 1rem;
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      border: 1px solid var(--border-color);
+      border-radius: 0.7rem;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: all 0.2s ease;
+    }
+    
+    .upload-avatar-btn:hover {
+      background: var(--hover-bg);
+    }
+    
+    .privacy-options {
+      display: flex;
+      gap: 0.8rem;
+    }
+    
+    .privacy-option {
+      flex: 1;
+      text-align: center;
+      padding: 0.9rem;
+      border: 2px solid var(--border-color);
+      border-radius: 0.7rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    
+    .privacy-option.selected {
+      border-color: var(--accent-color);
+      background: rgba(255, 127, 80, 0.05);
+    }
+    
+    .privacy-icon {
+      font-size: 1.3rem;
+      margin-bottom: 0.4rem;
+      color: #666;
+    }
+    
+    .privacy-option.selected .privacy-icon {
+      color: var(--accent-color);
+    }
+    
+    .privacy-name {
+      font-weight: 600;
+      font-size: 0.85rem;
+      margin-bottom: 0.2rem;
+    }
+    
+    .privacy-desc {
+      font-size: 0.65rem;
+      color: var(--text-secondary);
+    }
+    
+    .form-actions {
+      padding: 1.2rem;
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      gap: 0.8rem;
+    }
+    
+    .btn {
+      flex: 1;
+      padding: 0.9rem;
+      border: none;
+      border-radius: 0.7rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-size: 0.9rem;
+    }
+    
+    .btn-primary {
+      background: var(--accent-gradient);
+      color: white;
+    }
+    
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(255, 127, 80, 0.3);
+    }
+    
+    .btn-secondary {
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+    }
+    
+    .btn-secondary:hover {
+      background: var(--hover-bg);
+    }
+
+    /* Меню настроек */
+    .settings-menu {
+      display: none;
+      position: fixed;
+      top: 60px;
+      right: 1rem;
       background: var(--card-bg);
-      border-radius: 0.8rem;
+      border-radius: 0.7rem;
       box-shadow: var(--shadow);
       z-index: 1000;
       animation: fadeIn 0.2s ease;
-      min-width: 200px;
+      min-width: 180px;
       border: 1px solid var(--border-color);
     }
     
-    .context-item {
-      padding: 1rem 1.5rem;
+    .settings-item {
+      padding: 0.9rem 1.2rem;
       cursor: pointer;
       transition: background 0.2s ease;
       display: flex;
       align-items: center;
-      gap: 1rem;
+      gap: 0.8rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+    
+    .settings-item:last-child {
+      border-bottom: none;
+    }
+    
+    .settings-item:hover {
+      background: var(--hover-bg);
+    }
+    
+    .settings-icon {
+      width: 18px;
+      text-align: center;
+      color: #666;
+    }
+    
+    .settings-text {
+      font-size: 0.85rem;
+      color: var(--text-primary);
+    }
+    
+    .logout-btn {
+      color: var(--danger-color);
+    }
+    
+    .logout-btn .settings-icon {
+      color: var(--danger-color);
+    }
+
+    /* Контекстное меню */
+    .context-menu {
+      display: none;
+      position: fixed;
+      background: var(--card-bg);
+      border-radius: 0.7rem;
+      box-shadow: var(--shadow);
+      z-index: 1000;
+      animation: fadeIn 0.2s ease;
+      min-width: 180px;
+      border: 1px solid var(--border-color);
+    }
+    
+    .context-item {
+      padding: 0.9rem 1.2rem;
+      cursor: pointer;
+      transition: background 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
       border-bottom: 1px solid var(--border-color);
     }
     
@@ -693,13 +999,13 @@
     }
     
     .context-icon {
-      width: 20px;
+      width: 18px;
       text-align: center;
       color: #666;
     }
     
     .context-text {
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       color: var(--text-primary);
     }
     
@@ -722,207 +1028,54 @@
       z-index: 999;
     }
 
-    /* Форма создания группы */
-    .create-form {
-      display: none;
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      background: var(--bg-primary);
-      border-radius: 1.5rem 1.5rem 0 0;
-      box-shadow: 0 -4px 20px rgba(0,0,0,0.15);
-      z-index: 1001;
-      animation: slideUp 0.3s ease;
-      max-height: 90vh;
-      overflow-y: auto;
-    }
-    
-    .form-header {
-      padding: 1.5rem 1.5rem 1rem;
-      border-bottom: 1px solid var(--border-color);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-    
-    .form-title {
-      font-size: 1.3rem;
-      font-weight: 600;
-      color: var(--text-primary);
-    }
-    
-    .back-button {
-      background: none;
-      border: none;
-      font-size: 1.3rem;
-      color: var(--text-secondary);
-      cursor: pointer;
-    }
-    
-    .form-content {
-      padding: 1.5rem;
-    }
-    
-    .form-group {
-      margin-bottom: 1.5rem;
-    }
-    
-    .form-label {
-      display: block;
-      margin-bottom: 0.5rem;
-      font-weight: 600;
-      color: var(--text-primary);
-      font-size: 0.9rem;
-    }
-    
-    .form-input, .form-textarea, .form-select {
-      width: 100%;
-      padding: 0.8rem 1rem;
-      border: 1px solid var(--border-color);
-      border-radius: 0.8rem;
-      font-size: 1rem;
-      transition: border 0.2s ease;
-    }
-    
-    .form-input:focus, .form-textarea:focus, .form-select:focus {
-      border-color: var(--accent-color);
-      outline: none;
-    }
-    
-    .privacy-options {
-      display: flex;
-      gap: 1rem;
-    }
-    
-    .privacy-option {
-      flex: 1;
-      text-align: center;
-      padding: 1rem;
-      border: 2px solid var(--border-color);
-      border-radius: 0.8rem;
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-    
-    .privacy-option.selected {
-      border-color: var(--accent-color);
-      background: rgba(255, 127, 80, 0.05);
-    }
-    
-    .privacy-icon {
-      font-size: 1.5rem;
-      margin-bottom: 0.5rem;
-      color: #666;
-    }
-    
-    .privacy-option.selected .privacy-icon {
-      color: var(--accent-color);
-    }
-    
-    .privacy-name {
-      font-weight: 600;
-      font-size: 0.9rem;
-      margin-bottom: 0.3rem;
-    }
-    
-    .privacy-desc {
-      font-size: 0.7rem;
-      color: var(--text-secondary);
-    }
-    
-    .form-actions {
-      padding: 1.5rem;
-      border-top: 1px solid var(--border-color);
-      display: flex;
-      gap: 1rem;
-    }
-    
-    .btn {
-      flex: 1;
-      padding: 1rem;
-      border: none;
-      border-radius: 0.8rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-    
-    .btn-primary {
-      background: var(--accent-gradient);
-      color: white;
-    }
-    
-    .btn-primary:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(255, 127, 80, 0.3);
-    }
-    
-    .btn-secondary {
-      background: var(--bg-secondary);
-      color: var(--text-primary);
-    }
-    
-    .btn-secondary:hover {
-      background: var(--hover-bg);
-    }
-
-    /* Меню настроек */
-    .settings-menu {
-      display: none;
-      position: fixed;
-      top: 60px;
-      right: 1rem;
-      background: var(--card-bg);
-      border-radius: 0.8rem;
-      box-shadow: var(--shadow);
-      z-index: 1000;
-      animation: fadeIn 0.2s ease;
-      min-width: 200px;
-      border: 1px solid var(--border-color);
-    }
-    
-    .settings-item {
-      padding: 1rem 1.5rem;
-      cursor: pointer;
-      transition: background 0.2s ease;
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      border-bottom: 1px solid var(--border-color);
-    }
-    
-    .settings-item:last-child {
-      border-bottom: none;
-    }
-    
-    .settings-item:hover {
-      background: var(--hover-bg);
-    }
-    
-    .settings-icon {
-      width: 20px;
-      text-align: center;
-      color: #666;
-    }
-    
-    .settings-text {
-      font-size: 0.9rem;
-      color: var(--text-primary);
-    }
-    
-    .logout-btn {
-      color: var(--danger-color);
-    }
-    
-    .logout-btn .settings-icon {
-      color: var(--danger-color);
-    }
-
     /* Адаптивность */
     @media (max-width: 768px) {
       .recommended-chats {
         grid-template-columns: 1fr;
+      }
+      
+      .header {
+        padding: 0.7rem 0.8rem;
+      }
+      
+      .folders-container {
+        padding: 0.7rem 0.8rem;
+      }
+      
+      .chat-item {
+        padding: 0.8rem 0.8rem;
+      }
+      
+      .search-header {
+        gap: 0.6rem;
+      }
+      
+      .close-search {
+        width: 32px;
+        height: 32px;
+        font-size: 1.1rem;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .privacy-options {
+        flex-direction: column;
+      }
+      
+      .create-chat-btn {
+        bottom: 1rem;
+        right: 1rem;
+        width: 48px;
+        height: 48px;
+        font-size: 1.2rem;
+      }
+      
+      .form-content {
+        padding: 1rem;
+      }
+      
+      .form-header {
+        padding: 1rem 1.2rem 0.7rem;
       }
     }
   </style>
@@ -1001,7 +1154,12 @@
       
       <div class="search-results" id="searchResultsContainer">
         <div class="search-section" id="recommendedSection">
-          <div class="section-title">Рекомендуемые чаты</div>
+          <div class="section-title">Рекомендуемые каналы</div>
+          <div class="recommended-chats" id="recommendedChannels">
+            <!-- Рекомендуемые каналы -->
+          </div>
+          
+          <div class="section-title" style="margin-top: 1.5rem;">Рекомендуемые чаты</div>
           <div class="recommended-chats" id="recommendedChats">
             <!-- Рекомендуемые чаты -->
           </div>
@@ -1026,10 +1184,10 @@
       <div class="settings-text">
         Тема
         <div style="margin-top: 0.5rem;">
-          <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.8rem;">
+          <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.75rem;">
             <input type="radio" name="theme" value="light" checked> Светлая
           </label>
-          <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.8rem;">
+          <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.75rem;">
             <input type="radio" name="theme" value="dark"> Тёмная
           </label>
         </div>
@@ -1053,6 +1211,15 @@
       <div class="create-subtitle">Выберите тип беседы</div>
     </div>
     <div class="create-options">
+      <div class="create-option" id="createChannelOption">
+        <div class="option-icon channel">
+          <i class="fas fa-bullhorn"></i>
+        </div>
+        <div class="option-info">
+          <div class="option-title">Создать канал</div>
+          <div class="option-desc">Вещание для большой аудитории</div>
+        </div>
+      </div>
       <div class="create-option" id="createGroupOption">
         <div class="option-icon">
           <i class="fas fa-users"></i>
@@ -1074,10 +1241,71 @@
     </div>
   </div>
   
+  <!-- Форма создания канала -->
+  <div class="create-form" id="createChannelForm">
+    <div class="form-header">
+      <button class="back-button" id="backToCreateMenuFromChannel">
+        <i class="fas fa-arrow-left"></i>
+      </button>
+      <div class="form-title">Создать канал</div>
+      <div></div>
+    </div>
+    
+    <div class="form-content">
+      <div class="form-group">
+        <label class="form-label" for="channelName">Название канала</label>
+        <input type="text" class="form-input" id="channelName" placeholder="Введите название канала">
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label" for="channelDescription">Описание</label>
+        <textarea class="form-textarea" id="channelDescription" placeholder="Описание канала (необязательно)"></textarea>
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label">Аватарка</label>
+        <div class="avatar-upload-container">
+          <div class="avatar-preview" id="channelAvatarPreview">
+            <span id="channelAvatarInitial">C</span>
+          </div>
+          <button class="upload-avatar-btn" id="uploadChannelAvatar">
+            <i class="fas fa-camera"></i> Выбрать аватар
+          </button>
+          <input type="file" id="channelAvatarUpload" accept="image/*" style="display: none;">
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label">Приватность</label>
+        <div class="privacy-options">
+          <div class="privacy-option selected" data-privacy="public">
+            <div class="privacy-icon">
+              <i class="fas fa-globe"></i>
+            </div>
+            <div class="privacy-name">Публичный</div>
+            <div class="privacy-desc">Виден в поиске</div>
+          </div>
+          <div class="privacy-option" data-privacy="private">
+            <div class="privacy-icon">
+              <i class="fas fa-lock"></i>
+            </div>
+            <div class="privacy-name">Приватный</div>
+            <div class="privacy-desc">Только по приглашению</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="form-actions">
+      <button class="btn btn-secondary" id="cancelChannelCreate">Отмена</button>
+      <button class="btn btn-primary" id="confirmChannelCreate">Создать</button>
+    </div>
+  </div>
+  
   <!-- Форма создания группы -->
   <div class="create-form" id="createGroupForm">
     <div class="form-header">
-      <button class="back-button" id="backToCreateMenu">
+      <button class="back-button" id="backToCreateMenuFromGroup">
         <i class="fas fa-arrow-left"></i>
       </button>
       <div class="form-title">Создать группу</div>
@@ -1093,6 +1321,19 @@
       <div class="form-group">
         <label class="form-label" for="groupDescription">Описание</label>
         <textarea class="form-textarea" id="groupDescription" placeholder="Описание группы (необязательно)"></textarea>
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label">Аватарка</label>
+        <div class="avatar-upload-container">
+          <div class="avatar-preview" id="groupAvatarPreview">
+            <span id="groupAvatarInitial">G</span>
+          </div>
+          <button class="upload-avatar-btn" id="uploadGroupAvatar">
+            <i class="fas fa-camera"></i> Выбрать аватар
+          </button>
+          <input type="file" id="groupAvatarUpload" accept="image/*" style="display: none;">
+        </div>
       </div>
       
       <div class="form-group">
@@ -1150,6 +1391,16 @@
     </div>
   </div>
 
+  <!-- Контекстное меню для папок -->
+  <div class="context-menu" id="folderContextMenu">
+    <div class="context-item context-danger" data-action="deleteFolder">
+      <div class="context-icon">
+        <i class="fas fa-trash"></i>
+      </div>
+      <div class="context-text">Удалить папку</div>
+    </div>
+  </div>
+
   <script>
     // Инициализация Firebase
     const firebaseConfig = {
@@ -1170,12 +1421,14 @@
     let mutedChats = JSON.parse(localStorage.getItem('hamburger_muted_chats') || '[]');
     let folders = JSON.parse(localStorage.getItem('hamburger_folders') || '[]');
     let currentFolder = 'all';
-    let uploadedAvatarUrl = '';
-    let currentContextChat = null;
-    let selectedPrivacy = 'public';
     let userChats = [];
-    let startX = 0;
-    let currentFolderIndex = 0;
+    let userProfilesCache = new Map();
+    let currentContextChat = null;
+    let currentContextFolder = null;
+    let selectedPrivacy = 'public';
+    let channelAvatarUrl = '';
+    let groupAvatarUrl = '';
+    let longPressTimer = null;
 
     // Применяем настройки при загрузке
     document.documentElement.setAttribute('data-theme', currentTheme);
@@ -1212,8 +1465,8 @@
         return;
       }
       
-      // Установка аватарки профиля
-      document.getElementById('profileInitial').textContent = currentUser.charAt(0).toUpperCase();
+      // Загружаем профиль текущего пользователя для аватарки
+      await loadCurrentUserProfile();
       
       // Инициализация папок
       initializeFolders();
@@ -1231,89 +1484,29 @@
       
       // Настройка обработчиков событий
       setupEventListeners();
-      
-      // Настройка свайпов
-      setupSwipeGestures();
     });
 
-    // Настройка свайпов для переключения папок
-    function setupSwipeGestures() {
-      const chatsContainer = document.getElementById('chatsContainer');
-      let startX = 0;
-      let startY = 0;
-
-      chatsContainer.addEventListener('touchstart', (e) => {
-        startX = e.touches[0].clientX;
-        startY = e.touches[0].clientY;
-      });
-
-      chatsContainer.addEventListener('touchend', (e) => {
-        if (!startX || !startY) return;
-
-        const endX = e.changedTouches[0].clientX;
-        const endY = e.changedTouches[0].clientY;
+    // Загрузка профиля текущего пользователя
+    async function loadCurrentUserProfile() {
+      try {
+        const userRef = database.ref(`users/${currentUserId}`);
+        const snapshot = await userRef.once('value');
         
-        const diffX = startX - endX;
-        const diffY = startY - endY;
-
-        // Проверяем, что это горизонтальный свайп (не вертикальный)
-        if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 50) {
-          if (diffX > 0) {
-            // Свайп влево - следующая папка
-            switchToNextFolder();
+        if (snapshot.exists()) {
+          const userData = snapshot.val();
+          const decryptedData = decryptData(userData.encryptedData);
+          
+          if (decryptedData && decryptedData.avatar) {
+            const profileBtn = document.getElementById('profileBtn');
+            profileBtn.style.backgroundImage = `url(${decryptedData.avatar})`;
+            profileBtn.innerHTML = '';
           } else {
-            // Свайп вправо - предыдущая папка
-            switchToPrevFolder();
+            document.getElementById('profileInitial').textContent = currentUser.charAt(0).toUpperCase();
           }
         }
-
-        startX = 0;
-        startY = 0;
-      });
-
-      // Также добавляем поддержку мыши для десктопа
-      let mouseDown = false;
-      let mouseStartX = 0;
-
-      chatsContainer.addEventListener('mousedown', (e) => {
-        mouseDown = true;
-        mouseStartX = e.clientX;
-      });
-
-      chatsContainer.addEventListener('mouseup', (e) => {
-        if (!mouseDown) return;
-
-        const mouseEndX = e.clientX;
-        const diffX = mouseStartX - mouseEndX;
-
-        if (Math.abs(diffX) > 50) {
-          if (diffX > 0) {
-            switchToNextFolder();
-          } else {
-            switchToPrevFolder();
-          }
-        }
-
-        mouseDown = false;
-      });
-
-      chatsContainer.addEventListener('mouseleave', () => {
-        mouseDown = false;
-      });
-    }
-
-    function switchToNextFolder() {
-      const systemFolders = folders.filter(f => f.type === 'system');
-      const currentIndex = systemFolders.findIndex(f => f.id === currentFolder);
-      const nextIndex = (currentIndex + 1) % systemFolders.length;
-      switchFolder(systemFolders[nextIndex].id);
-    }
-
-    function switchToPrevFolder() {
-      const systemFolders = folders.filter(f => f.type === 'system');
-      const currentIndex = systemFolders.findIndex(f => f.id === currentFolder);
-      const prevIndex = (currentIndex - 1 + systemFolders.length) % systemFolders.length;
-      switchFolder(systemFolders[prevIndex].id);
+      } catch (error) {
+        console.error('Ошибка загрузки профиля:', error);
+      }
     }
 
     // Инициализация папок
@@ -1323,6 +1516,7 @@
         { id: 'all', name: 'Все', type: 'system', chatIds: [] },
         { id: 'personal', name: 'Личные', type: 'system', chatIds: [] },
         { id: 'groups', name: 'Группы', type: 'system', chatIds: [] },
+        { id: 'channels', name: 'Каналы', type: 'system', chatIds: [] },
         { id: 'favorites', name: 'Избранное', type: 'system', chatIds: [] }
       ];
       
@@ -1353,9 +1547,19 @@
           <span class="folder-count">${chatCount}</span>
         `;
         
-        folderElement.addEventListener('click', () => {
-          switchFolder(folder.id);
+        folderElement.addEventListener('click', (e) => {
+          if (e.button === 0) { // Левая кнопка мыши
+            switchFolder(folder.id);
+          }
         });
+        
+        // Контекстное меню для пользовательских папок
+        if (folder.type === 'custom') {
+          folderElement.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            showFolderContextMenu(e, folder.id);
+          });
+        }
         
         foldersContainer.appendChild(folderElement);
       });
@@ -1371,6 +1575,42 @@
         }
       });
       foldersContainer.appendChild(addFolder);
+    }
+
+    // Показать контекстное меню для папки
+    function showFolderContextMenu(event, folderId) {
+      const contextMenu = document.getElementById('folderContextMenu');
+      const overlay = document.getElementById('overlay');
+      
+      currentContextFolder = folderId;
+      
+      contextMenu.style.display = 'block';
+      contextMenu.style.left = Math.min(event.clientX, window.innerWidth - 200) + 'px';
+      contextMenu.style.top = Math.min(event.clientY, window.innerHeight - 100) + 'px';
+      
+      overlay.style.display = 'block';
+      
+      // Обработчики действий
+      const deleteFolderItem = contextMenu.querySelector('[data-action="deleteFolder"]');
+      deleteFolderItem.onclick = () => {
+        deleteFolder(folderId);
+        closeAllModals();
+      };
+    }
+
+    // Удаление папки
+    function deleteFolder(folderId) {
+      if (!confirm('Удалить эту папку? Чаты из нее не будут удалены.')) return;
+      
+      folders = folders.filter(f => f.id !== folderId);
+      localStorage.setItem('hamburger_folders', JSON.stringify(folders));
+      
+      if (currentFolder === folderId) {
+        currentFolder = 'all';
+      }
+      
+      renderFolders();
+      filterChatsByFolder();
     }
 
     // Создание новой папки
@@ -1395,6 +1635,9 @@
       }
       if (folderId === 'groups') {
         return userChats.filter(chat => chat.type === 'group').length;
+      }
+      if (folderId === 'channels') {
+        return userChats.filter(chat => chat.type === 'channel').length;
       }
       if (folderId === 'favorites') {
         return 1; // Избранное всегда есть
@@ -1433,6 +1676,9 @@
             break;
           case 'groups':
             shouldShow = chat.type === 'group';
+            break;
+          case 'channels':
+            shouldShow = chat.type === 'channel';
             break;
           case 'favorites':
             shouldShow = chat.id === 'favorites';
@@ -1490,9 +1736,9 @@
         }
         
         // Отображаем чаты
-        userChats.forEach(chat => {
-          displayChat(chat);
-        });
+        for (const chat of userChats) {
+          await displayChat(chat);
+        }
         
         // Скрываем загрузку
         document.getElementById('loadingContainer').style.display = 'none';
@@ -1532,8 +1778,34 @@
       }
     }
 
+    // Получение профиля пользователя
+    async function getUserProfile(userId) {
+      if (userProfilesCache.has(userId)) {
+        return userProfilesCache.get(userId);
+      }
+      
+      try {
+        const userRef = database.ref(`users/${userId}`);
+        const snapshot = await userRef.once('value');
+        
+        if (!snapshot.exists()) return null;
+        
+        const userData = snapshot.val();
+        const decryptedData = decryptData(userData.encryptedData);
+        
+        if (decryptedData) {
+          userProfilesCache.set(userId, decryptedData);
+        }
+        
+        return decryptedData;
+      } catch (error) {
+        console.error('Ошибка загрузки профиля пользователя:', error);
+        return null;
+      }
+    }
+
     // Отображение чата
-    function displayChat(chat) {
+    async function displayChat(chat) {
       const chatItem = document.createElement('div');
       chatItem.className = 'chat-item';
       chatItem.dataset.chatId = chat.id;
@@ -1542,30 +1814,28 @@
         chatItem.classList.add('pinned');
       }
       
-      // Обработчики для чата
-      chatItem.addEventListener('click', () => {
-        if (chat.type === 'favorites') {
-          window.location.href = `https://hamburgerchat.github.io/favorites.html`;
-        } else {
-          window.location.href = `https://hamburgerchat.github.io/chat.html?id=${chat.id}`;
-        }
-      });
+      // Для личных чатов загружаем аватар собеседника
+      let avatarUrl = chat.avatar;
+      let avatarInitial = chat.name ? chat.name.charAt(0).toUpperCase() : '?';
       
-      chatItem.addEventListener('contextmenu', (e) => {
-        if (chat.type !== 'favorites') {
-          e.preventDefault();
-          showContextMenu(e, chat.id, chat);
+      if (chat.type === 'private' && chat.participants) {
+        const otherParticipantId = Object.keys(chat.participants).find(id => id !== currentUserId);
+        if (otherParticipantId) {
+          const userProfile = await getUserProfile(otherParticipantId);
+          if (userProfile) {
+            avatarUrl = userProfile.avatar;
+            avatarInitial = userProfile.username ? userProfile.username.charAt(0).toUpperCase() : 'U';
+          }
         }
-      });
+      }
       
       const avatar = document.createElement('div');
       avatar.className = 'chat-avatar';
       
-      if (chat.avatar) {
-        avatar.style.backgroundImage = `url(${chat.avatar})`;
-        avatar.classList.add('has-image');
+      if (avatarUrl) {
+        avatar.style.backgroundImage = `url(${avatarUrl})`;
       } else {
-        avatar.textContent = chat.name.charAt(0).toUpperCase();
+        avatar.textContent = avatarInitial;
       }
       
       const info = document.createElement('div');
@@ -1593,11 +1863,13 @@
       meta.className = 'chat-meta';
       
       const type = document.createElement('div');
-      type.className = 'chat-type';
+      type.className = `chat-type ${chat.type === 'channel' ? 'type-channel' : ''}`;
       
       if (chat.type === 'favorites') {
         type.textContent = 'Избранное';
         type.style.background = '#f59e0b';
+      } else if (chat.type === 'channel') {
+        type.textContent = 'Канал';
       } else {
         type.textContent = chat.type === 'private' ? 'Личный' : 'Группа';
       }
@@ -1611,24 +1883,65 @@
       chatItem.appendChild(avatar);
       chatItem.appendChild(info);
       
+      // Обработчики для чата
+      chatItem.addEventListener('click', () => {
+        if (chat.type === 'favorites') {
+          window.location.href = `https://hamburgerchat.github.io/favorites.html`;
+        } else {
+          window.location.href = `https://hamburgerchat.github.io/chat.html?id=${chat.id}`;
+        }
+      });
+      
+      // Улучшенные обработчики для контекстного меню
+      setupChatContextMenu(chatItem, chat);
+      
       document.getElementById('chatList').appendChild(chatItem);
     }
 
-    // Показать контекстное меню
-    function showContextMenu(event, chatId, chatData) {
-      event.preventDefault();
+    // Настройка контекстного меню для чата
+    function setupChatContextMenu(chatItem, chat) {
+      if (chat.type === 'favorites') return;
+      
+      let pressTimer;
+      
+      // Обработчик контекстного меню
+      chatItem.addEventListener('contextmenu', (e) => {
+        e.preventDefault();
+        showChatContextMenu(e, chat.id, chat);
+      });
+      
+      // Обработчики для мобильных устройств
+      chatItem.addEventListener('touchstart', (e) => {
+        pressTimer = setTimeout(() => {
+          showChatContextMenu(e.touches[0], chat.id, chat);
+        }, 500);
+      });
+      
+      chatItem.addEventListener('touchend', () => {
+        clearTimeout(pressTimer);
+      });
+      
+      chatItem.addEventListener('touchmove', () => {
+        clearTimeout(pressTimer);
+      });
+    }
+
+    // Показать контекстное меню для чата
+    function showChatContextMenu(event, chatId, chatData) {
+      const contextMenu = document.getElementById('contextMenu');
+      const overlay = document.getElementById('overlay');
+      
       currentContextChat = chatId;
       
       // Обновляем текст кнопок
       document.getElementById('pinText').textContent = pinnedChats.includes(chatId) ? 'Открепить' : 'Закрепить';
       document.getElementById('muteText').textContent = mutedChats.includes(chatId) ? 'Включить уведомления' : 'Отключить уведомления';
       
-      const contextMenu = document.getElementById('contextMenu');
       contextMenu.style.display = 'block';
-      contextMenu.style.left = Math.min(event.clientX, window.innerWidth - 250) + 'px';
-      contextMenu.style.top = Math.min(event.clientY, window.innerHeight - 300) + 'px';
+      contextMenu.style.left = Math.min(event.clientX, window.innerWidth - 200) + 'px';
+      contextMenu.style.top = Math.min(event.clientY, window.innerHeight - 200) + 'px';
       
-      document.getElementById('overlay').style.display = 'block';
+      overlay.style.display = 'block';
     }
 
     // Форматирование времени
@@ -1671,13 +1984,38 @@
       // Создание чата
       document.getElementById('createChatBtn').addEventListener('click', openCreateMenu);
       document.getElementById('closeCreateMenu').addEventListener('click', closeCreateMenuPanel);
+      document.getElementById('createChannelOption').addEventListener('click', openChannelForm);
       document.getElementById('createGroupOption').addEventListener('click', openGroupForm);
       document.getElementById('createPrivateOption').addEventListener('click', openPrivateChatSearch);
-      document.getElementById('backToCreateMenu').addEventListener('click', backToMenu);
+      
+      // Навигация между формами
+      document.getElementById('backToCreateMenuFromChannel').addEventListener('click', backToMenu);
+      document.getElementById('backToCreateMenuFromGroup').addEventListener('click', backToMenu);
+      document.getElementById('cancelChannelCreate').addEventListener('click', closeAllModals);
       document.getElementById('cancelGroupCreate').addEventListener('click', closeAllModals);
+      
+      // Создание канала
+      document.getElementById('confirmChannelCreate').addEventListener('click', createNewChannel);
       
       // Создание группы
       document.getElementById('confirmGroupCreate').addEventListener('click', createNewGroup);
+      
+      // Загрузка аватаров
+      document.getElementById('uploadChannelAvatar').addEventListener('click', () => {
+        document.getElementById('channelAvatarUpload').click();
+      });
+      
+      document.getElementById('channelAvatarUpload').addEventListener('change', (e) => {
+        handleAvatarUpload(e, 'channel');
+      });
+      
+      document.getElementById('uploadGroupAvatar').addEventListener('click', () => {
+        document.getElementById('groupAvatarUpload').click();
+      });
+      
+      document.getElementById('groupAvatarUpload').addEventListener('change', (e) => {
+        handleAvatarUpload(e, 'group');
+      });
       
       // Приватность
       document.querySelectorAll('.privacy-option').forEach(option => {
@@ -1704,7 +2042,7 @@
         window.location.href = 'https://hamburgerchat.github.io/profile.html';
       });
     }
-
+    
     // Настройка темы
     function setupThemeSettings() {
       const themeRadios = document.querySelectorAll('input[name="theme"]');
@@ -1747,32 +2085,46 @@
         const snapshot = await chatsRef.once('value');
         
         if (!snapshot.exists()) {
+          document.getElementById('recommendedChannels').innerHTML = 
+            '<div style="padding: 1rem; text-align: center; color: var(--text-secondary);">Нет публичных каналов</div>';
           document.getElementById('recommendedChats').innerHTML = 
             '<div style="padding: 1rem; text-align: center; color: var(--text-secondary);">Нет публичных чатов</div>';
           return;
         }
         
-        const publicChats = [];
+        const publicChannels = [];
+        const publicGroups = [];
         
         snapshot.forEach((childSnapshot) => {
           const chatData = childSnapshot.val();
           const decryptedData = decryptData(chatData.encryptedData);
           
-          if (decryptedData && decryptedData.privacy === 'public' && decryptedData.type === 'group') {
-            publicChats.push({
+          if (decryptedData && decryptedData.privacy === 'public') {
+            const chatInfo = {
               id: childSnapshot.key,
               ...decryptedData,
               participantCount: decryptedData.participants ? Object.keys(decryptedData.participants).length : 1
-            });
+            };
+            
+            if (decryptedData.type === 'channel') {
+              publicChannels.push(chatInfo);
+            } else if (decryptedData.type === 'group') {
+              publicGroups.push(chatInfo);
+            }
           }
         });
         
-        // Сортируем по количеству участников и берем топ 6
-        const topChats = publicChats
+        // Сортируем по количеству участников и берем топ
+        const topChannels = publicChannels
           .sort((a, b) => b.participantCount - a.participantCount)
-          .slice(0, 6);
+          .slice(0, 4);
         
-        renderRecommendedChats(topChats);
+        const topGroups = publicGroups
+          .sort((a, b) => b.participantCount - a.participantCount)
+          .slice(0, 4);
+        
+        renderRecommendedChats(topChannels, 'recommendedChannels');
+        renderRecommendedChats(topGroups, 'recommendedChats');
         
       } catch (error) {
         console.error('Ошибка загрузки рекомендуемых чатов:', error);
@@ -1780,12 +2132,13 @@
     }
 
     // Отрисовка рекомендуемых чатов
-    function renderRecommendedChats(chats) {
-      const container = document.getElementById('recommendedChats');
+    function renderRecommendedChats(chats, containerId) {
+      const container = document.getElementById(containerId);
       container.innerHTML = '';
       
       if (chats.length === 0) {
-        container.innerHTML = '<div style="padding: 1rem; text-align: center; color: var(--text-secondary);">Нет публичных чатов</div>';
+        const noChatsText = containerId === 'recommendedChannels' ? 'каналов' : 'чатов';
+        container.innerHTML = `<div style="padding: 1rem; text-align: center; color: var(--text-secondary);">Нет публичных ${noChatsText}</div>`;
         return;
       }
       
@@ -1797,7 +2150,7 @@
         });
         
         const avatarHtml = chat.avatar 
-          ? `<div class="recommended-avatar" style="background-image: url(${chat.avatar}); background-size: cover; background-position: center;"></div>`
+          ? `<div class="recommended-avatar" style="background-image: url(${chat.avatar});"></div>`
           : `<div class="recommended-avatar">${chat.name.charAt(0)}</div>`;
         
         chatElement.innerHTML = `
@@ -1858,8 +2211,12 @@
                 createOrOpenPrivateChat(decryptedData.username, childSnapshot.key);
               });
               
+              const avatarHtml = decryptedData.avatar 
+                ? `<div class="result-avatar" style="background-image: url(${decryptedData.avatar});"></div>`
+                : `<div class="result-avatar">${decryptedData.username.charAt(0)}</div>`;
+              
               resultItem.innerHTML = `
-                <div class="result-avatar">${decryptedData.username.charAt(0)}</div>
+                ${avatarHtml}
                 <div class="result-info">
                   <div class="result-type">Пользователь</div>
                   <div class="result-name">${decryptedData.username}</div>
@@ -1893,13 +2250,16 @@
               });
               
               const avatarHtml = decryptedData.avatar 
-                ? `<div class="result-avatar" style="background-image: url(${decryptedData.avatar}); background-size: cover; background-position: center;"></div>`
+                ? `<div class="result-avatar" style="background-image: url(${decryptedData.avatar});"></div>`
                 : `<div class="result-avatar">${decryptedData.name.charAt(0)}</div>`;
+              
+              const chatType = decryptedData.type === 'channel' ? 'Канал' : 
+                              decryptedData.type === 'private' ? 'Личный чат' : 'Группа';
               
               resultItem.innerHTML = `
                 ${avatarHtml}
                 <div class="result-info">
-                  <div class="result-type">${decryptedData.type === 'private' ? 'Личный чат' : 'Группа'}</div>
+                  <div class="result-type">${chatType}</div>
                   <div class="result-name">${decryptedData.name}</div>
                 </div>
               `;
@@ -1931,6 +2291,11 @@
       document.getElementById('overlay').style.display = 'none';
     }
 
+    function openChannelForm() {
+      document.getElementById('createMenu').style.display = 'none';
+      document.getElementById('createChannelForm').style.display = 'block';
+    }
+
     function openGroupForm() {
       document.getElementById('createMenu').style.display = 'none';
       document.getElementById('createGroupForm').style.display = 'block';
@@ -1942,6 +2307,7 @@
     }
 
     function backToMenu() {
+      document.getElementById('createChannelForm').style.display = 'none';
       document.getElementById('createGroupForm').style.display = 'none';
       document.getElementById('createMenu').style.display = 'block';
     }
@@ -1949,10 +2315,95 @@
     function closeAllModals() {
       document.getElementById('searchOverlay').style.display = 'none';
       document.getElementById('createMenu').style.display = 'none';
+      document.getElementById('createChannelForm').style.display = 'none';
       document.getElementById('createGroupForm').style.display = 'none';
       document.getElementById('overlay').style.display = 'none';
       document.getElementById('settingsMenu').style.display = 'none';
       document.getElementById('contextMenu').style.display = 'none';
+      document.getElementById('folderContextMenu').style.display = 'none';
+    }
+
+    // Обработка загрузки аватара
+    function handleAvatarUpload(event, type) {
+      const file = event.target.files[0];
+      if (!file) return;
+      
+      // Проверяем тип файла
+      if (!file.type.match('image.*')) {
+        alert('Пожалуйста, выберите изображение');
+        return;
+      }
+      
+      // Проверяем размер файла (максимум 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        alert('Размер изображения не должен превышать 5MB');
+        return;
+      }
+      
+      const reader = new FileReader();
+      
+      reader.onload = (e) => {
+        const imageUrl = e.target.result;
+        
+        if (type === 'channel') {
+          const preview = document.getElementById('channelAvatarPreview');
+          preview.style.backgroundImage = `url(${imageUrl})`;
+          document.getElementById('channelAvatarInitial').style.display = 'none';
+          channelAvatarUrl = imageUrl;
+        } else if (type === 'group') {
+          const preview = document.getElementById('groupAvatarPreview');
+          preview.style.backgroundImage = `url(${imageUrl})`;
+          document.getElementById('groupAvatarInitial').style.display = 'none';
+          groupAvatarUrl = imageUrl;
+        }
+      };
+      
+      reader.readAsDataURL(file);
+    }
+
+    // Создание нового канала
+    async function createNewChannel() {
+      const name = document.getElementById('channelName').value.trim();
+      const description = document.getElementById('channelDescription').value.trim();
+      
+      if (!name) {
+        alert('Введите название канала');
+        return;
+      }
+      
+      try {
+        const chatId = generateId();
+        const chatData = {
+          name: name,
+          description: description,
+          type: 'channel',
+          participants: {
+            [currentUserId]: true
+          },
+          createdBy: currentUserId,
+          createdAt: Date.now(),
+          privacy: selectedPrivacy,
+          lastMessage: '',
+          lastMessageTime: Date.now(),
+          avatar: channelAvatarUrl
+        };
+        
+        const encryptedData = encryptData(chatData);
+        
+        await database.ref(`chats/${chatId}`).set({
+          encryptedData: encryptedData,
+          createdAt: Date.now()
+        });
+        
+        await database.ref(`userChats/${currentUserId}/${chatId}`).set(true);
+        
+        closeAllModals();
+        window.location.href = `https://hamburgerchat.github.io/chat.html?id=${chatId}`;
+        
+      } catch (error) {
+        console.error('Ошибка создания канала:', error);
+        alert('Ошибка при создании канала');
+      }
     }
 
     // Создание новой группы
@@ -1978,7 +2429,8 @@
           createdAt: Date.now(),
           privacy: selectedPrivacy,
           lastMessage: '',
-          lastMessageTime: Date.now()
+          lastMessageTime: Date.now(),
+          avatar: groupAvatarUrl
         };
         
         const encryptedData = encryptData(chatData);
