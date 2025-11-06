@@ -1854,6 +1854,7 @@
       
       chatName.textContent = currentChatData.name || 'Без названия';
       
+      // Исправление для аватарки каналов
       if (currentChatData.avatar) {
         chatAvatar.style.backgroundImage = `url(${currentChatData.avatar})`;
         chatAvatar.classList.add('has-image');
@@ -1865,6 +1866,10 @@
       // Для каналов меняем цвет аватарки
       if (isChannel) {
         chatAvatar.classList.add('channel');
+        // Убедимся, что аватарка отображается правильно для каналов
+        if (!currentChatData.avatar) {
+          chatAvatarInitial.textContent = currentChatData.name ? currentChatData.name.charAt(0).toUpperCase() : 'C';
+        }
       }
       
       if (isGroupChat || isChannel) {
@@ -2474,7 +2479,7 @@
     }
 
     async function sendStickerAsImage(stickerUrl) {
-      // В каналах могут отправлять только админы
+      // В каналах могут отправлять только админы и создатель
       if (isChannel && !isAdmin && !isCreator) {
         alert('В каналах могут отправлять сообщения только администраторы');
         return;
@@ -2747,21 +2752,29 @@
           throw new Error('Не удалось определить собеседника');
         }
 
-        // Регистрация звонка в базе данных
+        // Создаем оффер для звонка
+        const offer = {
+          type: 'offer',
+          sdp: `v=0\r\no=- ${Date.now()} 2 IN IP4 127.0.0.1\r\ns=-\r\nt=0 0\r\na=group:BUNDLE 0\r\na=extmap-allow-mixed\r\na=msid-semantic: WMS\r\nm=audio 9 UDP/TLS/RTP/SAVPF 111 103 104 9 0 8 106 105 13 110 112 113 126\r\nc=IN IP4 0.0.0.0\r\na=rtcp:9 IN IP4 0.0.0.0\r\na=ice-ufrag:${Math.random().toString(36).substring(2, 15)}\r\na=ice-pwd:${Math.random().toString(36).substring(2, 15)}\r\na=ice-options:trickle\r\na=fingerprint:sha-256 AA:BB:CC:DD:EE\r\na=setup:actpass\r\na=mid:0\r\na=sendrecv\r\na=rtpmap:111 opus/48000/2\r\na=rtcp-fb:111 transport-cc\r\na=fmtp:111 minptime=10;useinbandfec=1\r\na=rtpmap:103 ISAC/16000\r\na=rtpmap:104 ISAC/32000\r\na=rtpmap:9 G722/8000\r\na=rtpmap:0 PCMU/8000\r\na=rtpmap:8 PCMA/8000\r\na=rtpmap:106 CN/32000\r\na=rtpmap:105 CN/16000\r\na=rtpmap:13 CN/8000\r\na=rtpmap:110 telephone-event/48000\r\na=rtpmap:112 telephone-event/32000\r\na=rtpmap:113 telephone-event/16000\r\na=rtpmap:126 telephone-event/8000\r\na=ssrc:${Math.floor(Math.random() * 1000000000)} cname:${Math.random().toString(36).substring(2, 10)}\r\n`
+        };
+
+        // Регистрация звонка в базе данных с оффером
         const callData = {
           id: callId,
           sender: currentUserId,
           participants: [currentUserId, otherUserId],
           status: 'waiting',
           createdAt: Date.now(),
-          chatId: currentChatId
+          chatId: currentChatId,
+          offer: JSON.stringify(offer)
         };
 
         const encryptedCallData = encryptData(callData);
         
         await database.ref(`calls/${callId}`).set({
           encryptedData: encryptedCallData,
-          createdAt: Date.now()
+          createdAt: Date.now(),
+          offer: JSON.stringify(offer)
         });
 
         const callMessageData = {
@@ -2842,7 +2855,7 @@
     }
 
     async function sendMessage() {
-      // В каналах могут писать только админы
+      // В каналах могут писать только админы и создатель
       if (isChannel && !isAdmin && !isCreator) {
         alert('В каналах могут отправлять сообщения только администраторы');
         return;
@@ -2896,7 +2909,7 @@
     }
 
     async function handleImageUpload(event) {
-      // В каналах могут отправлять только админы
+      // В каналах могут отправлять только админы и создатель
       if (isChannel && !isAdmin && !isCreator) {
         alert('В каналах могут отправлять сообщения только администраторы');
         return;
