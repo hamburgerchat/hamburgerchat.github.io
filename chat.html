@@ -2765,30 +2765,44 @@ async function startCall() {
             throw new Error('Не удалось определить собеседника');
         }
 
-        // Создаем данные звонка
+        // Получаем данные собеседника для отображения
+        const userProfile = await getUserProfile(otherUserId);
+        const username = userProfile ? userProfile.username : 'Пользователь';
+        const avatarInitial = userProfile && userProfile.username ? userProfile.username.charAt(0).toUpperCase() : 'U';
+
+        // Создаем данные звонка по новой схеме
         const callData = {
             id: callId,
-            sender: currentUserId,
+            from: currentUserId,
+            to: otherUserId,
             participants: [currentUserId, otherUserId],
             status: 'waiting',
             createdAt: Date.now(),
-            chatId: currentChatId
+            chatId: currentChatId,
+            callerName: currentUser,
+            receiverName: username
         };
 
-        const encryptedCallData = encryptData(callData);
-        
+        // Сохраняем в Firebase по новой структуре
         await database.ref(`calls/${callId}`).set({
-            encryptedData: encryptedCallData,
-            createdAt: Date.now(),
-            status: 'waiting'
+            from: currentUserId,
+            to: otherUserId,
+            offer: null,
+            status: 'waiting',
+            createdAt: firebase.database.ServerValue.TIMESTAMP,
+            callerName: currentUser,
+            receiverName: username
         });
 
+        // Создаем сообщение о звонке
         const callMessageData = {
             type: 'call',
             callId: callId,
             sender: currentUserId,
             timestamp: Date.now(),
-            status: 'waiting'
+            status: 'waiting',
+            callerName: currentUser,
+            receiverName: username
         };
         
         const encrypted = encryptData(callMessageData);
@@ -2799,12 +2813,12 @@ async function startCall() {
             timestamp: Date.now()
         });
         
-        await updateLastMessage('📞 Входящий звонок');
+        await updateLastMessage('📞 Исходящий звонок');
         
         showNotification('Звонок начат');
         
-        // Перекидываем пользователя на страницу звонка
-        window.open(`https://hamburgerchat.github.io/call.html?id=${callId}`, '_blank');
+        // Переходим на страницу звонка
+        window.location.href = `https://hamburgerchat.github.io/call.html?id=${callId}`;
         
     } catch (error) {
         console.error('Ошибка начала звонка:', error);
@@ -2812,9 +2826,9 @@ async function startCall() {
     }
 }
         
-        function acceptCall(callId) {
-            window.open(`https://hamburgerchat.github.io/call.html?id=${callId}`, '_blank');
-        }
+function acceptCall(callId) {
+    window.location.href = `https://hamburgerchat.github.io/call.html?id=${callId}`;
+}
         
         async function declineCall(messageId) {
             try {
