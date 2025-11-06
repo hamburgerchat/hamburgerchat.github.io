@@ -2746,98 +2746,71 @@
             }
         }
         
-        async function startCall() {
-            if (isGroupChat || isChannel) {
-                alert('Звонки доступны только в личных чатах');
-                return;
-            }
-            
-            if (!isGroupMember) {
-                alert('Вы не можете звонить в этом чате');
-                return;
-            }
-            
-            try {
-                const callId = 'call_' + Date.now();
-                
-                const otherUserId = Object.keys(currentChatData.participants).find(id => id !== currentUserId);
-                if (!otherUserId) {
-                    throw new Error('Не удалось определить собеседника');
-                }
-
-                // Создаем корректный оффер для звонка с правильным SDP
-                const offer = {
-                    type: 'offer',
-                    sdp: `v=0
-        o=- ${Date.now()} 2 IN IP4 127.0.0.1
-        s=-
-        t=0 0
-        a=group:BUNDLE 0
-        a=msid-semantic: WMS
-        m=audio 9 UDP/TLS/RTP/SAVPF 111
-        c=IN IP4 0.0.0.0
-        a=rtcp:9 IN IP4 0.0.0.0
-        a=ice-ufrag:${Math.random().toString(36).substring(2, 15)}
-        a=ice-pwd:${Math.random().toString(36).substring(2, 15)}
-        a=ice-options:trickle
-        a=fingerprint:sha-256 00:11:22:33:44:55:66:77:88:99:AA:BB:CC:DD:EE:FF:00:11:22:33:44:55:66:77:88:99:AA:BB:CC:DD:EE:FF
-        a=setup:actpass
-        a=mid:0
-        a=sendrecv
-        a=rtcp-mux
-        a=rtpmap:111 opus/48000/2
-        a=fmtp:111 minptime=10;useinbandfec=1
-        a=ssrc:${Math.floor(Math.random() * 1000000000)} cname:${Math.random().toString(36).substring(2, 10)}
-        `
-                };
-
-                // Регистрация звонка в базе данных с оффером
-                const callData = {
-                    id: callId,
-                    sender: currentUserId,
-                    participants: [currentUserId, otherUserId],
-                    status: 'waiting',
-                    createdAt: Date.now(),
-                    chatId: currentChatId,
-                    offer: JSON.stringify(offer)
-                };
-
-                const encryptedCallData = encryptData(callData);
-                
-                await database.ref(`calls/${callId}`).set({
-                    encryptedData: encryptedCallData,
-                    createdAt: Date.now(),
-                    offer: JSON.stringify(offer)
-                });
-
-                const callMessageData = {
-                    type: 'call',
-                    callId: callId,
-                    sender: currentUserId,
-                    timestamp: Date.now(),
-                    status: 'waiting'
-                };
-                
-                const encrypted = encryptData(callMessageData);
-                const messageId = Date.now().toString();
-                
-                await database.ref(`messages/${currentChatId}/${messageId}`).set({
-                    encryptedData: encrypted,
-                    timestamp: Date.now()
-                });
-                
-                await updateLastMessage('📞 Входящий звонок');
-                
-                showNotification('Звонок начат');
-                
-                // Перекидываем пользователя на страницу звонка
-                window.open(`https://hamburgerchat.github.io/call.html?id=${callId}`, '_blank');
-                
-            } catch (error) {
-                console.error('Ошибка начала звонка:', error);
-                alert('Ошибка при начале звонка: ' + error.message);
-            }
+async function startCall() {
+    if (isGroupChat || isChannel) {
+        alert('Звонки доступны только в личных чатах');
+        return;
+    }
+    
+    if (!isGroupMember) {
+        alert('Вы не можете звонить в этом чате');
+        return;
+    }
+    
+    try {
+        const callId = 'call_' + Date.now();
+        
+        const otherUserId = Object.keys(currentChatData.participants).find(id => id !== currentUserId);
+        if (!otherUserId) {
+            throw new Error('Не удалось определить собеседника');
         }
+
+        // Создаем данные звонка
+        const callData = {
+            id: callId,
+            sender: currentUserId,
+            participants: [currentUserId, otherUserId],
+            status: 'waiting',
+            createdAt: Date.now(),
+            chatId: currentChatId
+        };
+
+        const encryptedCallData = encryptData(callData);
+        
+        await database.ref(`calls/${callId}`).set({
+            encryptedData: encryptedCallData,
+            createdAt: Date.now(),
+            status: 'waiting'
+        });
+
+        const callMessageData = {
+            type: 'call',
+            callId: callId,
+            sender: currentUserId,
+            timestamp: Date.now(),
+            status: 'waiting'
+        };
+        
+        const encrypted = encryptData(callMessageData);
+        const messageId = Date.now().toString();
+        
+        await database.ref(`messages/${currentChatId}/${messageId}`).set({
+            encryptedData: encrypted,
+            timestamp: Date.now()
+        });
+        
+        await updateLastMessage('📞 Входящий звонок');
+        
+        showNotification('Звонок начат');
+        
+        // Перекидываем пользователя на страницу звонка
+        window.open(`https://hamburgerchat.github.io/call.html?id=${callId}`, '_blank');
+        
+    } catch (error) {
+        console.error('Ошибка начала звонка:', error);
+        alert('Ошибка при начале звонка: ' + error.message);
+    }
+}
         
         function acceptCall(callId) {
             window.open(`https://hamburgerchat.github.io/call.html?id=${callId}`, '_blank');
