@@ -10,6 +10,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
     <style>
+        /* Стили остаются такими же как в вашем файле */
         :root {
             --bg-primary: #ffffff;
             --bg-secondary: #f8f9fa;
@@ -468,8 +469,6 @@
         }
         const database = firebase.database();
 
-        const ENCRYPTION_KEY = "HamburgerSecureKey2024!";
-
         // Переменные состояния
         let currentUser = null;
         let currentUserId = null;
@@ -483,6 +482,8 @@
         let callTimerInterval = null;
         let isCallActive = false;
         let isIncomingCall = false;
+        let otherUserId = null;
+        let otherUserName = null;
 
         // DOM элементы
         const elements = {
@@ -506,21 +507,6 @@
         };
 
         // Утилиты
-        function encryptData(data) {
-            return CryptoJS.AES.encrypt(JSON.stringify(data), ENCRYPTION_KEY).toString();
-        }
-
-        function decryptData(encryptedData) {
-            try {
-                const bytes = CryptoJS.AES.decrypt(encryptedData, ENCRYPTION_KEY);
-                const decrypted = bytes.toString(CryptoJS.enc.Utf8);
-                return decrypted ? JSON.parse(decrypted) : null;
-            } catch (e) {
-                console.log('Ошибка дешифрования:', e);
-                return null;
-            }
-        }
-
         function getCallIdFromUrl() {
             const urlParams = new URLSearchParams(window.location.search);
             return urlParams.get('id');
@@ -623,7 +609,7 @@
                 elements.callMain.style.display = 'block';
 
                 // Определяем тип звонка
-                if (callData.sender === currentUserId) {
+                if (callData.from === currentUserId) {
                     // Исходящий звонок
                     isIncomingCall = false;
                     updateCallUI('waiting', 'Вызов...');
@@ -651,27 +637,18 @@
 
             callData = snapshot.val();
             
-            // Находим ID собеседника
-            const otherUserId = callData.sender === currentUserId ? 
-                callData.participants.find(p => p !== currentUserId) : 
-                callData.sender;
-
-            // Загружаем данные пользователя
-            try {
-                const userRef = database.ref(`users/${otherUserId}`);
-                const userSnapshot = await userRef.once('value');
-                if (userSnapshot.exists()) {
-                    const userData = userSnapshot.val();
-                    const decryptedData = decryptData(userData.encryptedData);
-                    if (decryptedData) {
-                        const username = decryptedData.username || 'Пользователь';
-                        elements.callName.textContent = username;
-                        elements.callAvatarInitial.textContent = username.charAt(0).toUpperCase();
-                    }
-                }
-            } catch (error) {
-                console.error('Ошибка загрузки данных пользователя:', error);
+            // Определяем собеседника
+            if (callData.from === currentUserId) {
+                otherUserId = callData.to;
+                otherUserName = callData.receiverName || 'Пользователь';
+            } else {
+                otherUserId = callData.from;
+                otherUserName = callData.callerName || 'Пользователь';
             }
+
+            // Обновляем UI с данными собеседника
+            elements.callName.textContent = otherUserName;
+            elements.callAvatarInitial.textContent = otherUserName.charAt(0).toUpperCase();
         }
 
         async function setupMedia() {
@@ -732,6 +709,10 @@
 
             peerConnection.onconnectionstatechange = () => {
                 console.log('Состояние соединения:', peerConnection.connectionState);
+                if (peerConnection.connectionState === 'connected') {
+                    updateCallUI('connected', 'Разговор активен');
+                    startCallTimer();
+                }
             };
         }
 
@@ -802,13 +783,11 @@
                 if (updatedCall.iceCandidates) {
                     for (const candidateId in updatedCall.iceCandidates) {
                         const candidateData = updatedCall.iceCandidates[candidateId];
-                        if (candidateData.sender !== currentUserId) {
-                            try {
-                                const candidate = JSON.parse(candidateData.candidate);
-                                await peerConnection.addIceCandidate(candidate);
-                            } catch (error) {
-                                console.error('❌ Ошибка добавления ICE кандидата:', error);
-                            }
+                        try {
+                            const candidate = JSON.parse(candidateData);
+                            await peerConnection.addIceCandidate(candidate);
+                        } catch (error) {
+                            console.error('❌ Ошибка добавления ICE кандидата:', error);
                         }
                     }
                 }
@@ -817,24 +796,20 @@
             // Слушаем ICE кандидаты
             database.ref(`calls/${callId}/iceCandidates`).on('child_added', async (snapshot) => {
                 const candidateData = snapshot.val();
-                if (candidateData.sender !== currentUserId) {
-                    try {
-                        const candidate = JSON.parse(candidateData.candidate);
-                        await peerConnection.addIceCandidate(candidate);
-                    } catch (error) {
-                        console.error('❌ Ошибка добавления ICE кандидата:', error);
-                    }
+                try {
+                    const candidate = JSON.parse(candidateData);
+                    await peerConnection.addIceCandidate(candidate);
+                } catch (error) {
+                    console.error('❌ Ошибка добавления ICE кандидата:', error);
                 }
             });
         }
 
         async function sendIceCandidate(candidate) {
             try {
-                await database.ref(`calls/${callId}/iceCandidates`).push().set({
-                    candidate: JSON.stringify(candidate),
-                    sender: currentUserId,
-                    timestamp: Date.now()
-                });
+                await database.ref(`calls/${callId}/iceCandidates`).push().set(
+                    JSON.stringify(candidate)
+                );
             } catch (error) {
                 console.error('❌ Ошибка отправки ICE кандидата:', error);
             }
