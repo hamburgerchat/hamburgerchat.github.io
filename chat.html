@@ -1227,120 +1227,187 @@
       justify-content: center;
       box-shadow: 0 2px 8px rgba(0,0,0,0.2);
       z-index: 80;
-      transition: all 0.3s ease;
-      opacity: 0;
-      pointer-events: none;
-      font-size: 0.9rem;
-    }
-    
-    .scroll-to-bottom.visible {
-      opacity: 1;
-      pointer-events: all;
+      transition: all 0.2s ease;
     }
     
     .scroll-to-bottom:hover {
-      transform: translateY(-2px);
+      transform: scale(1.1);
+    }
+
+    .typing-indicator {
+      display: none;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 0.9rem;
+      color: var(--text-secondary);
+      font-size: 0.75rem;
     }
     
+    .typing-dots {
+      display: flex;
+      gap: 0.2rem;
+    }
+    
+    .typing-dot {
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: var(--text-secondary);
+      animation: typing 1.4s infinite ease-in-out;
+    }
+    
+    .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+    .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+    
+    @keyframes typing {
+      0%, 80%, 100% { transform: scale(0.8); opacity: 0.5; }
+      40% { transform: scale(1); opacity: 1; }
+    }
+
     .notification {
       position: fixed;
-      top: 50%;
+      top: 20px;
       left: 50%;
-      transform: translate(-50%, -50%);
+      transform: translateX(-50%);
       background: var(--notification-bg);
       color: var(--notification-text);
-      padding: 0.7rem 1.3rem;
-      border-radius: 0.9rem;
-      font-size: 0.85rem;
-      font-weight: 500;
+      padding: 0.9rem 1.3rem;
+      border-radius: 0.7rem;
       z-index: 2000;
-      text-align: center;
-      max-width: 80%;
-      animation: notificationAppear 0.3s ease, notificationDisappear 0.3s ease 2.7s;
-      pointer-events: none;
-    }
-    
-    @keyframes notificationAppear {
-      from { opacity: 0; transform: translate(-50%, -40%); }
-      to { opacity: 1; transform: translate(-50%, -50%); }
-    }
-    
-    @keyframes notificationDisappear {
-      from { opacity: 1; transform: translate(-50%, -50%); }
-      to { opacity: 0; transform: translate(-50%, -60%); }
-    }
-    
-    .join-group-container {
       display: none;
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: var(--bg-primary);
-      z-index: 200;
-      flex-direction: column;
       align-items: center;
-      justify-content: center;
-      padding: 1.8rem;
-      text-align: center;
+      gap: 0.7rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      animation: slideDown 0.3s ease;
     }
     
-    .join-group-icon {
-      width: 70px;
-      height: 70px;
-      background: var(--accent-gradient);
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+      to { opacity: 1; transform: translateX(-50%) translateY(0); }
+    }
+    
+    .notification-icon {
+      font-size: 1.1rem;
+    }
+    
+    .notification-text {
+      font-size: 0.85rem;
+    }
+
+    .call-notification {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 0.9rem;
+      padding: 1.1rem;
+      z-index: 2000;
+      display: none;
+      flex-direction: column;
+      gap: 0.9rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      animation: slideInRight 0.3s ease;
+      max-width: 280px;
+    }
+    
+    @keyframes slideInRight {
+      from { opacity: 0; transform: translateX(20px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+    
+    .call-notification-header {
+      display: flex;
+      align-items: center;
+      gap: 0.7rem;
+    }
+    
+    .call-notification-avatar {
+      width: 36px;
+      height: 36px;
       border-radius: 50%;
+      background: var(--accent-gradient);
       display: flex;
       align-items: center;
       justify-content: center;
-      margin-bottom: 1.3rem;
-    }
-    
-    .join-group-icon i {
       color: white;
-      font-size: 1.8rem;
-    }
-    
-    .join-group-title {
-      font-size: 1.3rem;
       font-weight: 600;
-      margin-bottom: 0.7rem;
-      color: var(--text-primary);
-    }
-    
-    .join-group-description {
-      color: var(--text-secondary);
-      margin-bottom: 1.8rem;
-      max-width: 350px;
-      line-height: 1.5;
       font-size: 0.9rem;
     }
     
-    .join-group-btn {
-      padding: 0.7rem 1.8rem;
-      background: var(--accent-color);
+    .call-notification-info {
+      flex: 1;
+    }
+    
+    .call-notification-name {
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+    
+    .call-notification-type {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+    }
+    
+    .call-notification-buttons {
+      display: flex;
+      gap: 0.7rem;
+    }
+    
+    .call-notification-accept {
+      flex: 1;
+      background: var(--call-color);
       color: white;
       border: none;
+      padding: 0.7rem;
       border-radius: 0.7rem;
       font-weight: 600;
       cursor: pointer;
-      transition: all 0.2s ease;
-      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
     }
     
-    .join-group-btn:hover {
-      background: #ff6b35;
-      transform: translateY(-2px);
+    .call-notification-decline {
+      flex: 1;
+      background: var(--danger-color);
+      color: white;
+      border: none;
+      padding: 0.7rem;
+      border-radius: 0.7rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
     }
 
-    /* ИСПРАВЛЕНИЯ ДЛЯ ТЕЛЕФОНОВ */
-    @media (max-width: 480px) {
-      .messages-container {
-        padding: 0.7rem 0.5rem;
-        padding-bottom: 90px;
-      }
-      
+    .empty-chat {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      flex: 1;
+      padding: 1.8rem;
+      text-align: center;
+      color: var(--text-secondary);
+    }
+    
+    .empty-chat-icon {
+      font-size: 3rem;
+      margin-bottom: 0.9rem;
+      color: var(--text-tertiary);
+    }
+    
+    .empty-chat-text {
+      font-size: 0.9rem;
+      max-width: 300px;
+      line-height: 1.5;
+    }
+
+    @media (max-width: 768px) {
       .message {
         max-width: 85%;
       }
@@ -1349,77 +1416,30 @@
         max-width: 90%;
       }
       
-      .message-content {
-        padding: 0.5rem 0.8rem;
-      }
-
-      .message-text {
-        font-size: 0.82rem;
-      }
-
-      .message-image {
-        max-width: 180px;
-        max-height: 180px;
-      }
-
-      .message-sticker {
-        font-size: 1.8rem;
-      }
-
-      .input-container {
-        padding: 0.6rem;
-      }
-      
-      .channel-input-container {
-        padding: 0.8rem;
-      }
-      
-      .channel-actions {
-        gap: 0.5rem;
-      }
-      
-      .channel-action-btn {
-        min-width: 70px;
-        padding: 0.6rem;
-      }
-      
-      .sticker-panel {
-        left: 0.5rem;
-        right: 0.5rem;
-        bottom: 65px;
-      }
-      
-      .scroll-to-bottom {
-        bottom: 75px;
-        right: 12px;
-        width: 32px;
-        height: 32px;
-        font-size: 0.8rem;
-      }
-
-      .call-message {
-        max-width: 260px;
-        padding: 0.8rem;
-      }
-
-      .call-icon {
-        width: 40px;
-        height: 40px;
-        font-size: 1.2rem;
+      .message-input {
+        font-size: 16px;
       }
       
       .chat-header {
-        padding: 0.7rem 0.8rem;
+        padding: 0.7rem 0.9rem;
       }
       
-      .chat-avatar {
-        width: 36px;
-        height: 36px;
-        font-size: 0.9rem;
+      .messages-container {
+        padding: 0.9rem 0.7rem;
       }
       
-      .chat-name {
-        font-size: 0.9rem;
+      .input-container {
+        padding: 0.7rem 0.9rem;
+      }
+      
+      .channel-input-container {
+        padding: 0.9rem;
+      }
+      
+      .call-notification {
+        right: 0.9rem;
+        left: 0.9rem;
+        max-width: none;
       }
     }
   </style>
@@ -1433,43 +1453,57 @@
         </button>
         <div class="chat-info" id="chatInfo">
           <div class="chat-avatar" id="chatAvatar">
-            <span id="chatAvatarInitial">C</span>
+            <span id="avatarText">H</span>
           </div>
           <div class="chat-details">
             <div class="chat-name" id="chatName">Загрузка...</div>
-            <div class="chat-status" id="chatStatus">Подключение...</div>
+            <div class="chat-status" id="chatStatus">
+              <span id="statusText">Подключение...</span>
+            </div>
           </div>
         </div>
       </div>
       <div class="header-actions">
-        <button class="call-button" id="callButton" style="display: none;">
-          <i class="fas fa-phone"></i>
+        <button class="call-button" id="voiceCallButton" title="Голосовой звонок">
+          <i class="fas fa-phone-alt"></i>
+        </button>
+        <button class="call-button" id="videoCallButton" title="Видеозвонок">
+          <i class="fas fa-video"></i>
         </button>
         <button class="menu-toggle" id="menuToggle">
           <i class="fas fa-ellipsis-v"></i>
         </button>
       </div>
     </div>
-    
-    <div class="join-group-container" id="joinGroupContainer">
-      <div class="join-group-icon">
-        <i class="fas fa-users"></i>
-      </div>
-      <div class="join-group-title" id="joinGroupTitle">Присоединиться к группе</div>
-      <div class="join-group-description" id="joinGroupDescription">
-        Вы не являетесь участником этой группы. Присоединитесь, чтобы начать общение.
-      </div>
-      <button class="join-group-btn" id="joinGroupBtn">Присоединиться</button>
-    </div>
-    
+
     <div class="pinned-message-top" id="pinnedMessageTop">
-      <button class="unpin-btn" id="unpinBtn">
-        <i class="fas fa-times"></i>
-      </button>
       <div class="pinned-message-content" id="pinnedMessageContent"></div>
       <div class="pinned-message-info" id="pinnedMessageInfo"></div>
+      <button class="unpin-btn" id="unpinButton">
+        <i class="fas fa-times"></i>
+      </button>
     </div>
-    
+
+    <div class="messages-container" id="messagesContainer">
+      <div class="empty-chat" id="emptyChat">
+        <div class="empty-chat-icon">
+          <i class="far fa-comments"></i>
+        </div>
+        <div class="empty-chat-text" id="emptyChatText">
+          Начните общение с первым сообщением!
+        </div>
+      </div>
+    </div>
+
+    <div class="typing-indicator" id="typingIndicator">
+      <span id="typingUsers"></span>
+      <div class="typing-dots">
+        <div class="typing-dot"></div>
+        <div class="typing-dot"></div>
+        <div class="typing-dot"></div>
+      </div>
+    </div>
+
     <div class="reply-container" id="replyContainer" style="display: none;">
       <div class="reply-info">
         <div class="reply-label">Ответ на сообщение</div>
@@ -1479,127 +1513,129 @@
         <i class="fas fa-times"></i>
       </button>
     </div>
-    
-    <div class="messages-container" id="messagesContainer">
-      <div class="loading-container" id="loadingContainer">
-        <div class="loading-spinner"></div>
-        <div>Загрузка сообщений...</div>
-      </div>
-    </div>
-    
-    <button class="scroll-to-bottom" id="scrollToBottom">
-      <i class="fas fa-chevron-down"></i>
-    </button>
-    
+
     <div class="input-container" id="inputContainer">
-      <button class="attachment-btn" id="attachmentBtn">
-        <i class="fas fa-image"></i>
+      <button class="attachment-btn" id="attachmentButton" title="Прикрепить файл">
+        <i class="fas fa-paperclip"></i>
       </button>
-      <input type="file" id="imageUpload" accept="image/*" style="display: none;">
-      
-      <button class="sticker-btn" id="stickerBtn">
-        <i class="fas fa-smile"></i>
+      <button class="sticker-btn" id="stickerButton" title="Стикеры">
+        <i class="far fa-smile"></i>
       </button>
-      
       <div class="message-input-wrapper">
         <textarea class="message-input" id="messageInput" placeholder="Введите сообщение..." rows="1"></textarea>
       </div>
-      
       <button class="send-button" id="sendButton" disabled>
         <i class="fas fa-paper-plane"></i>
       </button>
     </div>
-    
+
     <div class="channel-input-container" id="channelInputContainer">
       <div class="channel-actions">
-        <button class="channel-action-btn" id="channelReactBtn">
-          <div class="channel-action-icon">👍</div>
-          <div class="channel-action-text">Реакции</div>
-        </button>
-        <button class="channel-action-btn" id="channelShareBtn">
+        <button class="channel-action-btn" id="channelLikeButton">
           <div class="channel-action-icon">
-            <i class="fas fa-share"></i>
+            <i class="fas fa-heart"></i>
+          </div>
+          <div class="channel-action-text">Нравится</div>
+        </button>
+        <button class="channel-action-btn" id="channelSubscribeButton">
+          <div class="channel-action-icon">
+            <i class="fas fa-bell"></i>
+          </div>
+          <div class="channel-action-text">Подписаться</div>
+        </button>
+        <button class="channel-action-btn" id="channelShareButton">
+          <div class="channel-action-icon">
+            <i class="fas fa-share-alt"></i>
           </div>
           <div class="channel-action-text">Поделиться</div>
         </button>
-        <button class="subscribe-btn" id="subscribeBtn">
-          Подписаться
-        </button>
       </div>
+      <button class="subscribe-btn" id="channelSubscribeBtn">
+        Подписаться на канал
+      </button>
     </div>
+
+    <button class="scroll-to-bottom" id="scrollToBottom" style="display: none;">
+      <i class="fas fa-chevron-down"></i>
+    </button>
   </div>
-  
+
   <div class="overlay" id="overlay"></div>
-  
-  <div class="sticker-panel" id="stickerPanel">
-    <div class="sticker-search">
-      <input type="text" id="stickerSearch" placeholder="Поиск стикерпаков...">
-    </div>
-    <div class="sticker-tabs">
-      <button class="sticker-tab active" data-tab="saved">Мои стикеры</button>
-      <button class="sticker-tab" data-tab="search">Поиск</button>
-    </div>
-    <div class="sticker-packs" id="stickerPacks">
-    </div>
-  </div>
-  
-  <div class="sticker-view" id="stickerView">
-    <div class="sticker-view-content">
-      <h3 id="stickerPackTitle">Название пака</h3>
-      <div class="sticker-view-stickers" id="stickerViewStickers">
-      </div>
-      <div class="sticker-view-actions">
-        <button class="close-sticker-view" id="closeStickerView">Закрыть</button>
-        <button class="add-sticker-pack" id="addStickerPack">Добавить в коллекцию</button>
-      </div>
-    </div>
-  </div>
-  
+
   <div class="chat-menu" id="chatMenu">
-    <div class="menu-item" data-action="mute">
+    <div class="menu-item" id="viewProfileItem">
       <div class="menu-icon">
-        <i class="fas fa-bell-slash"></i>
+        <i class="fas fa-user"></i>
       </div>
-      <div class="menu-text" id="muteText">Отключить уведомления</div>
+      <div class="menu-text">Профиль чата</div>
     </div>
-    <div class="menu-item" data-action="clear">
+    <div class="menu-item" id="searchMessagesItem">
+      <div class="menu-icon">
+        <i class="fas fa-search"></i>
+      </div>
+      <div class="menu-text">Поиск сообщений</div>
+    </div>
+    <div class="menu-item" id="mediaFilesItem">
+      <div class="menu-icon">
+        <i class="fas fa-images"></i>
+      </div>
+      <div class="menu-text">Медиафайлы</div>
+    </div>
+    <div class="menu-item" id="notificationsItem">
+      <div class="menu-icon">
+        <i class="fas fa-bell"></i>
+      </div>
+      <div class="menu-text">Уведомления</div>
+    </div>
+    <div class="menu-item menu-danger" id="clearHistoryItem">
       <div class="menu-icon">
         <i class="fas fa-trash"></i>
       </div>
       <div class="menu-text">Очистить историю</div>
     </div>
-    <div class="menu-item menu-danger" data-action="leave" id="leaveChatItem" style="display: none;">
+    <div class="menu-item menu-danger" id="leaveChatItem">
       <div class="menu-icon">
         <i class="fas fa-sign-out-alt"></i>
       </div>
-      <div class="menu-text">Покинуть группу</div>
+      <div class="menu-text">Покинуть чат</div>
     </div>
   </div>
 
   <div class="message-context-menu" id="messageContextMenu">
-    <div class="context-header">Сообщение</div>
+    <div class="context-header" id="contextHeader">Сообщение</div>
     <div class="reaction-buttons" id="reactionButtons">
-      <!-- Реакции будут добавлены через JS -->
+      <button class="reaction-btn">👍</button>
+      <button class="reaction-btn">❤️</button>
+      <button class="reaction-btn">😂</button>
+      <button class="reaction-btn">😮</button>
+      <button class="reaction-btn">😢</button>
+      <button class="reaction-btn">😡</button>
     </div>
-    <div class="context-item" data-action="reply" id="replyContextItem" style="display: none;">
+    <div class="context-item" id="replyMessageItem">
       <div class="context-icon">
         <i class="fas fa-reply"></i>
       </div>
       <div class="context-text">Ответить</div>
     </div>
-    <div class="context-item" data-action="copy">
+    <div class="context-item" id="editMessageItem">
+      <div class="context-icon">
+        <i class="fas fa-edit"></i>
+      </div>
+      <div class="context-text">Редактировать</div>
+    </div>
+    <div class="context-item" id="copyMessageItem">
       <div class="context-icon">
         <i class="fas fa-copy"></i>
       </div>
-      <div class="context-text">Копировать</div>
+      <div class="context-text">Скопировать текст</div>
     </div>
-    <div class="context-item" data-action="pin" id="pinContextItem" style="display: none;">
+    <div class="context-item" id="pinMessageItem">
       <div class="context-icon">
         <i class="fas fa-thumbtack"></i>
       </div>
-      <div class="context-text" id="pinText">Закрепить</div>
+      <div class="context-text">Закрепить</div>
     </div>
-    <div class="context-item context-danger" data-action="delete" id="deleteContextItem" style="display: none;">
+    <div class="context-item context-danger" id="deleteMessageItem">
       <div class="context-icon">
         <i class="fas fa-trash"></i>
       </div>
@@ -1607,1676 +1643,1064 @@
     </div>
   </div>
 
+  <div class="sticker-panel" id="stickerPanel">
+    <div class="sticker-search">
+      <input type="text" id="stickerSearch" placeholder="Поиск стикеров...">
+    </div>
+    <div class="sticker-tabs">
+      <button class="sticker-tab active" data-tab="recent">Недавние</button>
+      <button class="sticker-tab" data-tab="favorites">Избранные</button>
+      <button class="sticker-tab" data-tab="packs">Наборы</button>
+    </div>
+    <div class="sticker-packs" id="stickerPacks">
+      <!-- Sticker packs will be loaded here -->
+    </div>
+  </div>
+
+  <div class="sticker-view" id="stickerView">
+    <div class="sticker-view-content">
+      <div class="sticker-view-stickers" id="stickerViewStickers">
+        <!-- Stickers will be loaded here -->
+      </div>
+      <div class="sticker-view-actions">
+        <button class="close-sticker-view" id="closeStickerView">Закрыть</button>
+        <button class="add-sticker-pack" id="addStickerPack">Добавить набор</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="call-notification" id="callNotification">
+    <div class="call-notification-header">
+      <div class="call-notification-avatar" id="callNotificationAvatar">
+        <span>U</span>
+      </div>
+      <div class="call-notification-info">
+        <div class="call-notification-name" id="callNotificationName">Пользователь</div>
+        <div class="call-notification-type" id="callNotificationType">Входящий звонок</div>
+      </div>
+    </div>
+    <div class="call-notification-buttons">
+      <button class="call-notification-accept" id="callNotificationAccept">
+        <i class="fas fa-phone"></i> Принять
+      </button>
+      <button class="call-notification-decline" id="callNotificationDecline">
+        <i class="fas fa-times"></i> Отклонить
+      </button>
+    </div>
+  </div>
+
+  <div class="notification" id="notification">
+    <div class="notification-icon">
+      <i class="fas fa-info-circle"></i>
+    </div>
+    <div class="notification-text" id="notificationText"></div>
+  </div>
+
   <script>
+    // Firebase configuration
     const firebaseConfig = {
-      databaseURL: "https://hamburgerchat-e8f2a-default-rtdb.firebaseio.com/"
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_AUTH_DOMAIN",
+      databaseURL: "YOUR_DATABASE_URL",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "YOUR_STORAGE_BUCKET",
+      messagingSenderId: "YOUR_SENDER_ID",
+      appId: "YOUR_APP_ID"
     };
-    
-    if (!firebase.apps.length) {
-      firebase.initializeApp(firebaseConfig);
-    }
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
-    
-    const ENCRYPTION_KEY = "HamburgerSecureKey2024!";
-    
+
+    // Current user and chat data
     let currentUser = null;
-    let currentUserId = null;
-    let currentChatId = null;
-    let currentChatData = null;
-    let isGroupChat = false;
+    let currentChat = null;
+    let messages = [];
     let isChannel = false;
-    let isGroupMember = false;
-    let isAdmin = false;
-    let isCreator = false;
+    let isSubscribed = false;
     let replyingTo = null;
-    let selectedMessage = null;
-    let allMessages = new Map();
-    let displayedMessageIds = new Set();
-    let longPressTimer = null;
-    let stickerPacks = JSON.parse(localStorage.getItem('hamburger_sticker_packs') || '[]');
-    let allStickerPacks = [];
-    let lastMessageTime = 0;
-    let spamCount = 0;
-    let spamResetTime = 0;
-    let userProfilesCache = new Map();
+    let editingMessage = null;
+    let typingTimeout = null;
+    let callInProgress = false;
 
-    // Реакции
-    const allReactions = ['👍', '❤️', '😂', '😮', '😢', '😡', '👏', '🔥'];
+    // DOM elements
+    const elements = {
+      backButton: document.getElementById('backButton'),
+      chatInfo: document.getElementById('chatInfo'),
+      chatAvatar: document.getElementById('chatAvatar'),
+      chatName: document.getElementById('chatName'),
+      chatStatus: document.getElementById('chatStatus'),
+      statusText: document.getElementById('statusText'),
+      voiceCallButton: document.getElementById('voiceCallButton'),
+      videoCallButton: document.getElementById('videoCallButton'),
+      menuToggle: document.getElementById('menuToggle'),
+      messagesContainer: document.getElementById('messagesContainer'),
+      emptyChat: document.getElementById('emptyChat'),
+      emptyChatText: document.getElementById('emptyChatText'),
+      typingIndicator: document.getElementById('typingIndicator'),
+      typingUsers: document.getElementById('typingUsers'),
+      replyContainer: document.getElementById('replyContainer'),
+      replyContent: document.getElementById('replyContent'),
+      cancelReply: document.getElementById('cancelReply'),
+      inputContainer: document.getElementById('inputContainer'),
+      channelInputContainer: document.getElementById('channelInputContainer'),
+      attachmentButton: document.getElementById('attachmentButton'),
+      stickerButton: document.getElementById('stickerButton'),
+      messageInput: document.getElementById('messageInput'),
+      sendButton: document.getElementById('sendButton'),
+      channelLikeButton: document.getElementById('channelLikeButton'),
+      channelSubscribeButton: document.getElementById('channelSubscribeButton'),
+      channelShareButton: document.getElementById('channelShareButton'),
+      channelSubscribeBtn: document.getElementById('channelSubscribeBtn'),
+      scrollToBottom: document.getElementById('scrollToBottom'),
+      overlay: document.getElementById('overlay'),
+      chatMenu: document.getElementById('chatMenu'),
+      viewProfileItem: document.getElementById('viewProfileItem'),
+      searchMessagesItem: document.getElementById('searchMessagesItem'),
+      mediaFilesItem: document.getElementById('mediaFilesItem'),
+      notificationsItem: document.getElementById('notificationsItem'),
+      clearHistoryItem: document.getElementById('clearHistoryItem'),
+      leaveChatItem: document.getElementById('leaveChatItem'),
+      messageContextMenu: document.getElementById('messageContextMenu'),
+      contextHeader: document.getElementById('contextHeader'),
+      reactionButtons: document.getElementById('reactionButtons'),
+      replyMessageItem: document.getElementById('replyMessageItem'),
+      editMessageItem: document.getElementById('editMessageItem'),
+      copyMessageItem: document.getElementById('copyMessageItem'),
+      pinMessageItem: document.getElementById('pinMessageItem'),
+      deleteMessageItem: document.getElementById('deleteMessageItem'),
+      stickerPanel: document.getElementById('stickerPanel'),
+      stickerSearch: document.getElementById('stickerSearch'),
+      stickerTabs: document.querySelectorAll('.sticker-tab'),
+      stickerPacks: document.getElementById('stickerPacks'),
+      stickerView: document.getElementById('stickerView'),
+      stickerViewStickers: document.getElementById('stickerViewStickers'),
+      closeStickerView: document.getElementById('closeStickerView'),
+      addStickerPack: document.getElementById('addStickerPack'),
+      callNotification: document.getElementById('callNotification'),
+      callNotificationAvatar: document.getElementById('callNotificationAvatar'),
+      callNotificationName: document.getElementById('callNotificationName'),
+      callNotificationType: document.getElementById('callNotificationType'),
+      callNotificationAccept: document.getElementById('callNotificationAccept'),
+      callNotificationDecline: document.getElementById('callNotificationDecline'),
+      notification: document.getElementById('notification'),
+      notificationText: document.getElementById('notificationText'),
+      pinnedMessageTop: document.getElementById('pinnedMessageTop'),
+      pinnedMessageContent: document.getElementById('pinnedMessageContent'),
+      pinnedMessageInfo: document.getElementById('pinnedMessageInfo'),
+      unpinButton: document.getElementById('unpinButton')
+    };
 
-    document.addEventListener('DOMContentLoaded', function() {
-      const savedTheme = localStorage.getItem('hamburger_theme') || 'light';
-      document.documentElement.setAttribute('data-theme', savedTheme);
-    });
-
-    function encryptData(data) {
-      return CryptoJS.AES.encrypt(JSON.stringify(data), ENCRYPTION_KEY).toString();
-    }
-    
-    function decryptData(encryptedData) {
-      try {
-        const bytes = CryptoJS.AES.decrypt(encryptedData, ENCRYPTION_KEY);
-        const decrypted = bytes.toString(CryptoJS.enc.Utf8);
-        return decrypted ? JSON.parse(decrypted) : null;
-      } catch (e) {
-        console.log('Ошибка дешифрования:', e);
-        return null;
-      }
-    }
-
-    function getChatIdFromUrl() {
-      const urlParams = new URLSearchParams(window.location.search);
-      return urlParams.get('id') || window.location.hash.substring(1) || window.location.search.substring(1);
-    }
-
-    // Получение профиля пользователя
-    async function getUserProfile(userId) {
-      if (userProfilesCache.has(userId)) {
-        return userProfilesCache.get(userId);
-      }
-      
-      try {
-        const userRef = database.ref(`users/${userId}`);
-        const snapshot = await userRef.once('value');
-        
-        if (!snapshot.exists()) {
-          return null;
-        }
-        
-        const userData = snapshot.val();
-        const decryptedData = decryptData(userData.encryptedData);
-        
-        if (decryptedData) {
-          userProfilesCache.set(userId, decryptedData);
-        }
-        
-        return decryptedData;
-      } catch (error) {
-        console.error('Ошибка загрузки профиля пользователя:', error);
-        return null;
-      }
-    }
-
-    window.addEventListener('DOMContentLoaded', async () => {
-      currentUser = localStorage.getItem('hamburger_user');
-      currentUserId = localStorage.getItem('hamburger_user_id');
-      
-      if (!currentUser || !currentUserId) {
-        window.location.href = 'https://hamburgerchat.github.io/';
-        return;
-      }
-      
-      currentChatId = getChatIdFromUrl();
-      console.log('ID чата из URL:', currentChatId);
-      
-      if (!currentChatId) {
-        alert('Чат не найден');
-        window.location.href = 'https://hamburgerchat.github.io/main.html';
-        return;
-      }
-      
-      await loadChatData();
+    // Initialize the chat
+    function initChat() {
+      loadCurrentUser();
+      loadChatData();
       setupEventListeners();
-      loadAllStickerPacks();
-      setupScrollToBottom();
-      setupReactionButtons();
-      
-      // Автоскролл вниз при загрузке
-      setTimeout(() => {
-        scrollToBottom();
-      }, 500);
-    });
-
-    function setupReactionButtons() {
-      const container = document.getElementById('reactionButtons');
-      container.innerHTML = '';
-      
-      allReactions.forEach(reaction => {
-        const btn = document.createElement('button');
-        btn.className = 'reaction-btn';
-        btn.dataset.reaction = reaction;
-        btn.textContent = reaction;
-        btn.addEventListener('click', (e) => {
-          e.stopPropagation();
-          if (selectedMessage) {
-            toggleReaction(selectedMessage.id, reaction);
-            closeAllModals();
-          }
-        });
-        container.appendChild(btn);
-      });
+      setupFirebaseListeners();
     }
 
-    function setupScrollToBottom() {
-      const scrollBtn = document.getElementById('scrollToBottom');
-      const messagesContainer = document.getElementById('messagesContainer');
-      
-      messagesContainer.addEventListener('scroll', () => {
-        const scrollTop = messagesContainer.scrollTop;
-        const scrollHeight = messagesContainer.scrollHeight;
-        const clientHeight = messagesContainer.clientHeight;
-        
-        const isNearBottom = scrollHeight - scrollTop - clientHeight < 100;
-        
-        if (isNearBottom) {
-          scrollBtn.classList.remove('visible');
-        } else {
-          scrollBtn.classList.add('visible');
-        }
-      });
-      
-      scrollBtn.addEventListener('click', () => {
-        scrollToBottom();
-      });
+    // Load current user data
+    function loadCurrentUser() {
+      // In a real app, this would come from authentication
+      currentUser = {
+        id: 'user_' + Date.now(),
+        name: 'Текущий пользователь',
+        avatar: '',
+        role: 'member'
+      };
     }
 
-    async function loadChatData() {
-      try {
-        console.log('Загружаю чат с ID:', currentChatId);
-        
-        const chatRef = database.ref(`chats/${currentChatId}`);
-        const snapshot = await chatRef.once('value');
-        
-        if (!snapshot.exists()) {
-          throw new Error('Чат не найден в базе данных');
-        }
-        
-        const chatData = snapshot.val();
-        console.log('Данные чата:', chatData);
-        
-        let decryptedData = null;
-        
-        if (chatData.encryptedData) {
-          decryptedData = decryptData(chatData.encryptedData);
-        } else if (chatData.name) {
-          decryptedData = chatData;
-        }
-        
-        if (!decryptedData) {
-          throw new Error('Не удалось расшифровать данные чата');
-        }
-        
-        currentChatData = decryptedData;
-        console.log('Расшифрованные данные:', currentChatData);
-        
-        isGroupChat = currentChatData.type === 'group';
-        isChannel = currentChatData.type === 'channel';
-        
-        // Проверяем права - ИСПРАВЛЕНИЕ: правильное определение прав
-        isCreator = currentChatData.createdBy === currentUserId;
-        isAdmin = isCreator || (currentChatData.admins && currentChatData.admins.includes(currentUserId));
-        
-        console.log('Права пользователя:', { isCreator, isAdmin, currentUserId, createdBy: currentChatData.createdBy, admins: currentChatData.admins });
-        
-        if (isGroupChat || isChannel) {
-          isGroupMember = currentChatData.participants && 
-                         (Array.isArray(currentChatData.participants) ? 
-                          currentChatData.participants.includes(currentUserId) : 
-                          currentChatData.participants[currentUserId]);
-        } else {
-          isGroupMember = true;
-        }
-        
-        updateChatHeader();
-        
-        if (isGroupMember) {
-          await loadMessages();
-          await loadPinnedMessage();
-          document.getElementById('loadingContainer').style.display = 'none';
-          document.getElementById('joinGroupContainer').style.display = 'none';
-          
-          // Показываем соответствующую панель ввода - ИСПРАВЛЕНИЕ: для каналов показываем обычный инпут если админ
-          if (isChannel) {
-            if (isAdmin || isCreator) {
-              document.getElementById('inputContainer').style.display = 'flex';
-              document.getElementById('channelInputContainer').style.display = 'none';
-            } else {
-              document.getElementById('inputContainer').style.display = 'none';
-              document.getElementById('channelInputContainer').style.display = 'flex';
-            }
-          } else {
-            document.getElementById('inputContainer').style.display = 'flex';
-            document.getElementById('channelInputContainer').style.display = 'none';
-          }
-        } else {
-          document.getElementById('loadingContainer').style.display = 'none';
-          document.getElementById('joinGroupContainer').style.display = 'flex';
-          document.getElementById('joinGroupTitle').textContent = `Присоединиться к "${currentChatData.name}"`;
-        }
-        
-      } catch (error) {
-        console.error('Ошибка загрузки чата:', error);
-        alert('Ошибка загрузки чата: ' + error.message);
-        window.location.href = 'https://hamburgerchat.github.io/main.html';
-      }
+    // Load chat data from URL parameters or default
+    function loadChatData() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const chatId = urlParams.get('chatId') || 'default_chat';
+      const chatType = urlParams.get('type') || 'private';
+      
+      isChannel = chatType === 'channel';
+      currentChat = {
+        id: chatId,
+        name: isChannel ? 'Канал новостей' : 'Иван Иванов',
+        type: chatType,
+        avatar: '',
+        online: true,
+        members: 125
+      };
+
+      updateChatUI();
+      loadMessages();
     }
 
-    function updateChatHeader() {
-      const chatName = document.getElementById('chatName');
-      const chatAvatar = document.getElementById('chatAvatar');
-      const chatStatus = document.getElementById('chatStatus');
-      const chatAvatarInitial = document.getElementById('chatAvatarInitial');
-      const callButton = document.getElementById('callButton');
-      const leaveChatItem = document.getElementById('leaveChatItem');
+    // Update chat UI based on current chat data
+    function updateChatUI() {
+      elements.chatName.textContent = currentChat.name;
       
-      chatName.textContent = currentChatData.name || 'Без названия';
-      
-      // ИСПРАВЛЕНИЕ для аватарки каналов
-      if (currentChatData.avatar) {
-        chatAvatar.style.backgroundImage = `url(${currentChatData.avatar})`;
-        chatAvatar.classList.add('has-image');
-        chatAvatarInitial.style.display = 'none';
-      } else {
-        const initial = currentChatData.name ? currentChatData.name.charAt(0).toUpperCase() : '?';
-        chatAvatarInitial.textContent = initial;
-      }
-      
-      // Для каналов меняем цвет аватарки
       if (isChannel) {
-        chatAvatar.classList.add('channel');
-        // Убедимся, что аватарка отображается правильно для каналов
-        if (!currentChatData.avatar) {
-          const channelInitial = currentChatData.name ? currentChatData.name.charAt(0).toUpperCase() : 'C';
-          chatAvatarInitial.textContent = channelInitial;
-        }
-      }
-      
-      if (isGroupChat || isChannel) {
-        const participants = currentChatData.participants || [];
-        const count = Array.isArray(participants) ? participants.length : Object.keys(participants).length;
-        const chatType = isChannel ? 'канал' : 'группа';
-        chatStatus.innerHTML = `<span class="online-indicator"></span> ${count} участников • ${chatType}`;
-        leaveChatItem.style.display = 'block';
-        callButton.style.display = 'none';
+        elements.chatAvatar.classList.add('channel');
+        elements.statusText.textContent = `${currentChat.members} подписчиков`;
+        elements.inputContainer.style.display = 'none';
+        elements.channelInputContainer.style.display = 'flex';
+        elements.emptyChatText.textContent = 'Это канал. Подпишитесь, чтобы получать уведомления о новых публикациях.';
+        elements.voiceCallButton.style.display = 'none';
+        elements.videoCallButton.style.display = 'none';
       } else {
-        // Для личных чатов загружаем данные собеседника
-        loadOtherUserData();
-        callButton.style.display = 'flex';
-        leaveChatItem.style.display = 'none';
-      }
-    }
-
-    // Загрузка данных собеседника для личных чатов
-    async function loadOtherUserData() {
-      if (!currentChatData.participants) return;
-      
-      const otherUserId = Object.keys(currentChatData.participants).find(id => id !== currentUserId);
-      if (!otherUserId) return;
-      
-      try {
-        const userProfile = await getUserProfile(otherUserId);
-        if (userProfile) {
-          const chatAvatar = document.getElementById('chatAvatar');
-          const chatAvatarInitial = document.getElementById('chatAvatarInitial');
-          const chatStatus = document.getElementById('chatStatus');
-          
-          if (userProfile.avatar) {
-            chatAvatar.style.backgroundImage = `url(${userProfile.avatar})`;
-            chatAvatar.classList.add('has-image');
-            chatAvatarInitial.style.display = 'none';
-          } else {
-            chatAvatarInitial.textContent = userProfile.username ? userProfile.username.charAt(0).toUpperCase() : 'U';
-          }
-          
-          // Статус онлайн/офлайн
-          const isOnline = Math.random() > 0.3; // В реальном приложении брать из базы
-          if (isOnline) {
-            chatStatus.innerHTML = `<span class="online-indicator"></span> в сети`;
-          } else {
-            chatStatus.innerHTML = `был(а) недавно`;
-          }
+        elements.statusText.textContent = currentChat.online ? 'в сети' : 'был(а) недавно';
+        if (currentChat.online) {
+          const onlineIndicator = document.createElement('div');
+          onlineIndicator.className = 'online-indicator';
+          elements.chatStatus.insertBefore(onlineIndicator, elements.statusText);
         }
-      } catch (error) {
-        console.error('Ошибка загрузки данных пользователя:', error);
+        elements.inputContainer.style.display = 'flex';
+        elements.channelInputContainer.style.display = 'none';
+        elements.emptyChatText.textContent = 'Начните общение с первым сообщением!';
       }
     }
 
-    // Обновление кнопки подписки для каналов
-    function updateSubscribeButton() {
-      const subscribeBtn = document.getElementById('subscribeBtn');
-      if (isGroupMember) {
-        subscribeBtn.textContent = 'Отписаться';
-        subscribeBtn.classList.add('unsubscribe');
-      } else {
-        subscribeBtn.textContent = 'Подписаться';
-        subscribeBtn.classList.remove('unsubscribe');
-      }
-    }
-
-    async function loadMessages() {
-      const messagesRef = database.ref(`messages/${currentChatId}`);
+    // Load messages from Firebase
+    function loadMessages() {
+      const messagesRef = database.ref(`chats/${currentChat.id}/messages`);
       
-      const snapshot = await messagesRef.once('value');
-      if (snapshot.exists()) {
-        const messages = snapshot.val();
-        for (const messageId in messages) {
-          processMessage(messageId, messages[messageId]);
+      messagesRef.on('value', (snapshot) => {
+        messages = [];
+        const data = snapshot.val();
+        
+        if (data) {
+          Object.keys(data).forEach(key => {
+            messages.push({ id: key, ...data[key] });
+          });
+          messages.sort((a, b) => a.timestamp - b.timestamp);
         }
-      }
-      
-      messagesRef.on('child_added', (snapshot) => {
-        processMessage(snapshot.key, snapshot.val());
-      });
-
-      messagesRef.on('child_changed', (snapshot) => {
-        processMessage(snapshot.key, snapshot.val(), true);
+        
+        renderMessages();
+        updateEmptyState();
       });
     }
 
-    function processMessage(messageId, messageData, isUpdate = false) {
-      if (displayedMessageIds.has(messageId) && !isUpdate) {
+    // Render messages in the chat
+    function renderMessages() {
+      elements.messagesContainer.innerHTML = '';
+      
+      if (messages.length === 0) {
+        elements.emptyChat.style.display = 'flex';
         return;
       }
       
-      let decrypted = null;
+      elements.emptyChat.style.display = 'none';
       
-      if (messageData.encryptedData) {
-        decrypted = decryptData(messageData.encryptedData);
-      } else if (messageData.text || messageData.type === 'service' || messageData.type === 'call') {
-        decrypted = messageData;
-      }
+      messages.forEach(message => {
+        const messageElement = createMessageElement(message);
+        elements.messagesContainer.appendChild(messageElement);
+      });
       
-      if (decrypted) {
-        const message = { id: messageId, ...decrypted };
-        
-        // Сохраняем сообщение в карту
-        allMessages.set(messageId, message);
-        displayedMessageIds.add(messageId);
-        
-        if (isUpdate) {
-          updateMessageDisplay(message);
-        } else {
-          displayMessage(message);
-        }
-      }
-    }
-
-    async function displayMessage(message) {
-      const container = document.getElementById('messagesContainer');
-      
-      const noMessages = container.querySelector('.no-messages');
-      if (noMessages) noMessages.remove();
-      
-      if (message.type === 'call') {
-        displayCallMessage(message);
-        return;
-      }
-
-      const messageEl = document.createElement('div');
-      
-      if (message.type === 'service') {
-        displayServiceMessage(message);
-        return;
-      }
-
-      const isOwn = message.sender === currentUserId;
-      const isChannelMessage = isChannel && message.sender === currentChatData.createdBy;
-      const showHeader = (isGroupChat && !isOwn) || (isChannel && !isChannelMessage);
-      
-      messageEl.className = `message ${isOwn ? 'own' : ''} ${isChannel ? 'channel' : ''} ${isGroupChat ? 'group' : ''} ${message.pinned ? 'pinned-message' : ''}`;
-      messageEl.dataset.messageId = message.id;
-      messageEl.dataset.timestamp = message.timestamp;
-      
-      // Загружаем данные отправителя для аватарки
-      let senderAvatar = '';
-      let senderName = message.sender;
-      let senderRole = '';
-      
-      if (showHeader) {
-        try {
-          const userProfile = await getUserProfile(message.sender);
-          if (userProfile) {
-            senderName = userProfile.username || 'Пользователь';
-            
-            // Определяем роль в группе/канале
-            if (isGroupChat || isChannel) {
-              if (message.sender === currentChatData.createdBy) {
-                senderRole = '<div class="message-role role-creator">Создатель</div>';
-              } else if (currentChatData.admins && currentChatData.admins.includes(message.sender)) {
-                senderRole = '<div class="message-role role-admin">Админ</div>';
-              }
-            }
-          }
-        } catch (error) {
-          console.error('Ошибка загрузки профиля отправителя:', error);
-        }
-      }
-      
-      let avatar = '';
-      if (showHeader && !isChannelMessage) {
-        const userProfile = await getUserProfile(message.sender);
-        const avatarUrl = userProfile ? userProfile.avatar : null;
-        const avatarInitial = userProfile && userProfile.username ? userProfile.username.charAt(0).toUpperCase() : 'U';
-        
-        avatar = `<div class="message-avatar" onclick="openUserProfile('${message.sender}')" style="${avatarUrl ? `background-image: url(${avatarUrl})` : ''}">${avatarUrl ? '' : avatarInitial}</div>`;
-      }
-      
-      let replyContent = '';
-      if (message.replyTo) {
-        const repliedMessage = allMessages.get(message.replyTo);
-        if (repliedMessage) {
-          replyContent = `
-            <div class="reply-preview" onclick="scrollToMessage('${message.replyTo}')">
-              <div class="reply-sender">${repliedMessage.senderName || 'Пользователь'}</div>
-              <div class="reply-text">${repliedMessage.text || 'Сообщение'}</div>
-            </div>
-          `;
-        }
-      }
-      
-      let reactions = '';
-      if (message.reactions && Object.keys(message.reactions).length > 0) {
-        reactions = `<div class="reactions">${
-          Object.entries(message.reactions).map(([emoji, users]) => {
-            const userList = Array.isArray(users) ? users.join(', ') : 'Пользователи';
-            const hasUserReaction = Array.isArray(users) ? users.includes(currentUserId) : false;
-            const reactionClass = hasUserReaction ? ' user-reaction' : '';
-            return `
-              <div class="reaction${reactionClass}" onclick="toggleReaction('${message.id}', '${emoji}')">
-                ${emoji} <span class="reaction-count">${Array.isArray(users) ? users.length : 1}</span>
-                <div class="reaction-users">${userList}</div>
-              </div>
-            `;
-          }).join('')
-        }</div>`;
-      }
-      
-      let statusIcons = '';
-      if (isOwn) {
-        if (message.readBy && message.readBy.length > 0) {
-          statusIcons = '<div class="message-status"><i class="fas fa-check-double status-icon read"></i><i class="fas fa-check-double status-icon read"></i></div>';
-        } else if (message.delivered) {
-          statusIcons = '<div class="message-status"><i class="fas fa-check-double status-icon"></i><i class="fas fa-check-double status-icon"></i></div>';
-        } else {
-          statusIcons = '<div class="message-status"><i class="fas fa-check status-icon"></i></div>';
-        }
-      }
-      
-      let messageText = message.text || '';
-      if (messageText) {
-        const urlRegex = /(https?:\/\/[^\s]+)/g;
-        messageText = messageText.replace(urlRegex, '<a href="$1" target="_blank" onclick="event.stopPropagation()">$1</a>');
-      }
-      
-      let content = '';
-      if (message.image) {
-        content = `
-          ${replyContent}
-          ${showHeader ? `<div class="message-header">
-            <div class="sender-name" onclick="openUserProfile('${message.sender}')">${senderName}</div>
-            ${senderRole}
-          </div>` : ''}
-          <img src="${message.image}" class="message-image" onclick="openImage('${message.image}')">
-          ${messageText ? `<div class="message-text">${messageText}</div>` : ''}
-          ${reactions}
-          <div class="message-time">${formatTime(message.timestamp)} ${statusIcons}</div>
-        `;
-      } else if (message.sticker) {
-        content = `
-          ${replyContent}
-          ${showHeader ? `<div class="message-header">
-            <div class="sender-name" onclick="openUserProfile('${message.sender}')">${senderName}</div>
-            ${senderRole}
-          </div>` : ''}
-          <div class="message-sticker">${message.sticker}</div>
-          ${reactions}
-          <div class="message-time">${formatTime(message.timestamp)} ${statusIcons}</div>
-        `;
-      } else {
-        content = `
-          ${replyContent}
-          ${showHeader ? `<div class="message-header">
-            <div class="sender-name" onclick="openUserProfile('${message.sender}')">${senderName}</div>
-            ${senderRole}
-          </div>` : ''}
-          <div class="message-text">${messageText}</div>
-          ${reactions}
-          <div class="message-time">${formatTime(message.timestamp)} ${statusIcons}</div>
-        `;
-      }
-      
-      messageEl.innerHTML = `${avatar}<div class="message-content">${content}</div>`;
-      
-      setupMessageInteractions(messageEl, message);
-      container.appendChild(messageEl);
-      
-      // Автоскролл только для новых сообщений
-      if (!message.delivered && !isUpdate) {
-        scrollToBottom();
-      }
-    }
-
-    function displayCallMessage(message) {
-      const container = document.getElementById('messagesContainer');
-      const callEl = document.createElement('div');
-      callEl.className = 'message call-message';
-      callEl.dataset.messageId = message.id;
-      
-      const isIncoming = message.sender !== currentUserId;
-      const callTitle = isIncoming ? 'Входящий звонок' : 'Исходящий звонок';
-      
-      let callDescription = '';
-      if (isIncoming) {
-        callDescription = `${message.senderName || 'Пользователь'} звонит вам`;
-      } else {
-        callDescription = 'Вы звоните собеседнику';
-      }
-      
-      callEl.innerHTML = `
-        <div class="call-message-content">
-          <div class="call-icon">
-            <i class="fas fa-phone"></i>
-          </div>
-          <div class="call-title">${callTitle}</div>
-          <div class="call-description">${callDescription}</div>
-          ${isIncoming ? `
-            <div class="call-buttons">
-              <button class="call-accept-btn" onclick="acceptCall('${message.callId}')">
-                <i class="fas fa-phone"></i> Принять
-              </button>
-              <button class="call-decline-btn" onclick="declineCall('${message.id}')">
-                <i class="fas fa-times"></i> Отклонить
-              </button>
-            </div>
-          ` : `
-            <div class="call-buttons">
-              <button class="call-decline-btn" onclick="cancelCall('${message.id}')">
-                <i class="fas fa-times"></i> Отменить
-              </button>
-            </div>
-          `}
-          <div class="message-time">${formatTime(message.timestamp)}</div>
-        </div>
-      `;
-      
-      container.appendChild(callEl);
       scrollToBottom();
     }
 
-    function updateMessageDisplay(message) {
-      const existingMessage = document.querySelector(`[data-message-id="${message.id}"]`);
-      if (existingMessage) {
-        // Сохраняем позицию скролла
-        const container = document.getElementById('messagesContainer');
-        const scrollBefore = container.scrollTop;
-        const scrollHeightBefore = container.scrollHeight;
-        
-        existingMessage.remove();
-        displayMessage(message);
-        
-        // Восстанавливаем позицию скролла
-        const scrollHeightAfter = container.scrollHeight;
-        const scrollDiff = scrollHeightAfter - scrollHeightBefore;
-        container.scrollTop = scrollBefore + scrollDiff;
+    // Create message element
+    function createMessageElement(message) {
+      const messageDiv = document.createElement('div');
+      messageDiv.className = 'message';
+      messageDiv.id = `message-${message.id}`;
+      
+      if (message.senderId === currentUser.id) {
+        messageDiv.classList.add('own');
       }
-    }
-
-    function displayServiceMessage(message) {
-      const container = document.getElementById('messagesContainer');
-      const serviceEl = document.createElement('div');
-      serviceEl.className = 'service-message';
-      serviceEl.innerHTML = `<div class="service-content">${message.text}</div>`;
-      container.appendChild(serviceEl);
-    }
-
-    function setupMessageInteractions(messageEl, message) {
-      const contentEl = messageEl.querySelector('.message-content');
       
-      contentEl.addEventListener('contextmenu', (e) => {
-        e.preventDefault();
-        showMessageContextMenu(e, message);
-      });
-      
-      contentEl.addEventListener('mousedown', (e) => {
-        if (e.button === 0) {
-          longPressTimer = setTimeout(() => {
-            showMessageContextMenu(e, message);
-          }, 500);
-        }
-      });
-      
-      contentEl.addEventListener('mouseup', clearLongPressTimer);
-      contentEl.addEventListener('mouseleave', clearLongPressTimer);
-      
-      contentEl.addEventListener('touchstart', (e) => {
-        longPressTimer = setTimeout(() => {
-          showMessageContextMenu(e.touches[0], message);
-        }, 500);
-      });
-      
-      contentEl.addEventListener('touchend', clearLongPressTimer);
-      contentEl.addEventListener('touchmove', clearLongPressTimer);
-    }
-
-    function clearLongPressTimer() {
-      if (longPressTimer) {
-        clearTimeout(longPressTimer);
-        longPressTimer = null;
+      if (isChannel) {
+        messageDiv.classList.add('channel');
       }
-    }
-
-    function openUserProfile(userId) {
-      window.open(`https://hamburgerchat.github.io/profile.html?id=${userId}`, '_blank');
-    }
-
-    function showMessageContextMenu(event, message) {
-      clearLongPressTimer();
-      selectedMessage = message;
-      const menu = document.getElementById('messageContextMenu');
       
-      // Настраиваем видимость пунктов меню в зависимости от прав
-      const isOwnMessage = message.sender === currentUserId;
-      const canModify = isOwnMessage || isAdmin || isCreator;
+      if (message.type === 'call') {
+        messageDiv.classList.add('call-message');
+      }
       
-      const replyContextItem = document.getElementById('replyContextItem');
-      const pinContextItem = document.getElementById('pinContextItem');
-      const deleteContextItem = document.getElementById('deleteContextItem');
+      if (message.pinned) {
+        messageDiv.classList.add('pinned-message');
+      }
       
-      // В каналах обычные пользователи могут только ставить реакции
-      if (isChannel && !isAdmin && !isCreator) {
-        replyContextItem.style.display = 'none';
-        pinContextItem.style.display = 'none';
-        deleteContextItem.style.display = 'none';
+      let messageHTML = '';
+      
+      if (message.type === 'call') {
+        messageHTML = `
+          <div class="call-message-content">
+            <div class="call-icon">
+              <i class="fas ${message.callType === 'video' ? 'fa-video' : 'fa-phone'}"></i>
+            </div>
+            <div class="call-title">${message.callTitle || 'Звонок'}</div>
+            <div class="call-description">${message.callDescription || ''}</div>
+            ${message.callActive ? `
+              <div class="call-buttons">
+                <button class="call-accept-btn" onclick="joinCall('${message.callId}')">
+                  <i class="fas fa-phone"></i> Присоединиться
+                </button>
+                <button class="call-decline-btn" onclick="declineCall('${message.callId}')">
+                  <i class="fas fa-times"></i> Отклонить
+                </button>
+              </div>
+            ` : ''}
+          </div>
+        `;
+      } else if (message.type === 'service') {
+        messageHTML = `
+          <div class="service-message">
+            <div class="service-content">
+              ${message.text}
+            </div>
+          </div>
+        `;
       } else {
-        replyContextItem.style.display = 'flex';
-        pinContextItem.style.display = canModify ? 'flex' : 'none';
-        deleteContextItem.style.display = canModify ? 'flex' : 'none';
-      }
-      
-      const pinText = document.getElementById('pinText');
-      pinText.textContent = message.pinned ? 'Открепить' : 'Закрепить';
-      
-      menu.style.display = 'block';
-      
-      const x = event.clientX || (event.touches && event.touches[0].clientX) || 100;
-      const y = event.clientY || (event.touches && event.touches[0].clientY) || 100;
-      
-      menu.style.left = Math.min(x, window.innerWidth - 200) + 'px';
-      menu.style.top = Math.min(y, window.innerHeight - 300) + 'px';
-      
-      document.getElementById('overlay').style.display = 'block';
-    }
-
-    async function loadPinnedMessage() {
-      try {
-        const pinnedRef = database.ref(`pinnedMessages/${currentChatId}`);
-        const snapshot = await pinnedRef.once('value');
+        const showAvatar = !isChannel && !messageDiv.classList.contains('own') && 
+                          (message.senderId !== messages[messages.indexOf(message)-1]?.senderId);
         
-        if (snapshot.exists()) {
-          const pinnedData = snapshot.val();
-          const decryptedData = decryptData(pinnedData.encryptedData);
-          
-          if (decryptedData) {
-            document.getElementById('pinnedMessageTop').style.display = 'block';
-            document.getElementById('pinnedMessageContent').textContent = 
-              decryptedData.type === 'sticker' ? '📎 Стикер' : (decryptedData.text || 'Сообщение');
-            document.getElementById('pinnedMessageInfo').textContent = 
-              `Закрепил: ${decryptedData.pinnedBy} • ${formatTime(decryptedData.pinnedAt)}`;
-          }
-        } else {
-          document.getElementById('pinnedMessageTop').style.display = 'none';
-        }
-      } catch (error) {
-        console.error('Ошибка загрузки закреплённого сообщения:', error);
-      }
-    }
-
-    async function pinMessage(messageId) {
-      try {
-        const message = allMessages.get(messageId);
-        if (!message) return;
-        
-        const pinnedData = {
-          messageId: messageId,
-          text: message.text,
-          type: message.type,
-          sender: message.sender,
-          pinnedBy: currentUser,
-          pinnedAt: Date.now(),
-          timestamp: message.timestamp
-        };
-        
-        const encryptedPinnedData = encryptData(pinnedData);
-        
-        await database.ref(`pinnedMessages/${currentChatId}`).set({
-          encryptedData: encryptedPinnedData,
-          pinnedAt: Date.now()
-        });
-        
-        loadPinnedMessage();
-        
-        showNotification(`${currentUser} закрепил(а) сообщение`);
-        
-      } catch (error) {
-        console.error('Ошибка закрепления сообщения:', error);
-        alert('Ошибка при закреплении сообщения');
-      }
-    }
-
-    async function unpinMessage() {
-      try {
-        await database.ref(`pinnedMessages/${currentChatId}`).remove();
-        loadPinnedMessage();
-      } catch (error) {
-        console.error('Ошибка открепления сообщения:', error);
-      }
-    }
-
-    function scrollToPinnedMessage() {
-      const pinnedRef = database.ref(`pinnedMessages/${currentChatId}`);
-      pinnedRef.once('value').then((snapshot) => {
-        if (snapshot.exists()) {
-          const pinnedData = snapshot.val();
-          const decryptedData = decryptData(pinnedData.encryptedData);
-          if (decryptedData) {
-            scrollToMessage(decryptedData.messageId);
-          }
-        }
-      });
-    }
-
-    async function loadAllStickerPacks() {
-      try {
-        const response = await fetch('https://api.allorigins.win/raw?url=https://bdd.somroti-yt.workers.dev/get/HMBR_AllStickers');
-        allStickerPacks = await response.json();
-        displaySavedStickers();
-      } catch (error) {
-        console.error('Ошибка загрузки стикерпаков:', error);
-      }
-    }
-
-    function displaySavedStickers() {
-      const container = document.getElementById('stickerPacks');
-      container.innerHTML = '';
-      
-      if (stickerPacks.length === 0) {
-        container.innerHTML = `
-          <div style="grid-column: 1 / -1; text-align: center; padding: 2rem; color: var(--text-secondary);">
-            <i class="fas fa-sticker" style="font-size: 2rem; margin-bottom: 1rem; opacity: 0.5;"></i>
-            <div>Нет сохранённых стикерпаков</div>
-            <div style="font-size: 0.8rem; margin-top: 0.5rem;">Используйте вкладку "Поиск" чтобы найти стикеры</div>
+        messageHTML = `
+          ${showAvatar ? `<div class="message-avatar" style="background-image: url('${message.senderAvatar || ''}')">${message.senderName ? message.senderName.charAt(0) : 'U'}</div>` : ''}
+          <div class="message-content" data-message-id="${message.id}">
+            ${!isChannel && !messageDiv.classList.contains('own') ? `
+              <div class="message-header">
+                <span class="sender-name">${message.senderName || 'Пользователь'}</span>
+                ${message.senderRole ? `<span class="message-role ${message.senderRole === 'creator' ? 'role-creator' : message.senderRole === 'admin' ? 'role-admin' : ''}">${message.senderRole === 'creator' ? 'Создатель' : message.senderRole === 'admin' ? 'Админ' : ''}</span>` : ''}
+              </div>
+            ` : ''}
+            ${message.replyTo ? `
+              <div class="reply-preview" data-reply-id="${message.replyTo}">
+                <div class="reply-sender">${getMessageSenderName(message.replyTo)}</div>
+                <div class="reply-text">${getMessageText(message.replyTo)}</div>
+              </div>
+            ` : ''}
+            <div class="message-text">${formatMessageText(message.text)}</div>
+            ${message.image ? `<img src="${message.image}" class="message-image" alt="Изображение">` : ''}
+            ${message.sticker ? `<div class="message-sticker">${message.sticker}</div>` : ''}
+            <div class="message-time">
+              ${formatTime(message.timestamp)}
+              ${messageDiv.classList.contains('own') ? `
+                <div class="message-status">
+                  <span class="status-icon ${message.read ? 'read' : ''}">
+                    <i class="fas ${message.read ? 'fa-check-double' : 'fa-check'}"></i>
+                  </span>
+                </div>
+              ` : ''}
+            </div>
+            ${message.reactions && Object.keys(message.reactions).length > 0 ? `
+              <div class="reactions">
+                ${Object.entries(message.reactions).map(([reaction, users]) => `
+                  <div class="reaction ${users.includes(currentUser.id) ? 'user-reaction' : ''}" data-reaction="${reaction}">
+                    ${reaction}
+                    <span class="reaction-count">${users.length}</span>
+                    <div class="reaction-users">
+                      ${users.map(userId => getUserName(userId)).join(', ')}
+                    </div>
+                  </div>
+                `).join('')}
+              </div>
+            ` : ''}
           </div>
         `;
-        return;
       }
       
-      stickerPacks.forEach(packName => {
-        const packElement = document.createElement('div');
-        packElement.className = 'sticker-pack';
-        packElement.innerHTML = `
-          <div style="width: 50px; height: 50px; background: var(--accent-gradient); border-radius: 0.5rem; margin: 0 auto 0.5rem; display: flex; align-items: center; justify-content: center;">
-            <i class="fas fa-sticker" style="color: white; font-size: 1.5rem;"></i>
-          </div>
-          <div class="sticker-pack-name">${packName}</div>
-        `;
-        
-        packElement.addEventListener('click', () => {
-          loadStickerPack(packName);
-        });
-        
-        container.appendChild(packElement);
-      });
+      messageDiv.innerHTML = messageHTML;
+      return messageDiv;
     }
 
-    function displaySearchStickers() {
-      const container = document.getElementById('stickerPacks');
-      container.innerHTML = '';
+    // Format message text (links, line breaks)
+    function formatMessageText(text) {
+      if (!text) return '';
       
-      allStickerPacks.forEach(packName => {
-        const isSaved = stickerPacks.includes(packName);
-        const packElement = document.createElement('div');
-        packElement.className = 'sticker-pack';
-        packElement.innerHTML = `
-          <div style="width: 50px; height: 50px; background: ${isSaved ? 'var(--success-color)' : 'var(--accent-gradient)'}; border-radius: 0.5rem; margin: 0 auto 0.5rem; display: flex; align-items: center; justify-content: center;">
-            <i class="fas fa-sticker" style="color: white; font-size: 1.5rem;"></i>
-          </div>
-          <div class="sticker-pack-name">${packName}</div>
-          ${isSaved ? '<div style="font-size: 0.7rem; color: var(--success-color);">✓ В коллекции</div>' : ''}
-        `;
-        
-        packElement.addEventListener('click', () => {
-          loadStickerPack(packName);
-        });
-        
-        container.appendChild(packElement);
-      });
+      // Replace URLs with links
+      const urlRegex = /(https?:\/\/[^\s]+)/g;
+      text = text.replace(urlRegex, '<a href="$1" target="_blank">$1</a>');
+      
+      // Replace line breaks with <br>
+      text = text.replace(/\n/g, '<br>');
+      
+      return text;
     }
 
-    async function loadStickerPack(packName) {
-      try {
-        const response = await fetch(`https://api.allorigins.win/raw?url=https://bdd.somroti-yt.workers.dev/get/HMBR_StickerPack_${encodeURIComponent(packName)}`);
-        const packData = await response.json();
-        
-        document.getElementById('stickerPackTitle').textContent = `${packData.name} by ${packData.author}`;
-        document.getElementById('stickerViewStickers').innerHTML = '';
-        
-        packData.stickers.forEach((stickerUrl, index) => {
-          const stickerElement = document.createElement('div');
-          stickerElement.className = 'sticker-view-sticker';
-          stickerElement.innerHTML = `<img src="${stickerUrl}" alt="Стикер ${index + 1}" style="width: 100%; height: auto;">`;
-          
-          stickerElement.addEventListener('click', () => {
-            sendStickerAsImage(stickerUrl);
-          });
-          
-          document.getElementById('stickerViewStickers').appendChild(stickerElement);
-        });
-        
-        document.getElementById('stickerView').style.display = 'flex';
-        const isSaved = stickerPacks.includes(packName);
-        document.getElementById('addStickerPack').style.display = isSaved ? 'none' : 'block';
-        document.getElementById('addStickerPack').onclick = () => addStickerPack(packName);
-        
-      } catch (error) {
-        console.error('Ошибка загрузки стикерпака:', error);
-        alert('Ошибка загрузки стикерпака');
-      }
-    }
-
-    function addStickerPack(packName) {
-      if (!stickerPacks.includes(packName)) {
-        stickerPacks.push(packName);
-        localStorage.setItem('hamburger_sticker_packs', JSON.stringify(stickerPacks));
-        alert(`Стикерпак "${packName}" добавлен в коллекцию!`);
-        document.getElementById('addStickerPack').style.display = 'none';
-        
-        const activeTab = document.querySelector('.sticker-tab.active').dataset.tab;
-        if (activeTab === 'search') {
-          displaySearchStickers();
-        }
-      }
-    }
-
-    async function sendStickerAsImage(stickerUrl) {
-      // В каналах могут отправлять только админы и создатель - ИСПРАВЛЕНИЕ: правильная проверка прав
-      if (isChannel && !isAdmin && !isCreator) {
-        alert('В каналах могут отправлять сообщения только администраторы');
-        return;
-      }
-      
-      try {
-        const apiKey = "02cf7a0dc37b8a8adaedc9784752a3db";
-        const formData = new FormData();
-        
-        const response = await fetch(stickerUrl);
-        const blob = await response.blob();
-        
-        const reader = new FileReader();
-        reader.readAsDataURL(blob);
-        
-        reader.onload = async function() {
-          const base64 = reader.result.split(',')[1];
-          
-          formData.append("image", base64);
-          formData.append("key", apiKey);
-
-          const uploadResponse = await fetch("https://api.imgbb.com/1/upload", {
-            method: "POST",
-            body: formData,
-          });
-          
-          const data = await uploadResponse.json();
-          const imageUrl = data.data?.url;
-          
-          if (!imageUrl) throw new Error('Загрузка стикера не удалась');
-          
-          const messageData = {
-            image: imageUrl,
-            sender: currentUserId,
-            timestamp: Date.now(),
-            type: 'image',
-            delivered: false
-          };
-          
-          const encrypted = encryptData(messageData);
-          const messageId = Date.now().toString();
-          
-          await database.ref(`messages/${currentChatId}/${messageId}`).set({
-            encryptedData: encrypted,
-            timestamp: Date.now()
-          });
-          
-          setTimeout(async () => {
-            messageData.delivered = true;
-            const updatedEncrypted = encryptData(messageData);
-            await database.ref(`messages/${currentChatId}/${messageId}`).update({
-              encryptedData: updatedEncrypted
-            });
-          }, 1000);
-          
-          await updateLastMessage('Стикер');
-          
-          closeAllModals();
-        };
-        
-      } catch (error) {
-        console.error('Ошибка отправки стикера:', error);
-        alert('Ошибка отправки стикера: ' + error.message);
-      }
-    }
-
-    function setupEventListeners() {
-      document.getElementById('backButton').addEventListener('click', () => {
-        window.location.href = 'https://hamburgerchat.github.io/main.html';
-      });
-      
-      document.getElementById('callButton').addEventListener('click', startCall);
-      
-      document.getElementById('menuToggle').addEventListener('click', (e) => {
-        e.stopPropagation();
-        const menu = document.getElementById('chatMenu');
-        menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
-        document.getElementById('overlay').style.display = 'block';
-      });
-      
-      document.querySelectorAll('.menu-item').forEach(item => {
-        item.addEventListener('click', function() {
-          handleMenuAction(this.dataset.action);
-        });
-      });
-      
-      document.querySelectorAll('.context-item, .reaction-btn').forEach(item => {
-        item.addEventListener('click', function() {
-          handleContextAction(this.dataset.action || this.dataset.reaction);
-        });
-      });
-      
-      const input = document.getElementById('messageInput');
-      const sendBtn = document.getElementById('sendButton');
-      
-      input.addEventListener('input', function() {
-        sendBtn.disabled = !this.value.trim();
-        this.style.height = 'auto';
-        this.style.height = Math.min(this.scrollHeight, 100) + 'px';
-      });
-      
-      input.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter' && !e.shiftKey) {
-          e.preventDefault();
-          if (!sendBtn.disabled) sendMessage();
-        }
-      });
-      
-      sendBtn.addEventListener('click', sendMessage);
-      
-      document.getElementById('attachmentBtn').addEventListener('click', () => {
-        document.getElementById('imageUpload').click();
-      });
-      
-      document.getElementById('imageUpload').addEventListener('change', handleImageUpload);
-      
-      document.getElementById('stickerBtn').addEventListener('click', (e) => {
-        e.stopPropagation();
-        const panel = document.getElementById('stickerPanel');
-        panel.style.display = panel.style.display === 'flex' ? 'none' : 'flex';
-        displaySavedStickers();
-      });
-      
-      document.querySelectorAll('.sticker-tab').forEach(tab => {
-        tab.addEventListener('click', function() {
-          document.querySelectorAll('.sticker-tab').forEach(t => t.classList.remove('active'));
-          this.classList.add('active');
-          
-          if (this.dataset.tab === 'saved') {
-            displaySavedStickers();
-          } else {
-            displaySearchStickers();
-          }
-        });
-      });
-      
-      document.getElementById('stickerSearch').addEventListener('input', (e) => {
-        const query = e.target.value.toLowerCase();
-        const packs = document.querySelectorAll('.sticker-pack');
-        const activeTab = document.querySelector('.sticker-tab.active').dataset.tab;
-        
-        packs.forEach(pack => {
-          const name = pack.querySelector('.sticker-pack-name').textContent.toLowerCase();
-          pack.style.display = name.includes(query) ? 'block' : 'none';
-        });
-      });
-      
-      document.getElementById('closeStickerView').addEventListener('click', closeStickerView);
-      
-      document.getElementById('cancelReply').addEventListener('click', cancelReply);
-      
-      document.getElementById('overlay').addEventListener('click', closeAllModals);
-      
-      document.getElementById('chatInfo').addEventListener('click', () => {
-        if (isGroupChat || isChannel) {
-          window.open(`https://hamburgerchat.github.io/profile.html?id=${currentChatId}`, '_blank');
-        } else {
-          const otherUserId = Object.keys(currentChatData.participants).find(id => id !== currentUserId);
-          if (otherUserId) {
-            window.open(`https://hamburgerchat.github.io/profile.html?id=${otherUserId}`, '_blank');
-          }
-        }
-      });
-
-      document.getElementById('pinnedMessageTop').addEventListener('click', scrollToPinnedMessage);
-      document.getElementById('unpinBtn').addEventListener('click', (e) => {
-        e.stopPropagation();
-        unpinMessage();
-      });
-      
-      document.getElementById('joinGroupBtn').addEventListener('click', joinGroup);
-      
-      // Обработчики для каналов
-      document.getElementById('channelReactBtn').addEventListener('click', () => {
-        // Показываем панель реакций для последнего сообщения
-        const messages = Array.from(allMessages.values());
-        if (messages.length > 0) {
-          const lastMessage = messages[messages.length - 1];
-          showQuickReactions(lastMessage);
-        }
-      });
-      
-      document.getElementById('channelShareBtn').addEventListener('click', () => {
-        const chatLink = `https://hamburgerchat.github.io/chat.html?id=${currentChatId}`;
-        navigator.clipboard.writeText(chatLink).then(() => {
-          showNotification('Ссылка скопирована в буфер обмена');
-        });
-      });
-      
-      document.getElementById('subscribeBtn').addEventListener('click', toggleSubscription);
-    }
-    
-    // Быстрые реакции для каналов
-    function showQuickReactions(message) {
-      const reactionMenu = document.createElement('div');
-      reactionMenu.className = 'message-context-menu';
-      reactionMenu.style.position = 'fixed';
-      reactionMenu.style.bottom = '100px';
-      reactionMenu.style.left = '50%';
-      reactionMenu.style.transform = 'translateX(-50%)';
-      reactionMenu.innerHTML = `
-        <div class="reaction-buttons">
-          ${allReactions.map(reaction => `
-            <button class="reaction-btn" data-reaction="${reaction}">${reaction}</button>
-          `).join('')}
-        </div>
-      `;
-      
-      document.body.appendChild(reactionMenu);
-      document.getElementById('overlay').style.display = 'block';
-      
-      // Обработчики для реакций
-      reactionMenu.querySelectorAll('.reaction-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-          e.stopPropagation();
-          toggleReaction(message.id, btn.dataset.reaction);
-          document.body.removeChild(reactionMenu);
-          document.getElementById('overlay').style.display = 'none';
-        });
-      });
-      
-      // Закрытие при клике на оверлей
-      document.getElementById('overlay').addEventListener('click', () => {
-        if (document.body.contains(reactionMenu)) {
-          document.body.removeChild(reactionMenu);
-        }
-      }, { once: true });
-    }
-    
-    // Подписка/отписка от канала
-    async function toggleSubscription() {
-      try {
-        if (isGroupMember) {
-          // Отписываемся
-          await database.ref(`userChats/${currentUserId}/${currentChatId}`).remove();
-          isGroupMember = false;
-          updateSubscribeButton();
-          showNotification('Вы отписались от канала');
-          
-          // Возвращаем на главную через секунду
-          setTimeout(() => {
-            window.location.href = 'https://hamburgerchat.github.io/main.html';
-          }, 1000);
-        } else {
-          // Подписываемся
-          await joinGroup();
-        }
-      } catch (error) {
-        console.error('Ошибка изменения подписки:', error);
-        alert('Ошибка: ' + error.message);
-      }
-    }
-    
-async function startCall() {
-  if (isGroupChat || isChannel) {
-    alert('Звонки доступны только в личных чатах');
-    return;
-  }
-  
-  if (!isGroupMember) {
-    alert('Вы не можете звонить в этом чате');
-    return;
-  }
-  
-  try {
-    const callId = 'call_' + Date.now();
-    
-    const otherUserId = Object.keys(currentChatData.participants).find(id => id !== currentUserId);
-    if (!otherUserId) {
-      throw new Error('Не удалось определить собеседника');
-    }
-
-    // Создаем корректный оффер для звонка с правильным SDP
-    const offer = {
-      type: 'offer',
-      sdp: `v=0
-o=- ${Date.now()} 2 IN IP4 127.0.0.1
-s=-
-t=0 0
-a=group:BUNDLE 0
-a=msid-semantic: WMS
-m=audio 9 UDP/TLS/RTP/SAVPF 111
-c=IN IP4 0.0.0.0
-a=rtcp:9 IN IP4 0.0.0.0
-a=ice-ufrag:${Math.random().toString(36).substring(2, 15)}
-a=ice-pwd:${Math.random().toString(36).substring(2, 15)}
-a=ice-options:trickle
-a=fingerprint:sha-256 00:11:22:33:44:55:66:77:88:99:AA:BB:CC:DD:EE:FF:00:11:22:33:44:55:66:77:88:99:AA:BB:CC:DD:EE:FF
-a=setup:actpass
-a=mid:0
-a=sendrecv
-a=rtcp-mux
-a=rtpmap:111 opus/48000/2
-a=fmtp:111 minptime=10;useinbandfec=1
-a=ssrc:${Math.floor(Math.random() * 1000000000)} cname:${Math.random().toString(36).substring(2, 10)}
-`
-    };
-
-    // Регистрация звонка в базе данных с оффером
-    const callData = {
-      id: callId,
-      sender: currentUserId,
-      participants: [currentUserId, otherUserId],
-      status: 'waiting',
-      createdAt: Date.now(),
-      chatId: currentChatId,
-      offer: JSON.stringify(offer)
-    };
-
-    const encryptedCallData = encryptData(callData);
-    
-    await database.ref(`calls/${callId}`).set({
-      encryptedData: encryptedCallData,
-      createdAt: Date.now(),
-      offer: JSON.stringify(offer)
-    });
-
-    const callMessageData = {
-      type: 'call',
-      callId: callId,
-      sender: currentUserId,
-      timestamp: Date.now(),
-      status: 'waiting'
-    };
-    
-    const encrypted = encryptData(callMessageData);
-    const messageId = Date.now().toString();
-    
-    await database.ref(`messages/${currentChatId}/${messageId}`).set({
-      encryptedData: encrypted,
-      timestamp: Date.now()
-    });
-    
-    await updateLastMessage('📞 Входящий звонок');
-    
-    showNotification('Звонок начат');
-    
-    // Перекидываем пользователя на страницу звонка
-    window.open(`https://hamburgerchat.github.io/call.html?id=${callId}`, '_blank');
-    
-  } catch (error) {
-    console.error('Ошибка начала звонка:', error);
-    alert('Ошибка при начале звонка: ' + error.message);
-  }
-}
-  
-    function acceptCall(callId) {
-      window.open(`https://hamburgerchat.github.io/call.html?id=${callId}`, '_blank');
-    }
-    
-    async function declineCall(messageId) {
-      try {
-        await database.ref(`messages/${currentChatId}/${messageId}`).remove();
-      } catch (error) {
-        console.error('Ошибка отклонения звонка:', error);
-      }
-    }
-    
-    async function cancelCall(messageId) {
-      try {
-        await database.ref(`messages/${currentChatId}/${messageId}`).remove();
-      } catch (error) {
-        console.error('Ошибка отмены звонка:', error);
-      }
-    }
-    
-    function handleContextAction(action) {
-      if (!selectedMessage) return;
-      
-      switch (action) {
-        case 'reply':
-          setReplyTo(selectedMessage);
-          break;
-        case 'copy':
-          navigator.clipboard.writeText(selectedMessage.text || '');
-          showNotification('Текст скопирован');
-          break;
-        case 'pin':
-          if (selectedMessage.pinned) {
-            unpinMessage();
-          } else {
-            pinMessage(selectedMessage.id);
-          }
-          break;
-        case 'delete':
-          deleteMessage(selectedMessage.id);
-          break;
-        default:
-          if (action) toggleReaction(selectedMessage.id, action);
-          break;
-      }
-      closeAllModals();
-    }
-
-    async function sendMessage() {
-      // В каналах могут писать только админы и создатель - ИСПРАВЛЕНИЕ: правильная проверка прав
-      if (isChannel && !isAdmin && !isCreator) {
-        alert('В каналах могут отправлять сообщения только администраторы');
-        return;
-      }
-      
-      if (!isGroupMember && (isGroupChat || isChannel)) {
-        alert('Вы не являетесь участником этого чата');
-        return;
-      }
-      
-      const input = document.getElementById('messageInput');
-      const text = input.value.trim();
-      if (!text) return;
-      
-      try {
-        const messageData = {
-          text: text,
-          sender: currentUserId,
-          timestamp: Date.now(),
-          type: 'text',
-          replyTo: replyingTo,
-          delivered: false
-        };
-        
-        const encrypted = encryptData(messageData);
-        const messageId = Date.now().toString();
-        
-        await database.ref(`messages/${currentChatId}/${messageId}`).set({
-          encryptedData: encrypted,
-          timestamp: Date.now()
-        });
-        
-        setTimeout(async () => {
-          messageData.delivered = true;
-          const updatedEncrypted = encryptData(messageData);
-          await database.ref(`messages/${currentChatId}/${messageId}`).update({
-            encryptedData: updatedEncrypted
-          });
-        }, 1000);
-        
-        await updateLastMessage(text);
-        
-        input.value = '';
-        input.style.height = 'auto';
-        document.getElementById('sendButton').disabled = true;
-        cancelReply();
-        
-      } catch (error) {
-        alert('Ошибка отправки: ' + error.message);
-      }
-    }
-
-    async function handleImageUpload(event) {
-      // В каналах могут отправлять только админы и создатель - ИСПРАВЛЕНИЕ: правильная проверка прав
-      if (isChannel && !isAdmin && !isCreator) {
-        alert('В каналах могут отправлять сообщения только администраторы');
-        return;
-      }
-      
-      if (!isGroupMember && (isGroupChat || isChannel)) {
-        alert('Вы не являетесь участником этого чата');
-        return;
-      }
-      
-      const file = event.target.files[0];
-      if (!file) return;
-      
-      try {
-        const sendBtn = document.getElementById('sendButton');
-        const originalHTML = sendBtn.innerHTML;
-        sendBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-        sendBtn.disabled = true;
-        
-        const dataUrl = await new Promise((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onload = e => resolve(e.target.result);
-          reader.onerror = reject;
-          reader.readAsDataURL(file);
-        });
-        
-        const apiKey = "02cf7a0dc37b8a8adaedc9784752a3db";
-        const formData = new FormData();
-        formData.append("image", dataUrl.split(",")[1]);
-        formData.append("key", apiKey);
-
-        const response = await fetch("https://api.imgbb.com/1/upload", {
-          method: "POST",
-          body: formData,
-        });
-        
-        const data = await response.json();
-        const imageUrl = data.data?.url;
-        
-        if (!imageUrl) throw new Error('Загрузка не удалась');
-        
-        const messageData = {
-          text: document.getElementById('messageInput').value.trim(),
-          image: imageUrl,
-          sender: currentUserId,
-          timestamp: Date.now(),
-          type: 'image',
-          delivered: false
-        };
-        
-        const encrypted = encryptData(messageData);
-        const messageId = Date.now().toString();
-        
-        await database.ref(`messages/${currentChatId}/${messageId}`).set({
-          encryptedData: encrypted,
-          timestamp: Date.now()
-        });
-        
-        setTimeout(async () => {
-          messageData.delivered = true;
-          const updatedEncrypted = encryptData(messageData);
-          await database.ref(`messages/${currentChatId}/${messageId}`).update({
-            encryptedData: updatedEncrypted
-          });
-        }, 1000);
-        
-        await updateLastMessage('Изображение');
-        
-        document.getElementById('messageInput').value = '';
-        document.getElementById('imageUpload').value = '';
-        cancelReply();
-        
-      } catch (error) {
-        alert('Ошибка загрузки: ' + error.message);
-      } finally {
-        const sendBtn = document.getElementById('sendButton');
-        sendBtn.innerHTML = '<i class="fas fa-paper-plane"></i>';
-        sendBtn.disabled = !document.getElementById('messageInput').value.trim();
-      }
-    }
-
-    async function updateLastMessage(lastMessage) {
-      if (!currentChatData) return;
-      
-      try {
-        currentChatData.lastMessage = lastMessage;
-        currentChatData.lastMessageTime = Date.now();
-        
-        const encryptedData = encryptData(currentChatData);
-        
-        await database.ref(`chats/${currentChatId}`).update({
-          encryptedData: encryptedData
-        });
-        
-      } catch (error) {
-        console.error('Ошибка обновления последнего сообщения:', error);
-      }
-    }
-
-    function setReplyTo(message) {
-      replyingTo = message.id;
-      document.getElementById('replyContent').textContent = message.text || 'Сообщение';
-      document.getElementById('replyContainer').style.display = 'flex';
-      document.getElementById('messageInput').focus();
-    }
-
-    function cancelReply() {
-      replyingTo = null;
-      document.getElementById('replyContainer').style.display = 'none';
-    }
-
-    async function toggleReaction(messageId, reaction) {
-      if (!isGroupMember && (isGroupChat || isChannel)) {
-        alert('Вы не являетесь участником этого чата');
-        return;
-      }
-      
-      try {
-        const message = allMessages.get(messageId);
-        if (!message) return;
-        
-        if (!message.reactions) message.reactions = {};
-        if (!message.reactions[reaction]) message.reactions[reaction] = [];
-        
-        const userIndex = message.reactions[reaction].indexOf(currentUserId);
-        
-        if (userIndex > -1) {
-          message.reactions[reaction].splice(userIndex, 1);
-          if (message.reactions[reaction].length === 0) {
-            delete message.reactions[reaction];
-          }
-        } else {
-          message.reactions[reaction].push(currentUserId);
-        }
-        
-        const encrypted = encryptData(message);
-        await database.ref(`messages/${currentChatId}/${messageId}`).update({
-          encryptedData: encrypted
-        });
-        
-      } catch (error) {
-        console.error('Ошибка реакции:', error);
-      }
-    }
-
-    function handleMenuAction(action) {
-      switch (action) {
-        case 'mute':
-          toggleMute();
-          break;
-        case 'clear':
-          clearHistory();
-          break;
-        case 'leave':
-          leaveGroup();
-          break;
-      }
-      closeAllModals();
-    }
-
-    function toggleMute() {
-      const muted = JSON.parse(localStorage.getItem('hamburger_muted_chats') || '[]');
-      const isMuted = muted.includes(currentChatId);
-      
-      if (isMuted) {
-        muted.splice(muted.indexOf(currentChatId), 1);
-        showNotification('Уведомления включены');
-      } else {
-        muted.push(currentChatId);
-        showNotification('Уведомления отключены');
-      }
-      
-      localStorage.setItem('hamburger_muted_chats', JSON.stringify(muted));
-    }
-
-    async function clearHistory() {
-      if (!confirm('Очистить историю чата?')) return;
-      
-      try {
-        await database.ref(`messages/${currentChatId}`).remove();
-        document.getElementById('messagesContainer').innerHTML = `
-          <div style="text-align: center; padding: 2rem; color: var(--text-secondary);">
-            <div style="font-size: 3rem; margin-bottom: 1rem;">💬</div>
-            <h3>Нет сообщений</h3>
-            <p>История чата очищена</p>
-          </div>
-        `;
-        allMessages.clear();
-        displayedMessageIds.clear();
-      } catch (error) {
-        alert('Ошибка при очистке истории');
-      }
-    }
-
-    async function leaveGroup() {
-      if (!isGroupChat && !isChannel) return;
-      
-      if (!confirm('Вы уверены, что хотите покинуть этот чат?')) return;
-      
-      try {
-        await database.ref(`userChats/${currentUserId}/${currentChatId}`).remove();
-        
-        if (currentChatData.participants && Array.isArray(currentChatData.participants)) {
-          const index = currentChatData.participants.indexOf(currentUserId);
-          if (index > -1) {
-            currentChatData.participants.splice(index, 1);
-            
-            showNotification(`${currentUser} покинул(а) чат`);
-            
-            const encrypted = encryptData(currentChatData);
-            await database.ref(`chats/${currentChatId}`).update({ 
-              encryptedData: encrypted 
-            });
-          }
-        }
-        
-        alert('Вы вышли из чата');
-        window.location.href = 'https://hamburgerchat.github.io/main.html';
-        
-      } catch (error) {
-        alert('Ошибка при выходе из чата: ' + error.message);
-      }
-    }
-
-    async function joinGroup() {
-      try {
-        if (!currentChatData.participants) {
-          currentChatData.participants = [];
-        }
-        
-        if (Array.isArray(currentChatData.participants)) {
-          if (!currentChatData.participants.includes(currentUserId)) {
-            currentChatData.participants.push(currentUserId);
-          }
-        } else {
-          currentChatData.participants[currentUserId] = true;
-        }
-        
-        const encrypted = encryptData(currentChatData);
-        await database.ref(`chats/${currentChatId}`).update({ 
-          encryptedData: encrypted 
-        });
-        
-        await database.ref(`userChats/${currentUserId}/${currentChatId}`).set(true);
-        
-        showNotification(`${currentUser} присоединился(ась) к чату`);
-        
-        isGroupMember = true;
-        document.getElementById('joinGroupContainer').style.display = 'none';
-        
-        if (isChannel) {
-          // ИСПРАВЛЕНИЕ: для каналов показываем обычный инпут если админ
-          if (isAdmin || isCreator) {
-            document.getElementById('inputContainer').style.display = 'flex';
-            document.getElementById('channelInputContainer').style.display = 'none';
-          } else {
-            document.getElementById('inputContainer').style.display = 'none';
-            document.getElementById('channelInputContainer').style.display = 'flex';
-          }
-          updateSubscribeButton();
-        } else {
-          document.getElementById('inputContainer').style.display = 'flex';
-          document.getElementById('channelInputContainer').style.display = 'none';
-        }
-        
-        await loadMessages();
-        await loadPinnedMessage();
-        
-      } catch (error) {
-        console.error('Ошибка присоединения к чату:', error);
-        alert('Ошибка при присоединении к чату: ' + error.message);
-      }
-    }
-
-    async function deleteMessage(messageId) {
-      if (!confirm('Удалить это сообщение?')) return;
-      
-      try {
-        await database.ref(`messages/${currentChatId}/${messageId}`).remove();
-      } catch (error) {
-        alert('Ошибка при удалении сообщения');
-      }
-    }
-
-    function openImage(url) {
-      window.open(url, '_blank');
-    }
-
-    function scrollToMessage(messageId) {
-      const messageElement = document.querySelector(`[data-message-id="${messageId}"]`);
-      if (messageElement) {
-        messageElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        messageElement.style.backgroundColor = 'var(--service-bg)';
-        setTimeout(() => {
-          messageElement.style.backgroundColor = '';
-        }, 2000);
-      }
-    }
-
+    // Format timestamp
     function formatTime(timestamp) {
-      if (!timestamp) return '';
       const date = new Date(timestamp);
-      return date.toLocaleTimeString('ru-RU', { 
-        hour: '2-digit', minute: '2-digit' 
+      const now = new Date();
+      const diff = now - date;
+      
+      if (diff < 60000) { // Less than 1 minute
+        return 'только что';
+      } else if (diff < 3600000) { // Less than 1 hour
+        return `${Math.floor(diff / 60000)} мин. назад`;
+      } else if (diff < 86400000) { // Less than 1 day
+        return date.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+      } else {
+        return date.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit' });
+      }
+    }
+
+    // Get message sender name by message ID
+    function getMessageSenderName(messageId) {
+      const message = messages.find(m => m.id === messageId);
+      return message ? (message.senderName || 'Пользователь') : 'Пользователь';
+    }
+
+    // Get message text by message ID
+    function getMessageText(messageId) {
+      const message = messages.find(m => m.id === messageId);
+      return message ? message.text : 'Сообщение удалено';
+    }
+
+    // Get user name by ID
+    function getUserName(userId) {
+      // In a real app, this would fetch from users database
+      return userId === currentUser.id ? 'Вы' : 'Пользователь';
+    }
+
+    // Update empty state visibility
+    function updateEmptyState() {
+      if (messages.length === 0) {
+        elements.emptyChat.style.display = 'flex';
+      } else {
+        elements.emptyChat.style.display = 'none';
+      }
+    }
+
+    // Scroll to bottom of messages
+    function scrollToBottom() {
+      elements.messagesContainer.scrollTop = elements.messagesContainer.scrollHeight;
+    }
+
+    // Setup event listeners
+    function setupEventListeners() {
+      // Back button
+      elements.backButton.addEventListener('click', () => {
+        window.history.back();
+      });
+
+      // Call buttons
+      elements.voiceCallButton.addEventListener('click', () => {
+        if (!callInProgress) {
+          startCall('voice');
+        }
+      });
+
+      elements.videoCallButton.addEventListener('click', () => {
+        if (!callInProgress) {
+          startCall('video');
+        }
+      });
+
+      // Menu toggle
+      elements.menuToggle.addEventListener('click', toggleChatMenu);
+      elements.overlay.addEventListener('click', closeAllMenus);
+
+      // Message input
+      elements.messageInput.addEventListener('input', handleMessageInput);
+      elements.messageInput.addEventListener('keydown', handleMessageKeydown);
+      elements.messageInput.addEventListener('focus', () => {
+        sendTypingStatus(true);
+      });
+      elements.messageInput.addEventListener('blur', () => {
+        sendTypingStatus(false);
+      });
+
+      // Send button
+      elements.sendButton.addEventListener('click', sendMessage);
+
+      // Reply
+      elements.cancelReply.addEventListener('click', cancelReply);
+
+      // Sticker panel
+      elements.stickerButton.addEventListener('click', toggleStickerPanel);
+
+      // Channel actions
+      elements.channelLikeButton.addEventListener('click', likeChannel);
+      elements.channelSubscribeButton.addEventListener('click', toggleChannelSubscription);
+      elements.channelShareButton.addEventListener('click', shareChannel);
+      elements.channelSubscribeBtn.addEventListener('click', toggleChannelSubscription);
+
+      // Scroll to bottom
+      elements.scrollToBottom.addEventListener('click', scrollToBottom);
+
+      // Messages container scroll
+      elements.messagesContainer.addEventListener('scroll', handleMessagesScroll);
+
+      // Message context menu
+      document.addEventListener('click', (e) => {
+        if (!e.target.closest('.message-content') && !e.target.closest('.message-context-menu')) {
+          elements.messageContextMenu.style.display = 'none';
+        }
+      });
+
+      // Reaction buttons
+      elements.reactionButtons.querySelectorAll('.reaction-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const reaction = e.target.textContent;
+          addReactionToMessage(reaction);
+          elements.messageContextMenu.style.display = 'none';
+        });
+      });
+
+      // Context menu items
+      elements.replyMessageItem.addEventListener('click', replyToMessage);
+      elements.editMessageItem.addEventListener('click', editMessage);
+      elements.copyMessageItem.addEventListener('click', copyMessageText);
+      elements.pinMessageItem.addEventListener('click', pinMessage);
+      elements.deleteMessageItem.addEventListener('click', deleteMessage);
+
+      // Sticker tabs
+      elements.stickerTabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+          elements.stickerTabs.forEach(t => t.classList.remove('active'));
+          tab.classList.add('active');
+          loadStickerPacks(tab.dataset.tab);
+        });
+      });
+
+      // Sticker view
+      elements.closeStickerView.addEventListener('click', () => {
+        elements.stickerView.style.display = 'none';
+      });
+
+      elements.addStickerPack.addEventListener('click', addStickerPack);
+
+      // Call notification
+      elements.callNotificationAccept.addEventListener('click', acceptCall);
+      elements.callNotificationDecline.addEventListener('click', declineCall);
+
+      // Unpin message
+      elements.unpinButton.addEventListener('click', unpinMessage);
+    }
+
+    // Setup Firebase listeners
+    function setupFirebaseListeners() {
+      // Listen for new messages
+      const messagesRef = database.ref(`chats/${currentChat.id}/messages`);
+      messagesRef.on('child_added', (snapshot) => {
+        const message = { id: snapshot.key, ...snapshot.val() };
+        if (!messages.find(m => m.id === message.id)) {
+          messages.push(message);
+          renderNewMessage(message);
+          updateEmptyState();
+        }
+      });
+
+      // Listen for typing status
+      const typingRef = database.ref(`chats/${currentChat.id}/typing`);
+      typingRef.on('value', (snapshot) => {
+        const typingData = snapshot.val();
+        updateTypingIndicator(typingData);
+      });
+
+      // Listen for calls
+      const callsRef = database.ref(`calls/${currentChat.id}`);
+      callsRef.on('value', (snapshot) => {
+        const callData = snapshot.val();
+        handleCallUpdate(callData);
       });
     }
 
-    function scrollToBottom() {
-      const container = document.getElementById('messagesContainer');
-      setTimeout(() => {
-        container.scrollTop = container.scrollHeight;
-      }, 100);
+    // Handle message input
+    function handleMessageInput() {
+      const text = elements.messageInput.value.trim();
+      elements.sendButton.disabled = text.length === 0;
+      
+      // Auto-resize textarea
+      elements.messageInput.style.height = 'auto';
+      elements.messageInput.style.height = Math.min(elements.messageInput.scrollHeight, 100) + 'px';
     }
 
-    function closeStickerView() {
-      document.getElementById('stickerView').style.display = 'none';
+    // Handle message keydown
+    function handleMessageKeydown(e) {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+      }
     }
 
-    function closeAllModals() {
-      document.getElementById('chatMenu').style.display = 'none';
-      document.getElementById('messageContextMenu').style.display = 'none';
-      document.getElementById('stickerPanel').style.display = 'none';
-      document.getElementById('stickerView').style.display = 'none';
-      document.getElementById('overlay').style.display = 'none';
+    // Send message
+    function sendMessage() {
+      const text = elements.messageInput.value.trim();
+      if (text.length === 0) return;
+
+      const messageData = {
+        text: text,
+        senderId: currentUser.id,
+        senderName: currentUser.name,
+        senderAvatar: currentUser.avatar,
+        timestamp: Date.now(),
+        read: false
+      };
+
+      if (replyingTo) {
+        messageData.replyTo = replyingTo;
+      }
+
+      if (editingMessage) {
+        // Update existing message
+        database.ref(`chats/${currentChat.id}/messages/${editingMessage}`).update({
+          text: text
+        });
+        cancelEdit();
+      } else {
+        // Send new message
+        database.ref(`chats/${currentChat.id}/messages`).push(messageData);
+      }
+
+      elements.messageInput.value = '';
+      elements.sendButton.disabled = true;
+      elements.messageInput.style.height = 'auto';
+      
+      if (replyingTo) {
+        cancelReply();
+      }
+      
+      sendTypingStatus(false);
     }
-    
-    function showNotification(text) {
-      const notification = document.createElement('div');
-      notification.className = 'notification';
-      notification.textContent = text;
+
+    // Send typing status
+    function sendTypingStatus(isTyping) {
+      if (isChannel) return;
       
-      document.body.appendChild(notification);
+      const typingRef = database.ref(`chats/${currentChat.id}/typing/${currentUser.id}`);
       
-      setTimeout(() => {
-        if (notification.parentNode) {
-          notification.parentNode.removeChild(notification);
+      if (isTyping) {
+        typingRef.set({
+          name: currentUser.name,
+          timestamp: Date.now()
+        });
+        
+        if (typingTimeout) {
+          clearTimeout(typingTimeout);
         }
+        
+        typingTimeout = setTimeout(() => {
+          sendTypingStatus(false);
+        }, 3000);
+      } else {
+        typingRef.remove();
+      }
+    }
+
+    // Update typing indicator
+    function updateTypingIndicator(typingData) {
+      if (!typingData || isChannel) {
+        elements.typingIndicator.style.display = 'none';
+        return;
+      }
+      
+      const typingUsers = Object.values(typingData)
+        .filter(user => user.timestamp > Date.now() - 3000)
+        .map(user => user.name);
+      
+      if (typingUsers.length > 0) {
+        elements.typingUsers.textContent = typingUsers.join(', ');
+        elements.typingIndicator.style.display = 'flex';
+      } else {
+        elements.typingIndicator.style.display = 'none';
+      }
+    }
+
+    // Start a call
+    function startCall(type) {
+      const callId = 'call_' + Date.now();
+      const callData = {
+        id: callId,
+        type: type,
+        initiator: currentUser.id,
+        participants: [currentUser.id],
+        active: true,
+        startTime: Date.now()
+      };
+
+      // Save call to database
+      database.ref(`calls/${currentChat.id}`).set(callData);
+
+      // Create call message
+      const callMessage = {
+        type: 'call',
+        callId: callId,
+        callType: type,
+        callTitle: type === 'video' ? 'Видеозвонок' : 'Голосовой звонок',
+        callDescription: 'Звонок начат',
+        callActive: true,
+        senderId: currentUser.id,
+        senderName: currentUser.name,
+        timestamp: Date.now()
+      };
+
+      database.ref(`chats/${currentChat.id}/messages`).push(callMessage);
+
+      callInProgress = true;
+      openCallPage(callId, type);
+    }
+
+    // Handle call updates
+    function handleCallUpdate(callData) {
+      if (!callData) {
+        callInProgress = false;
+        return;
+      }
+
+      // Show call notification for incoming calls
+      if (callData.active && !callData.participants.includes(currentUser.id)) {
+        showCallNotification(callData);
+      }
+    }
+
+    // Show call notification
+    function showCallNotification(callData) {
+      elements.callNotificationName.textContent = currentChat.name;
+      elements.callNotificationType.textContent = callData.type === 'video' ? 'Входящий видеозвонок' : 'Входящий звонок';
+      elements.callNotification.style.display = 'flex';
+    }
+
+    // Accept call
+    function acceptCall() {
+      const callRef = database.ref(`calls/${currentChat.id}`);
+      callRef.once('value').then(snapshot => {
+        const callData = snapshot.val();
+        if (callData) {
+          // Add user to participants
+          const participants = [...callData.participants, currentUser.id];
+          callRef.update({ participants: participants });
+          
+          // Open call page
+          openCallPage(callData.id, callData.type);
+          elements.callNotification.style.display = 'none';
+        }
+      });
+    }
+
+    // Decline call
+    function declineCall(callId) {
+      const callRef = database.ref(`calls/${currentChat.id}`);
+      callRef.update({ active: false });
+      elements.callNotification.style.display = 'none';
+    }
+
+    // Join call
+    function joinCall(callId) {
+      openCallPage(callId, 'voice'); // Default to voice, type should come from message
+    }
+
+    // Open call page
+    function openCallPage(callId, type) {
+      window.open(`deepseek_html_call.html?chatId=${currentChat.id}&callId=${callId}&type=${type}`, '_blank');
+    }
+
+    // Toggle chat menu
+    function toggleChatMenu() {
+      if (elements.chatMenu.style.display === 'block') {
+        elements.chatMenu.style.display = 'none';
+        elements.overlay.style.display = 'none';
+      } else {
+        elements.chatMenu.style.display = 'block';
+        elements.overlay.style.display = 'block';
+      }
+    }
+
+    // Close all menus
+    function closeAllMenus() {
+      elements.chatMenu.style.display = 'none';
+      elements.messageContextMenu.style.display = 'none';
+      elements.stickerPanel.style.display = 'none';
+      elements.overlay.style.display = 'none';
+    }
+
+    // Toggle sticker panel
+    function toggleStickerPanel() {
+      if (elements.stickerPanel.style.display === 'flex') {
+        elements.stickerPanel.style.display = 'none';
+        elements.overlay.style.display = 'none';
+      } else {
+        elements.stickerPanel.style.display = 'flex';
+        elements.overlay.style.display = 'block';
+        loadStickerPacks('recent');
+      }
+    }
+
+    // Load sticker packs
+    function loadStickerPacks(category) {
+      // In a real app, this would fetch from database
+      const stickers = {
+        recent: ['😀', '😂', '❤️', '👍', '🎉'],
+        favorites: ['⭐', '🔥', '💯', '👑', '🎯'],
+        packs: ['🐶', '🐱', '🐼', '🐯', '🐸']
+      };
+      
+      elements.stickerPacks.innerHTML = '';
+      
+      stickers[category].forEach(sticker => {
+        const pack = document.createElement('div');
+        pack.className = 'sticker-pack';
+        pack.innerHTML = `
+          <div style="font-size: 2rem;">${sticker}</div>
+          <div class="sticker-pack-name">${sticker}</div>
+        `;
+        pack.addEventListener('click', () => {
+          sendSticker(sticker);
+          elements.stickerPanel.style.display = 'none';
+          elements.overlay.style.display = 'none';
+        });
+        elements.stickerPacks.appendChild(pack);
+      });
+    }
+
+    // Send sticker
+    function sendSticker(sticker) {
+      const messageData = {
+        sticker: sticker,
+        senderId: currentUser.id,
+        senderName: currentUser.name,
+        senderAvatar: currentUser.avatar,
+        timestamp: Date.now(),
+        read: false
+      };
+
+      database.ref(`chats/${currentChat.id}/messages`).push(messageData);
+    }
+
+    // Like channel
+    function likeChannel() {
+      showNotification('Лайк добавлен!');
+    }
+
+    // Toggle channel subscription
+    function toggleChannelSubscription() {
+      isSubscribed = !isSubscribed;
+      elements.channelSubscribeBtn.textContent = isSubscribed ? 'Отписаться от канала' : 'Подписаться на канал';
+      elements.channelSubscribeBtn.classList.toggle('unsubscribe', isSubscribed);
+      showNotification(isSubscribed ? 'Вы подписались на канал!' : 'Вы отписались от канала');
+    }
+
+    // Share channel
+    function shareChannel() {
+      showNotification('Ссылка на канал скопирована в буфер обмена!');
+    }
+
+    // Show notification
+    function showNotification(text) {
+      elements.notificationText.textContent = text;
+      elements.notification.style.display = 'flex';
+      
+      setTimeout(() => {
+        elements.notification.style.display = 'none';
       }, 3000);
     }
+
+    // Handle messages scroll
+    function handleMessagesScroll() {
+      const scrollTop = elements.messagesContainer.scrollTop;
+      const scrollHeight = elements.messagesContainer.scrollHeight;
+      const clientHeight = elements.messagesContainer.clientHeight;
+      
+      if (scrollHeight - scrollTop - clientHeight > 200) {
+        elements.scrollToBottom.style.display = 'flex';
+      } else {
+        elements.scrollToBottom.style.display = 'none';
+      }
+    }
+
+    // Render new message
+    function renderNewMessage(message) {
+      if (elements.emptyChat.style.display === 'flex') {
+        elements.emptyChat.style.display = 'none';
+      }
+      
+      const messageElement = createMessageElement(message);
+      elements.messagesContainer.appendChild(messageElement);
+      
+      // Auto-scroll if near bottom
+      const scrollTop = elements.messagesContainer.scrollTop;
+      const scrollHeight = elements.messagesContainer.scrollHeight;
+      const clientHeight = elements.messagesContainer.clientHeight;
+      
+      if (scrollHeight - scrollTop - clientHeight < 100) {
+        scrollToBottom();
+      }
+    }
+
+    // Add reaction to message
+    function addReactionToMessage(reaction) {
+      const messageId = elements.messageContextMenu.dataset.messageId;
+      if (!messageId) return;
+      
+      const messageRef = database.ref(`chats/${currentChat.id}/messages/${messageId}/reactions/${reaction}`);
+      
+      messageRef.transaction((currentUsers) => {
+        if (currentUsers === null) {
+          return [currentUser.id];
+        } else {
+          if (currentUsers.includes(currentUser.id)) {
+            // Remove reaction if already exists
+            const filtered = currentUsers.filter(id => id !== currentUser.id);
+            return filtered.length > 0 ? filtered : null;
+          } else {
+            // Add reaction
+            return [...currentUsers, currentUser.id];
+          }
+        }
+      });
+    }
+
+    // Reply to message
+    function replyToMessage() {
+      const messageId = elements.messageContextMenu.dataset.messageId;
+      if (!messageId) return;
+      
+      replyingTo = messageId;
+      elements.replyContent.textContent = getMessageText(messageId);
+      elements.replyContainer.style.display = 'flex';
+      elements.messageInput.focus();
+      elements.messageContextMenu.style.display = 'none';
+    }
+
+    // Cancel reply
+    function cancelReply() {
+      replyingTo = null;
+      elements.replyContainer.style.display = 'none';
+    }
+
+    // Edit message
+    function editMessage() {
+      const messageId = elements.messageContextMenu.dataset.messageId;
+      if (!messageId) return;
+      
+      const message = messages.find(m => m.id === messageId);
+      if (!message || message.senderId !== currentUser.id) return;
+      
+      editingMessage = messageId;
+      elements.messageInput.value = message.text;
+      elements.messageInput.focus();
+      elements.sendButton.disabled = false;
+      elements.messageContextMenu.style.display = 'none';
+    }
+
+    // Cancel edit
+    function cancelEdit() {
+      editingMessage = null;
+      elements.messageInput.value = '';
+      elements.sendButton.disabled = true;
+    }
+
+    // Copy message text
+    function copyMessageText() {
+      const messageId = elements.messageContextMenu.dataset.messageId;
+      if (!messageId) return;
+      
+      const message = messages.find(m => m.id === messageId);
+      if (!message) return;
+      
+      navigator.clipboard.writeText(message.text).then(() => {
+        showNotification('Текст скопирован в буфер обмена');
+      });
+      elements.messageContextMenu.style.display = 'none';
+    }
+
+    // Pin message
+    function pinMessage() {
+      const messageId = elements.messageContextMenu.dataset.messageId;
+      if (!messageId) return;
+      
+      // Unpin previous pinned message
+      messages.forEach(message => {
+        if (message.pinned) {
+          database.ref(`chats/${currentChat.id}/messages/${message.id}`).update({
+            pinned: false
+          });
+        }
+      });
+      
+      // Pin new message
+      database.ref(`chats/${currentChat.id}/messages/${messageId}`).update({
+        pinned: true
+      });
+      
+      elements.messageContextMenu.style.display = 'none';
+      showNotification('Сообщение закреплено');
+    }
+
+    // Unpin message
+    function unpinMessage() {
+      const pinnedMessage = messages.find(m => m.pinned);
+      if (pinnedMessage) {
+        database.ref(`chats/${currentChat.id}/messages/${pinnedMessage.id}`).update({
+          pinned: false
+        });
+        elements.pinnedMessageTop.style.display = 'none';
+        showNotification('Сообщение откреплено');
+      }
+    }
+
+    // Delete message
+    function deleteMessage() {
+      const messageId = elements.messageContextMenu.dataset.messageId;
+      if (!messageId) return;
+      
+      if (confirm('Вы уверены, что хотите удалить это сообщение?')) {
+        database.ref(`chats/${currentChat.id}/messages/${messageId}`).remove();
+        showNotification('Сообщение удалено');
+      }
+      elements.messageContextMenu.style.display = 'none';
+    }
+
+    // Add sticker pack
+    function addStickerPack() {
+      showNotification('Функция добавления стикерпаков в разработке');
+    }
+
+    // Initialize chat when page loads
+    document.addEventListener('DOMContentLoaded', initChat);
+
+    // Add right-click context menu for messages
+    document.addEventListener('contextmenu', (e) => {
+      const messageContent = e.target.closest('.message-content');
+      if (messageContent) {
+        e.preventDefault();
+        
+        const messageId = messageContent.dataset.messageId;
+        const message = messages.find(m => m.id === messageId);
+        
+        if (!message) return;
+        
+        elements.messageContextMenu.dataset.messageId = messageId;
+        
+        // Position context menu
+        elements.messageContextMenu.style.display = 'block';
+        elements.messageContextMenu.style.left = e.pageX + 'px';
+        elements.messageContextMenu.style.top = e.pageY + 'px';
+        
+        // Update context menu based on message and user permissions
+        const isOwnMessage = message.senderId === currentUser.id;
+        elements.editMessageItem.style.display = isOwnMessage ? 'flex' : 'none';
+        elements.deleteMessageItem.style.display = isOwnMessage ? 'flex' : 'none';
+        elements.pinMessageItem.style.display = !isChannel ? 'flex' : 'none';
+      }
+    });
+
+    // Update pinned message display
+    function updatePinnedMessage() {
+      const pinnedMessage = messages.find(m => m.pinned);
+      if (pinnedMessage) {
+        elements.pinnedMessageContent.textContent = pinnedMessage.text;
+        elements.pinnedMessageInfo.textContent = `Закреплено ${getMessageSenderName(pinnedMessage.id)}`;
+        elements.pinnedMessageTop.style.display = 'block';
+      } else {
+        elements.pinnedMessageTop.style.display = 'none';
+      }
+    }
+
+    // Call this when messages are updated
+    function onMessagesUpdated() {
+      updatePinnedMessage();
+    }
+
+    // Modify the loadMessages function to call onMessagesUpdated
+    const originalLoadMessages = loadMessages;
+    loadMessages = function() {
+      originalLoadMessages();
+      onMessagesUpdated();
+    };
+
+    // Modify the renderNewMessage function to call onMessagesUpdated
+    const originalRenderNewMessage = renderNewMessage;
+    renderNewMessage = function(message) {
+      originalRenderNewMessage(message);
+      onMessagesUpdated();
+    };
   </script>
 </body>
 </html>
