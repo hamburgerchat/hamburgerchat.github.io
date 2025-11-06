@@ -30,6 +30,7 @@
             --call-ringing: #3b82f6;
             --call-connected: #10b981;
             --call-ended: #ef4444;
+            --call-waiting: #f59e0b;
         }
 
         [data-theme="dark"] {
@@ -45,6 +46,7 @@
             --call-ringing: #60a5fa;
             --call-connected: #34d399;
             --call-ended: #f87171;
+            --call-waiting: #fbbf24;
         }
 
         * {
@@ -139,6 +141,28 @@
             }
         }
 
+        .call-header {
+            position: relative;
+            z-index: 3;
+            padding: 1.5rem;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .call-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .call-subtitle {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
         .call-content {
             position: relative;
             z-index: 3;
@@ -152,17 +176,18 @@
         }
 
         .call-avatar {
-            width: 120px;
-            height: 120px;
+            width: 140px;
+            height: 140px;
             border-radius: 50%;
             background: var(--accent-gradient);
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-bottom: 1.5rem;
+            margin-bottom: 2rem;
             border: 4px solid var(--bg-primary);
             box-shadow: 0 8px 32px rgba(0,0,0,0.1);
             position: relative;
+            transition: all 0.3s ease;
         }
 
         .call-avatar.has-image {
@@ -171,9 +196,24 @@
         }
 
         .call-avatar-initial {
-            font-size: 3rem;
+            font-size: 3.5rem;
             font-weight: 700;
             color: white;
+        }
+
+        .call-avatar.ringing {
+            animation: avatarPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes avatarPulse {
+            0%, 100% {
+                transform: scale(1);
+                box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            }
+            50% {
+                transform: scale(1.05);
+                box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+            }
         }
 
         .call-status {
@@ -181,24 +221,28 @@
         }
 
         .call-name {
-            font-size: 1.5rem;
+            font-size: 1.8rem;
             font-weight: 600;
             margin-bottom: 0.5rem;
             color: var(--text-primary);
         }
 
         .call-description {
-            font-size: 1rem;
+            font-size: 1.1rem;
             color: var(--text-secondary);
             margin-bottom: 1rem;
         }
 
         .call-timer {
-            font-size: 2rem;
+            font-size: 2.5rem;
             font-weight: 600;
             color: var(--call-connected);
             margin-bottom: 1rem;
             font-variant-numeric: tabular-nums;
+            background: rgba(16, 185, 129, 0.1);
+            padding: 0.5rem 1.5rem;
+            border-radius: 2rem;
+            display: inline-block;
         }
 
         .ringing-animation {
@@ -210,8 +254,8 @@
         }
 
         .ringing-dot {
-            width: 12px;
-            height: 12px;
+            width: 16px;
+            height: 16px;
             border-radius: 50%;
             background: var(--call-ringing);
             animation: ring 1.4s ease-in-out infinite both;
@@ -230,20 +274,52 @@
             }
         }
 
+        .call-info {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 1rem;
+            margin: 1rem 0;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+            max-width: 300px;
+        }
+
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .info-item:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .info-value {
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
         .call-controls {
             position: relative;
             z-index: 3;
             padding: 2rem;
             display: flex;
             justify-content: center;
-            gap: 1.5rem;
+            gap: 2rem;
             background: var(--bg-primary);
             border-top: 1px solid var(--border-color);
         }
 
         .control-button {
-            width: 60px;
-            height: 60px;
+            width: 70px;
+            height: 70px;
             border-radius: 50%;
             border: none;
             display: flex;
@@ -253,10 +329,15 @@
             cursor: pointer;
             transition: all 0.3s ease;
             box-shadow: var(--shadow);
+            position: relative;
         }
 
         .control-button:hover {
             transform: scale(1.1);
+        }
+
+        .control-button:active {
+            transform: scale(0.95);
         }
 
         .mute-button {
@@ -269,9 +350,29 @@
             color: white;
         }
 
+        .mute-button::after {
+            content: '';
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            width: 12px;
+            height: 12px;
+            background: var(--danger-color);
+            border-radius: 50%;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .mute-button.muted::after {
+            opacity: 1;
+        }
+
         .end-call-button {
             background: var(--danger-color);
             color: white;
+            width: 80px;
+            height: 80px;
+            font-size: 1.8rem;
         }
 
         .end-call-button:hover {
@@ -279,19 +380,35 @@
             transform: scale(1.1);
         }
 
+        .accept-call-button {
+            background: var(--call-color);
+            color: white;
+            width: 80px;
+            height: 80px;
+            font-size: 1.8rem;
+        }
+
+        .accept-call-button:hover {
+            background: #0da271;
+            transform: scale(1.1);
+        }
+
         .call-ended {
             text-align: center;
             padding: 2rem;
+            position: relative;
+            z-index: 3;
         }
 
         .call-ended-icon {
-            font-size: 4rem;
+            font-size: 5rem;
             color: var(--call-ended);
-            margin-bottom: 1rem;
+            margin-bottom: 1.5rem;
+            animation: fadeIn 0.5s ease;
         }
 
         .call-ended-title {
-            font-size: 1.5rem;
+            font-size: 1.8rem;
             font-weight: 600;
             margin-bottom: 0.5rem;
             color: var(--text-primary);
@@ -300,22 +417,26 @@
         .call-ended-description {
             color: var(--text-secondary);
             margin-bottom: 2rem;
+            font-size: 1.1rem;
         }
 
         .back-button {
-            padding: 0.8rem 2rem;
+            padding: 1rem 2.5rem;
             background: var(--accent-color);
             color: white;
             border: none;
-            border-radius: 0.8rem;
+            border-radius: 1rem;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.2s ease;
+            font-size: 1rem;
+            box-shadow: 0 4px 12px rgba(255, 127, 80, 0.3);
         }
 
         .back-button:hover {
             background: #ff6b35;
             transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 127, 80, 0.4);
         }
 
         .notification {
@@ -326,10 +447,13 @@
             background: var(--card-bg);
             color: var(--text-primary);
             padding: 1rem 2rem;
-            border-radius: 0.8rem;
+            border-radius: 1rem;
             box-shadow: var(--shadow);
             z-index: 1000;
             animation: slideDown 0.3s ease;
+            border: 1px solid var(--border-color);
+            max-width: 90%;
+            text-align: center;
         }
 
         @keyframes slideDown {
@@ -351,16 +475,18 @@
             height: 100%;
             padding: 2rem;
             color: var(--text-secondary);
+            position: relative;
+            z-index: 3;
         }
 
         .loading-spinner {
-            width: 40px;
-            height: 40px;
-            border: 3px solid var(--border-color);
-            border-top: 3px solid var(--accent-color);
+            width: 50px;
+            height: 50px;
+            border: 4px solid var(--border-color);
+            border-top: 4px solid var(--accent-color);
             border-radius: 50%;
             animation: spin 1s linear infinite;
-            margin-bottom: 1rem;
+            margin-bottom: 1.5rem;
         }
 
         @keyframes spin {
@@ -368,25 +494,109 @@
             100% { transform: rotate(360deg); }
         }
 
+        .connection-status {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: var(--card-bg);
+            padding: 0.5rem 1rem;
+            border-radius: 1rem;
+            font-size: 0.8rem;
+            font-weight: 500;
+            z-index: 100;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+        }
+
+        .status-connected {
+            color: var(--call-connected);
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .status-connecting {
+            color: var(--call-waiting);
+            background: rgba(245, 158, 11, 0.1);
+        }
+
+        .status-disconnected {
+            color: var(--call-ended);
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        .call-quality {
+            position: fixed;
+            bottom: 120px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--card-bg);
+            padding: 0.8rem 1.5rem;
+            border-radius: 1rem;
+            font-size: 0.9rem;
+            z-index: 100;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+            display: none;
+        }
+
+        .quality-good {
+            color: var(--call-connected);
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .quality-average {
+            color: var(--call-waiting);
+            background: rgba(245, 158, 11, 0.1);
+        }
+
+        .quality-poor {
+            color: var(--call-ended);
+            background: rgba(239, 68, 68, 0.1);
+        }
+
         @media (max-width: 480px) {
             .call-avatar {
-                width: 100px;
-                height: 100px;
+                width: 120px;
+                height: 120px;
             }
 
             .call-avatar-initial {
-                font-size: 2.5rem;
+                font-size: 3rem;
             }
 
             .call-name {
-                font-size: 1.3rem;
+                font-size: 1.5rem;
+            }
+
+            .call-timer {
+                font-size: 2rem;
             }
 
             .control-button {
-                width: 50px;
-                height: 50px;
-                font-size: 1.2rem;
+                width: 60px;
+                height: 60px;
+                font-size: 1.3rem;
             }
+
+            .end-call-button,
+            .accept-call-button {
+                width: 70px;
+                height: 70px;
+                font-size: 1.6rem;
+            }
+
+            .call-controls {
+                gap: 1.5rem;
+                padding: 1.5rem;
+            }
+
+            .call-content {
+                padding: 1.5rem;
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
         }
     </style>
 </head>
@@ -398,6 +608,19 @@
             <div class="shape"></div>
             <div class="shape"></div>
             <div class="shape"></div>
+        </div>
+
+        <div class="call-header" id="callHeader" style="display: none;">
+            <div class="call-title" id="callHeaderTitle">Звонок</div>
+            <div class="call-subtitle" id="callHeaderSubtitle">Hamburger Chat</div>
+        </div>
+
+        <div class="connection-status" id="connectionStatus" style="display: none;">
+            Подключение...
+        </div>
+
+        <div class="call-quality" id="callQuality">
+            Качество связи: хорошее
         </div>
 
         <div class="call-content" id="callContent">
@@ -422,6 +645,21 @@
                 <div class="ringing-dot"></div>
             </div>
 
+            <div class="call-info" id="callInfo" style="display: none;">
+                <div class="info-item">
+                    <span class="info-label">Статус:</span>
+                    <span class="info-value" id="infoStatus">Соединение...</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Длительность:</span>
+                    <span class="info-value" id="infoDuration">00:00</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Качество:</span>
+                    <span class="info-value" id="infoQuality">---</span>
+                </div>
+            </div>
+
             <div class="call-ended" id="callEnded" style="display: none;">
                 <div class="call-ended-icon">
                     <i class="fas fa-phone-slash"></i>
@@ -438,6 +676,15 @@
             </button>
             <button class="control-button end-call-button" onclick="endCall()">
                 <i class="fas fa-phone-slash"></i>
+            </button>
+        </div>
+
+        <div class="call-controls" id="incomingCallControls" style="display: none;">
+            <button class="control-button end-call-button" onclick="declineCall()">
+                <i class="fas fa-times"></i>
+            </button>
+            <button class="control-button accept-call-button" onclick="acceptCall()">
+                <i class="fas fa-phone"></i>
             </button>
         </div>
     </div>
@@ -465,6 +712,9 @@
         let callStartTime = null;
         let callTimerInterval = null;
         let isCallActive = false;
+        let isIncomingCall = false;
+        let callDuration = 0;
+        let connectionQuality = 'good';
 
         function encryptData(data) {
             return CryptoJS.AES.encrypt(JSON.stringify(data), ENCRYPTION_KEY).toString();
@@ -505,11 +755,51 @@
             return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
         }
 
+        function updateConnectionStatus(status, text) {
+            const statusElement = document.getElementById('connectionStatus');
+            statusElement.textContent = text;
+            statusElement.className = `connection-status status-${status}`;
+            statusElement.style.display = 'block';
+        }
+
+        function updateCallQuality(quality) {
+            const qualityElement = document.getElementById('callQuality');
+            const infoQuality = document.getElementById('infoQuality');
+            
+            let qualityText = '';
+            switch(quality) {
+                case 'good':
+                    qualityText = 'Хорошее';
+                    qualityElement.className = 'call-quality quality-good';
+                    break;
+                case 'average':
+                    qualityText = 'Среднее';
+                    qualityElement.className = 'call-quality quality-average';
+                    break;
+                case 'poor':
+                    qualityText = 'Плохое';
+                    qualityElement.className = 'call-quality quality-poor';
+                    break;
+            }
+            
+            qualityElement.textContent = `Качество связи: ${qualityText.toLowerCase()}`;
+            qualityElement.style.display = 'block';
+            infoQuality.textContent = qualityText;
+        }
+
         function startCallTimer() {
             callStartTime = Date.now();
             callTimerInterval = setInterval(() => {
-                const elapsed = Math.floor((Date.now() - callStartTime) / 1000);
-                document.getElementById('callTimer').textContent = formatTime(elapsed);
+                callDuration = Math.floor((Date.now() - callStartTime) / 1000);
+                document.getElementById('callTimer').textContent = formatTime(callDuration);
+                document.getElementById('infoDuration').textContent = formatTime(callDuration);
+                
+                // Симуляция изменения качества связи
+                if (callDuration % 30 === 0) {
+                    const qualities = ['good', 'average', 'poor'];
+                    const randomQuality = qualities[Math.floor(Math.random() * qualities.length)];
+                    updateCallQuality(randomQuality);
+                }
             }, 1000);
         }
 
@@ -521,19 +811,87 @@
         }
 
         function updateCallUI(status, description) {
-            document.getElementById('callDescription').textContent = description;
+            const callDesc = document.getElementById('callDescription');
+            const callTimer = document.getElementById('callTimer');
+            const ringingAnimation = document.getElementById('ringingAnimation');
+            const callControls = document.getElementById('callControls');
+            const incomingControls = document.getElementById('incomingCallControls');
+            const callAvatar = document.getElementById('callAvatar');
+            const infoStatus = document.getElementById('infoStatus');
             
-            if (status === 'ringing') {
-                document.getElementById('ringingAnimation').style.display = 'flex';
-                document.getElementById('callTimer').style.display = 'none';
-            } else if (status === 'connected') {
-                document.getElementById('ringingAnimation').style.display = 'none';
-                document.getElementById('callTimer').style.display = 'block';
-                document.getElementById('callControls').style.display = 'flex';
-            } else if (status === 'ended') {
-                document.getElementById('ringingAnimation').style.display = 'none';
-                document.getElementById('callTimer').style.display = 'none';
-                document.getElementById('callControls').style.display = 'none';
+            callDesc.textContent = description;
+            infoStatus.textContent = description;
+            
+            switch(status) {
+                case 'waiting':
+                    updateConnectionStatus('connecting', 'Ожидание ответа...');
+                    ringingAnimation.style.display = 'flex';
+                    callTimer.style.display = 'none';
+                    callAvatar.classList.add('ringing');
+                    break;
+                    
+                case 'ringing':
+                    updateConnectionStatus('connecting', 'Входящий звонок...');
+                    ringingAnimation.style.display = 'flex';
+                    callTimer.style.display = 'none';
+                    callAvatar.classList.add('ringing');
+                    incomingControls.style.display = 'flex';
+                    break;
+                    
+                case 'connected':
+                    updateConnectionStatus('connected', 'Соединение установлено');
+                    ringingAnimation.style.display = 'none';
+                    callTimer.style.display = 'block';
+                    callControls.style.display = 'flex';
+                    incomingControls.style.display = 'none';
+                    callAvatar.classList.remove('ringing');
+                    updateCallQuality('good');
+                    break;
+                    
+                case 'ended':
+                    updateConnectionStatus('disconnected', 'Соединение разорвано');
+                    ringingAnimation.style.display = 'none';
+                    callTimer.style.display = 'none';
+                    callControls.style.display = 'none';
+                    incomingControls.style.display = 'none';
+                    callAvatar.classList.remove('ringing');
+                    break;
+            }
+        }
+
+        async function sendCallAnswer() {
+            try {
+                const offer = callData.offer ? JSON.parse(callData.offer) : null;
+                if (!offer) {
+                    throw new Error('Оффер звонка не найден');
+                }
+
+                console.log('Получен оффер:', offer);
+                
+                // Устанавливаем удаленное описание
+                await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
+                console.log('Удаленное описание установлено');
+                
+                // Создаем ответ
+                const answer = await peerConnection.createAnswer();
+                console.log('Создан ответ:', answer);
+                
+                await peerConnection.setLocalDescription(answer);
+                console.log('Локальное описание установлено');
+                
+                // Сохраняем ответ в базу данных
+                await database.ref(`calls/${callId}`).update({
+                    answer: JSON.stringify(peerConnection.localDescription),
+                    status: 'answered',
+                    answeredAt: Date.now()
+                });
+
+                console.log('Ответ сохранен в базе данных');
+                showNotification('Звонок принят');
+                
+            } catch (error) {
+                console.error('Ошибка отправки ответа:', error);
+                throw error;
             }
         }
 
@@ -556,14 +914,23 @@
                 await createPeerConnection();
                 await listenForCallUpdates();
 
+                // Показываем интерфейс
                 document.getElementById('loadingContainer').style.display = 'none';
+                document.getElementById('callHeader').style.display = 'block';
                 document.getElementById('callAvatar').style.display = 'flex';
                 document.getElementById('callStatus').style.display = 'block';
+                document.getElementById('callInfo').style.display = 'block';
 
-                if (callData.sender === currentUser) {
-                    updateCallUI('ringing', 'Звоним...');
+                if (callData.sender === currentUserId) {
+                    // Исходящий звонок
+                    isIncomingCall = false;
+                    updateCallUI('waiting', 'Ожидание ответа...');
+                    document.getElementById('callHeaderTitle').textContent = 'Исходящий звонок';
                 } else {
+                    // Входящий звонок
+                    isIncomingCall = true;
                     updateCallUI('ringing', 'Входящий звонок...');
+                    document.getElementById('callHeaderTitle').textContent = 'Входящий звонок';
                     await sendCallAnswer();
                 }
 
@@ -585,12 +952,31 @@
             }
 
             callData = snapshot.val();
-            const otherUser = callData.sender === currentUser ? 
+            const otherUserId = callData.sender === currentUserId ? 
                 (callData.participants || []).find(p => p !== currentUser) : 
                 callData.sender;
 
-            document.getElementById('callName').textContent = otherUser || 'Пользователь';
-            document.getElementById('callAvatarInitial').textContent = otherUser ? otherUser.charAt(0).toUpperCase() : 'U';
+            // Загружаем данные пользователя
+            try {
+                const userRef = database.ref(`users/${otherUserId}`);
+                const userSnapshot = await userRef.once('value');
+                if (userSnapshot.exists()) {
+                    const userData = userSnapshot.val();
+                    const decryptedData = decryptData(userData.encryptedData);
+                    if (decryptedData) {
+                        document.getElementById('callName').textContent = decryptedData.username || 'Пользователь';
+                        const avatarInitial = decryptedData.username ? decryptedData.username.charAt(0).toUpperCase() : 'U';
+                        document.getElementById('callAvatarInitial').textContent = avatarInitial;
+                        
+                        if (decryptedData.avatar) {
+                            document.getElementById('callAvatar').style.backgroundImage = `url(${decryptedData.avatar})`;
+                            document.getElementById('callAvatar').classList.add('has-image');
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('Ошибка загрузки данных пользователя:', error);
+            }
         }
 
         async function setupMedia() {
@@ -599,13 +985,17 @@
                     audio: {
                         echoCancellation: true,
                         noiseSuppression: true,
-                        autoGainControl: true
+                        autoGainControl: true,
+                        channelCount: 1,
+                        sampleRate: 48000,
+                        sampleSize: 16
                     },
                     video: false
                 });
+                console.log('Микрофон подключен');
             } catch (error) {
                 console.error('Ошибка доступа к микрофону:', error);
-                throw new Error('Не удалось получить доступ к микрофону');
+                throw new Error('Не удалось получить доступ к микрофону. Проверьте разрешения.');
             }
         }
 
@@ -613,72 +1003,70 @@
             const configuration = {
                 iceServers: [
                     { urls: 'stun:stun.l.google.com:19302' },
-                    { urls: 'stun:stun1.l.google.com:19302' }
-                ]
+                    { urls: 'stun:stun1.l.google.com:19302' },
+                    { urls: 'stun:stun2.l.google.com:19302' }
+                ],
+                iceTransportPolicy: 'all',
+                bundlePolicy: 'max-bundle',
+                rtcpMuxPolicy: 'require'
             };
 
             peerConnection = new RTCPeerConnection(configuration);
 
+            // Обработчики событий WebRTC
             peerConnection.onicecandidate = (event) => {
                 if (event.candidate) {
+                    console.log('Новый ICE кандидат:', event.candidate);
                     sendIceCandidate(event.candidate);
                 }
             };
 
             peerConnection.ontrack = (event) => {
-                remoteStream = event.streams[0];
                 console.log('Получен удалённый аудиопоток');
+                remoteStream = event.streams[0];
+                showNotification('Аудиопоток подключен');
             };
 
             peerConnection.onconnectionstatechange = () => {
-                console.log('Состояние соединения:', peerConnection.connectionState);
+                const state = peerConnection.connectionState;
+                console.log('Состояние соединения:', state);
                 
-                if (peerConnection.connectionState === 'connected') {
-                    if (!isCallActive) {
-                        isCallActive = true;
-                        updateCallUI('connected', 'Разговор активен');
-                        startCallTimer();
-                        showNotification('Соединение установлено');
-                    }
-                } else if (peerConnection.connectionState === 'disconnected' || 
-                          peerConnection.connectionState === 'failed') {
-                    endCall();
+                switch(state) {
+                    case 'connected':
+                        if (!isCallActive) {
+                            isCallActive = true;
+                            updateCallUI('connected', 'Разговор активен');
+                            startCallTimer();
+                            showNotification('Соединение установлено');
+                        }
+                        break;
+                    case 'disconnected':
+                    case 'failed':
+                        console.log('Соединение прервано');
+                        endCall();
+                        break;
+                    case 'closed':
+                        console.log('Соединение закрыто');
+                        break;
                 }
             };
 
+            peerConnection.oniceconnectionstatechange = () => {
+                const state = peerConnection.iceConnectionState;
+                console.log('ICE состояние:', state);
+            };
+
+            // Добавляем локальный поток
             localStream.getTracks().forEach(track => {
                 peerConnection.addTrack(track, localStream);
             });
-        }
-
-        async function sendCallAnswer() {
-            try {
-                const offer = callData.offer ? JSON.parse(callData.offer) : null;
-                if (!offer) {
-                    throw new Error('Оффер звонка не найден');
-                }
-
-                await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
-                const answer = await peerConnection.createAnswer();
-                await peerConnection.setLocalDescription(answer);
-
-                await database.ref(`calls/${callId}`).update({
-                    answer: JSON.stringify(answer),
-                    status: 'answered',
-                    answeredAt: Date.now()
-                });
-
-            } catch (error) {
-                console.error('Ошибка отправки ответа:', error);
-                throw error;
-            }
         }
 
         async function sendIceCandidate(candidate) {
             try {
                 await database.ref(`calls/${callId}/iceCandidates`).push().set({
                     candidate: JSON.stringify(candidate),
-                    sender: currentUser,
+                    sender: currentUserId,
                     timestamp: Date.now()
                 });
             } catch (error) {
@@ -690,28 +1078,42 @@
             database.ref(`calls/${callId}`).on('value', async (snapshot) => {
                 const updatedCall = snapshot.val();
                 if (!updatedCall) {
+                    console.log('Звонок удален');
                     endCall();
                     return;
                 }
 
-                if (updatedCall.status === 'ended') {
+                if (updatedCall.status === 'ended' || updatedCall.status === 'declined') {
+                    console.log('Звонок завершен');
                     endCall();
                     return;
                 }
 
-                if (updatedCall.answer && callData.sender === currentUser) {
-                    const answer = JSON.parse(updatedCall.answer);
-                    if (peerConnection.remoteDescription === null) {
-                        await peerConnection.setRemoteDescription(new RTCSessionDescription(answer));
+                // Обработка ответа на звонок
+                if (updatedCall.answer && callData.sender === currentUserId && !isCallActive) {
+                    try {
+                        const answer = JSON.parse(updatedCall.answer);
+                        if (peerConnection.signalingState === 'have-local-offer') {
+                            await peerConnection.setRemoteDescription(new RTCSessionDescription(answer));
+                            console.log('Удаленное описание установлено из ответа');
+                        }
+                    } catch (error) {
+                        console.error('Ошибка установки удаленного описания:', error);
                     }
                 }
 
+                // Обработка ICE кандидатов
                 if (updatedCall.iceCandidates) {
                     for (const candidateId in updatedCall.iceCandidates) {
                         const candidateData = updatedCall.iceCandidates[candidateId];
-                        if (candidateData.sender !== currentUser) {
-                            const candidate = JSON.parse(candidateData.candidate);
-                            await peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
+                        if (candidateData.sender !== currentUserId) {
+                            try {
+                                const candidate = JSON.parse(candidateData.candidate);
+                                await peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
+                                console.log('ICE кандидат добавлен');
+                            } catch (error) {
+                                console.error('Ошибка добавления ICE кандидата:', error);
+                            }
                         }
                     }
                 }
@@ -740,17 +1142,37 @@
             }
         }
 
-        async function endCall() {
-            if (!isCallActive && callData && callData.sender !== currentUser) {
+        function acceptCall() {
+            updateCallUI('connected', 'Разговор активен');
+            startCallTimer();
+            showNotification('Звонок принят');
+        }
+
+        async function declineCall() {
+            try {
                 await database.ref(`calls/${callId}`).update({
                     status: 'declined',
                     endedAt: Date.now()
                 });
-            } else {
-                await database.ref(`calls/${callId}`).update({
-                    status: 'ended',
-                    endedAt: Date.now()
-                });
+                showNotification('Звонок отклонен');
+                endCall();
+            } catch (error) {
+                console.error('Ошибка отклонения звонка:', error);
+                endCall();
+            }
+        }
+
+        async function endCall() {
+            if (isCallActive) {
+                try {
+                    await database.ref(`calls/${callId}`).update({
+                        status: 'ended',
+                        endedAt: Date.now(),
+                        duration: callDuration
+                    });
+                } catch (error) {
+                    console.error('Ошибка завершения звонка:', error);
+                }
             }
 
             stopCallTimer();
@@ -764,12 +1186,15 @@
                 localStream.getTracks().forEach(track => track.stop());
             }
 
+            // Показываем экран завершения
             document.getElementById('callContent').style.display = 'none';
             document.getElementById('callEnded').style.display = 'block';
+            document.getElementById('callEndedDescription').textContent = 
+                `Длительность звонка: ${formatTime(callDuration)}`;
 
             setTimeout(() => {
                 goBack();
-            }, 3000);
+            }, 5000);
         }
 
         function goBack() {
@@ -791,6 +1216,15 @@
         window.addEventListener('beforeunload', () => {
             if (isCallActive) {
                 endCall();
+            }
+        });
+
+        // Обработка клавиш
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Escape') {
+                endCall();
+            } else if (e.code === 'KeyM') {
+                toggleMute();
             }
         });
     </script>
