@@ -736,6 +736,23 @@
             return urlParams.get('id');
         }
 
+        function generateIceCredentials() {
+            // Генерируем правильные ICE параметры с достаточной длиной
+            const generateRandomString = (length) => {
+                const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+                let result = '';
+                for (let i = 0; i < length; i++) {
+                    result += chars.charAt(Math.floor(Math.random() * chars.length));
+                }
+                return result;
+            };
+
+            return {
+                ufrag: generateRandomString(16), // 16 символов
+                pwd: generateRandomString(32)    // 32 символа - достаточно для ICE
+            };
+        }
+
         function showNotification(message) {
             const notification = document.createElement('div');
             notification.className = 'notification';
