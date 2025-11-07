@@ -232,6 +232,12 @@
             width: 0%;
             transition: width 0.1s;
         }
+
+        .connection-status {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-top: 0.5rem;
+        }
     </style>
 </head>
 <body>
@@ -257,6 +263,10 @@
                 
                 <div class="audio-indicator">
                     <div class="audio-level" id="audioLevel"></div>
+                </div>
+
+                <div class="connection-status" id="connectionStatus">
+                    Установка соединения...
                 </div>
                 
                 <div class="ringing-animation" id="ringingAnimation">
@@ -333,6 +343,8 @@
         let isIncomingCall = false;
         let callTimerInterval = null;
         let callDuration = 0;
+        let hasRemoteOffer = false;
+        let hasLocalOffer = false;
 
         // Элементы
         const elements = {
@@ -351,7 +363,8 @@
             muteButton: document.getElementById('muteButton'),
             callTimer: document.getElementById('callTimer'),
             audioLevel: document.getElementById('audioLevel'),
-            remoteAudio: document.getElementById('remoteAudio')
+            remoteAudio: document.getElementById('remoteAudio'),
+            connectionStatus: document.getElementById('connectionStatus')
         };
 
         // Получить ID звонка из URL
@@ -373,6 +386,8 @@
                     throw new Error('ID звонка не указан');
                 }
 
+                console.log('🚀 Инициализация звонка:', { callId, currentUserId });
+
                 // Получаем доступ к микрофону
                 await getMediaStream();
                 
@@ -390,11 +405,16 @@
                     // Исходящий звонок
                     isIncomingCall = false;
                     showOutgoingCall();
-                    createAndSendOffer();
+                    await createAndSendOffer();
                 } else {
                     // Входящий звонок
                     isIncomingCall = true;
                     showIncomingCall();
+                    
+                    // Если оффер уже есть, обрабатываем его
+                    if (callData.offer) {
+                        await handleIncomingOffer();
+                    }
                 }
 
             } catch (error) {
@@ -416,54 +436,10 @@
                 });
                 console.log('✅ Микрофон подключен');
                 
-                // Настраиваем визуализацию аудио
-                setupAudioVisualizer();
-                
             } catch (error) {
                 console.error('❌ Ошибка доступа к микрофону:', error);
                 throw new Error('Не удалось получить доступ к микрофону');
             }
-        }
-
-        // Настройка визуализатора аудио
-        function setupAudioVisualizer() {
-            try {
-                audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                analyser = audioContext.createAnalyser();
-                microphone = audioContext.createMediaStreamSource(localStream);
-                
-                analyser.fftSize = 256;
-                microphone.connect(analyser);
-                
-                dataArray = new Uint8Array(analyser.frequencyBinCount);
-                
-                // Запускаем анимацию визуализатора
-                updateAudioLevel();
-                
-            } catch (error) {
-                console.error('Ошибка настройки визуализатора:', error);
-            }
-        }
-
-        // Обновление уровня аудио
-        function updateAudioLevel() {
-            if (analyser && !isMuted) {
-                analyser.getByteFrequencyData(dataArray);
-                
-                let sum = 0;
-                for (let i = 0; i < dataArray.length; i++) {
-                    sum += dataArray[i];
-                }
-                let average = sum / dataArray.length;
-                
-                // Преобразуем в проценты (0-30%)
-                let level = Math.min(30, (average / 256) * 100);
-                elements.audioLevel.style.width = level + '%';
-            } else {
-                elements.audioLevel.style.width = '0%';
-            }
-            
-            requestAnimationFrame(updateAudioLevel);
         }
 
         // Создание PeerConnection
@@ -485,6 +461,7 @@
             // Обработка ICE кандидатов
             peerConnection.onicecandidate = (event) => {
                 if (event.candidate) {
+                    console.log('❄️ Отправка ICE кандидата');
                     sendIceCandidate(event.candidate);
                 }
             };
@@ -502,10 +479,12 @@
             // Отслеживание состояния соединения
             peerConnection.onconnectionstatechange = () => {
                 console.log('Состояние соединения:', peerConnection.connectionState);
+                elements.connectionStatus.textContent = `Состояние: ${peerConnection.connectionState}`;
                 
                 switch(peerConnection.connectionState) {
                     case 'connected':
                         elements.callStatus.textContent = 'Разговор активен';
+                        elements.connectionStatus.textContent = 'Соединение установлено';
                         break;
                     case 'disconnected':
                     case 'failed':
@@ -513,22 +492,47 @@
                         break;
                 }
             };
+
+            peerConnection.oniceconnectionstatechange = () => {
+                console.log('ICE состояние:', peerConnection.iceConnectionState);
+            };
         }
 
         // Создание и отправка оффера
         async function createAndSendOffer() {
             try {
+                console.log('📤 Создание оффера...');
                 const offer = await peerConnection.createOffer();
                 await peerConnection.setLocalDescription(offer);
                 
+                console.log('📤 Отправка оффера в Firebase...');
                 await database.ref(`calls/${callId}`).update({
-                    offer: JSON.stringify(offer)
+                    offer: JSON.stringify(offer),
+                    offerCreatedAt: Date.now()
                 });
                 
+                hasLocalOffer = true;
                 console.log('✅ Оффер создан и отправлен');
                 
             } catch (error) {
                 console.error('❌ Ошибка создания оффера:', error);
+            }
+        }
+
+        // Обработка входящего оффера
+        async function handleIncomingOffer() {
+            try {
+                console.log('📥 Обработка входящего оффера...');
+                const offer = JSON.parse(callData.offer);
+                await peerConnection.setRemoteDescription(offer);
+                hasRemoteOffer = true;
+                console.log('✅ Входящий оффер установлен');
+                
+                // Разблокируем кнопку принятия
+                elements.connectionStatus.textContent = 'Готов к принятию';
+                
+            } catch (error) {
+                console.error('❌ Ошибка установки входящего оффера:', error);
             }
         }
 
@@ -553,18 +557,23 @@
             }
 
             callData = snapshot.val();
+            console.log('📞 Данные звонка:', callData);
             
             // Определяем собеседника и обновляем UI
             const otherUserId = callData.from === currentUserId ? callData.to : callData.from;
-            const otherUserName = callData.from === currentUserId ? callData.receiverName : callData.callerName;
+            const otherUserName = callData.from === currentUserId ? 
+                (callData.receiverName || 'Пользователь') : 
+                (callData.callerName || 'Пользователь');
             
-            elements.callName.textContent = otherUserName || 'Пользователь';
-            elements.avatarInitial.textContent = (otherUserName || 'U').charAt(0).toUpperCase();
+            elements.callName.textContent = otherUserName;
+            elements.avatarInitial.textContent = otherUserName.charAt(0).toUpperCase();
         }
 
         // Настройка слушателей Firebase
         function setupCallListeners() {
-            // Слушаем изменения статуса звонка
+            console.log('👂 Настройка слушателей Firebase...');
+
+            // Слушаем изменения звонка
             database.ref(`calls/${callId}`).on('value', async (snapshot) => {
                 const call = snapshot.val();
                 if (!call) {
@@ -572,20 +581,21 @@
                     return;
                 }
 
+                console.log('📡 Обновление данных звонка:', {
+                    offer: !!call.offer,
+                    answer: !!call.answer,
+                    status: call.status
+                });
+
                 // Обрабатываем оффер для входящего звонка
-                if (isIncomingCall && call.offer && peerConnection.signalingState === 'stable') {
-                    try {
-                        const offer = JSON.parse(call.offer);
-                        await peerConnection.setRemoteDescription(offer);
-                        console.log('✅ Оффер установлен');
-                    } catch (error) {
-                        console.error('❌ Ошибка установки оффера:', error);
-                    }
+                if (isIncomingCall && call.offer && !hasRemoteOffer) {
+                    await handleIncomingOffer();
                 }
 
                 // Обрабатываем ответ для исходящего звонка
-                if (!isIncomingCall && call.answer && peerConnection.signalingState === 'have-local-offer') {
+                if (!isIncomingCall && call.answer && !peerConnection.remoteDescription) {
                     try {
+                        console.log('📥 Обработка ответа...');
                         const answer = JSON.parse(call.answer);
                         await peerConnection.setRemoteDescription(answer);
                         console.log('✅ Ответ установлен');
@@ -596,7 +606,7 @@
 
                 // Обрабатываем завершение звонка
                 if (call.status === 'ended' || call.status === 'declined') {
-                    endCallWithReason('Звонок завершён');
+                    endCallWithReason(call.status === 'declined' ? 'Звонок отклонён' : 'Звонок завершён');
                 }
             });
 
@@ -606,6 +616,7 @@
                 try {
                     const candidate = JSON.parse(candidateData);
                     await peerConnection.addIceCandidate(candidate);
+                    console.log('✅ ICE кандидат добавлен');
                 } catch (error) {
                     console.error('❌ Ошибка добавления ICE кандидата:', error);
                 }
@@ -618,6 +629,7 @@
             elements.callDescription.textContent = 'Ожидание ответа...';
             elements.outgoingControls.style.display = 'flex';
             elements.ringingAnimation.style.display = 'flex';
+            elements.connectionStatus.textContent = 'Отправка вызова...';
         }
 
         // Показать интерфейс входящего звонка
@@ -626,6 +638,7 @@
             elements.callDescription.textContent = 'Вам звонят...';
             elements.incomingControls.style.display = 'flex';
             elements.ringingAnimation.style.display = 'flex';
+            elements.connectionStatus.textContent = 'Ожидание данных...';
         }
 
         // Показать активный звонок
@@ -636,6 +649,7 @@
             elements.outgoingControls.style.display = 'none';
             elements.incomingControls.style.display = 'none';
             elements.activeControls.style.display = 'flex';
+            elements.connectionStatus.textContent = 'Соединение установлено';
             
             startCallTimer();
         }
@@ -643,18 +657,29 @@
         // Принять звонок
         async function acceptCall() {
             try {
+                console.log('✅ Принятие звонка...');
+
+                if (!hasRemoteOffer) {
+                    elements.connectionStatus.textContent = 'Ожидаем данные звонка...';
+                    return;
+                }
+
                 const answer = await peerConnection.createAnswer();
                 await peerConnection.setLocalDescription(answer);
                 
+                console.log('📤 Отправка ответа...');
                 await database.ref(`calls/${callId}`).update({
                     answer: JSON.stringify(answer),
-                    status: 'answered'
+                    status: 'answered',
+                    answeredAt: Date.now()
                 });
 
                 showActiveCall();
+                console.log('✅ Звонок принят');
 
             } catch (error) {
                 console.error('❌ Ошибка принятия звонка:', error);
+                elements.connectionStatus.textContent = 'Ошибка: ' + error.message;
             }
         }
 
@@ -689,6 +714,8 @@
 
         // Завершение звонка с причиной
         function endCallWithReason(reason) {
+            console.log('🛑 Завершение звонка:', reason);
+
             if (callTimerInterval) {
                 clearInterval(callTimerInterval);
             }
@@ -699,10 +726,6 @@
 
             if (localStream) {
                 localStream.getTracks().forEach(track => track.stop());
-            }
-
-            if (audioContext) {
-                audioContext.close();
             }
 
             elements.activeCall.style.display = 'none';
@@ -756,7 +779,7 @@
 
         // Завершить звонок при закрытии страницы
         window.addEventListener('beforeunload', () => {
-            if (callId) {
+            if (callId && peerConnection) {
                 database.ref(`calls/${callId}`).update({
                     status: 'ended',
                     endedAt: Date.now()
