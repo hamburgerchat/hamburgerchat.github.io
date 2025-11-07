@@ -613,7 +613,6 @@
         let otherUserId = null;
         let otherUserName = null;
         let otherUserAvatar = null;
-        let pendingIceCandidates = [];
 
         // DOM элементы
         const elements = {
@@ -731,7 +730,7 @@
             return null;
         }
 
-        // Основная логика звонка
+        // Основная логика звонка - ПРОСТАЯ КАК В Звонки хамбургер йоу.html
         async function initializeCall() {
             try {
                 // Получаем данные пользователя
@@ -755,10 +754,10 @@
                 await setupMedia();
                 
                 // Создаем PeerConnection
-                await createPeerConnection();
+                createPeerConnection();
                 
                 // Настраиваем слушатели Firebase
-                await setupFirebaseListeners();
+                setupFirebaseListeners();
 
                 // Показываем основной интерфейс
                 elements.loadingContainer.style.display = 'none';
@@ -769,16 +768,11 @@
                     // Исходящий звонок
                     isIncomingCall = false;
                     updateCallUI('waiting', 'Вызов...');
-                    await createAndSendOffer();
+                    createAndSendOffer();
                 } else {
                     // Входящий звонок
                     isIncomingCall = true;
                     updateCallUI('ringing', 'Входящий вызов...');
-                    
-                    // Автоматически обрабатываем оффер когда он придет
-                    if (callData.offer) {
-                        await handleIncomingOffer();
-                    }
                 }
 
             } catch (error) {
@@ -840,7 +834,7 @@
             }
         }
 
-        async function createPeerConnection() {
+        function createPeerConnection() {
             const configuration = {
                 iceServers: [
                     { urls: 'stun:stun.l.google.com:19302' },
@@ -878,17 +872,6 @@
                     showNotification('Соединение установлено!');
                 }
             };
-
-            peerConnection.onconnectionstatechange = () => {
-                console.log('Состояние соединения:', peerConnection.connectionState);
-                if (peerConnection.connectionState === 'connected') {
-                    updateCallUI('connected', 'Разговор активен');
-                    if (!isCallActive) {
-                        isCallActive = true;
-                        startCallTimer();
-                    }
-                }
-            };
         }
 
         async function createAndSendOffer() {
@@ -904,25 +887,10 @@
                 
             } catch (error) {
                 console.error('❌ Ошибка создания оффера:', error);
-                throw error;
             }
         }
 
-        async function handleIncomingOffer() {
-            try {
-                const offer = JSON.parse(callData.offer);
-                await peerConnection.setRemoteDescription(offer);
-                console.log('✅ Входящий оффер установлен');
-                
-                // Обрабатываем ожидающие ICE кандидаты
-                processPendingIceCandidates();
-                
-            } catch (error) {
-                console.error('❌ Ошибка установки входящего оффера:', error);
-            }
-        }
-
-        async function setupFirebaseListeners() {
+        function setupFirebaseListeners() {
             // Слушаем изменения в звонке
             database.ref(`calls/${callId}`).on('value', async (snapshot) => {
                 const updatedCall = snapshot.val();
@@ -938,33 +906,27 @@
                     return;
                 }
 
-                // Обрабатываем оффер для входящего звонка
-                if (isIncomingCall && updatedCall.offer && !peerConnection.remoteDescription) {
-                    try {
-                        const offer = JSON.parse(updatedCall.offer);
-                        await peerConnection.setRemoteDescription(offer);
-                        console.log('✅ Оффер установлен как remote description');
-                        
-                        // Обрабатываем ожидающие ICE кандидаты
-                        processPendingIceCandidates();
-                        
-                    } catch (error) {
-                        console.error('❌ Ошибка установки оффера:', error);
-                    }
-                }
-
                 // Обрабатываем ответ для исходящего звонка
                 if (!isIncomingCall && updatedCall.answer && peerConnection.signalingState === 'have-local-offer') {
                     try {
                         const answer = JSON.parse(updatedCall.answer);
                         await peerConnection.setRemoteDescription(answer);
                         console.log('✅ Ответ установлен');
-                        
-                        // Обрабатываем ожидающие ICE кандидаты
-                        processPendingIceCandidates();
-                        
                     } catch (error) {
                         console.error('❌ Ошибка установки ответа:', error);
+                    }
+                }
+
+                // Обрабатываем оффер для входящего звонка
+                if (isIncomingCall && updatedCall.offer && peerConnection.signalingState === 'stable') {
+                    try {
+                        const offer = JSON.parse(updatedCall.offer);
+                        await peerConnection.setRemoteDescription(offer);
+                        
+                        console.log('✅ Оффер установлен');
+                        
+                    } catch (error) {
+                        console.error('❌ Ошибка установки оффера:', error);
                     }
                 }
             });
@@ -974,38 +936,11 @@
                 const candidateData = snapshot.val();
                 try {
                     const candidate = JSON.parse(candidateData);
-                    await addIceCandidate(candidate);
+                    await peerConnection.addIceCandidate(candidate);
                 } catch (error) {
-                    console.error('❌ Ошибка добавления ICE кандидата:', error);
+                    // Игнорируем ошибки ICE кандидатов
                 }
             });
-        }
-
-        async function addIceCandidate(candidate) {
-            if (peerConnection.remoteDescription) {
-                try {
-                    await peerConnection.addIceCandidate(candidate);
-                    console.log('✅ ICE кандидат добавлен');
-                } catch (error) {
-                    console.error('❌ Ошибка добавления ICE кандидата:', error);
-                }
-            } else {
-                // Сохраняем кандидаты до установки remote description
-                pendingIceCandidates.push(candidate);
-                console.log('📥 ICE кандидат сохранен в ожидании');
-            }
-        }
-
-        function processPendingIceCandidates() {
-            if (peerConnection.remoteDescription && pendingIceCandidates.length > 0) {
-                console.log(`🔄 Обработка ${pendingIceCandidates.length} ожидающих ICE кандидатов`);
-                pendingIceCandidates.forEach(candidate => {
-                    peerConnection.addIceCandidate(candidate).catch(e => {
-                        console.error('Ошибка добавления ожидающего ICE кандидата:', e);
-                    });
-                });
-                pendingIceCandidates = [];
-            }
         }
 
         async function sendIceCandidate(candidate) {
@@ -1018,15 +953,9 @@
             }
         }
 
-        // Управление звонком
+        // Управление звонком - ПРОСТОЕ КАК В ОРИГИНАЛЕ
         async function acceptCall() {
             try {
-                // Проверяем состояние перед созданием answer
-                if (peerConnection.signalingState !== 'have-remote-offer') {
-                    showNotification('Ожидаем данные звонка...');
-                    return;
-                }
-
                 const answer = await peerConnection.createAnswer();
                 await peerConnection.setLocalDescription(answer);
                 
@@ -1041,7 +970,7 @@
                 
             } catch (error) {
                 console.error('❌ Ошибка принятия звонка:', error);
-                showNotification('Ошибка принятия звонка: ' + error.message);
+                showNotification('Ошибка принятия звонка');
             }
         }
 
