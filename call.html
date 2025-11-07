@@ -597,8 +597,6 @@
         }
         const database = firebase.database();
 
-        const ENCRYPTION_KEY = "HamburgerSecureKey2024!";
-
         // Переменные состояния
         let currentUser = null;
         let currentUserId = null;
@@ -615,7 +613,7 @@
         let otherUserId = null;
         let otherUserName = null;
         let otherUserAvatar = null;
-        let hasRemoteOffer = false;
+        let pendingIceCandidates = [];
 
         // DOM элементы
         const elements = {
@@ -682,9 +680,6 @@
                     elements.callControls.style.display = 'none';
                     elements.incomingCallControls.style.display = 'flex';
                     elements.headerTitle.textContent = 'Входящий звонок';
-                    // Блокируем кнопку принятия до получения offer
-                    elements.acceptCallButton.disabled = true;
-                    elements.acceptCallButton.style.opacity = '0.6';
                     break;
                     
                 case 'connected':
@@ -694,13 +689,6 @@
                     elements.callControls.style.display = 'flex';
                     elements.incomingCallControls.style.display = 'none';
                     elements.headerTitle.textContent = 'Разговор';
-                    break;
-
-                case 'ready':
-                    elements.statusIndicator.className = 'status-indicator';
-                    elements.ringingAnimation.style.display = 'flex';
-                    elements.acceptCallButton.disabled = false;
-                    elements.acceptCallButton.style.opacity = '1';
                     break;
             }
         }
@@ -729,7 +717,8 @@
                 if (snapshot.exists()) {
                     const userData = snapshot.val();
                     if (userData.encryptedData) {
-                        const decryptedData = CryptoJS.AES.decrypt(userData.encryptedData, ENCRYPTION_KEY).toString(CryptoJS.enc.Utf8);
+                        const bytes = CryptoJS.AES.decrypt(userData.encryptedData, "HamburgerSecureKey2024!");
+                        const decryptedData = bytes.toString(CryptoJS.enc.Utf8);
                         if (decryptedData) {
                             const userProfile = JSON.parse(decryptedData);
                             return userProfile.avatar || null;
@@ -785,6 +774,11 @@
                     // Входящий звонок
                     isIncomingCall = true;
                     updateCallUI('ringing', 'Входящий вызов...');
+                    
+                    // Автоматически обрабатываем оффер когда он придет
+                    if (callData.offer) {
+                        await handleIncomingOffer();
+                    }
                 }
 
             } catch (error) {
@@ -914,6 +908,20 @@
             }
         }
 
+        async function handleIncomingOffer() {
+            try {
+                const offer = JSON.parse(callData.offer);
+                await peerConnection.setRemoteDescription(offer);
+                console.log('✅ Входящий оффер установлен');
+                
+                // Обрабатываем ожидающие ICE кандидаты
+                processPendingIceCandidates();
+                
+            } catch (error) {
+                console.error('❌ Ошибка установки входящего оффера:', error);
+            }
+        }
+
         async function setupFirebaseListeners() {
             // Слушаем изменения в звонке
             database.ref(`calls/${callId}`).on('value', async (snapshot) => {
@@ -931,16 +939,14 @@
                 }
 
                 // Обрабатываем оффер для входящего звонка
-                if (isIncomingCall && updatedCall.offer && !hasRemoteOffer) {
+                if (isIncomingCall && updatedCall.offer && !peerConnection.remoteDescription) {
                     try {
                         const offer = JSON.parse(updatedCall.offer);
                         await peerConnection.setRemoteDescription(offer);
-                        hasRemoteOffer = true;
                         console.log('✅ Оффер установлен как remote description');
                         
-                        // Разблокируем кнопку принятия
-                        updateCallUI('ready', 'Готов к принятию...');
-                        showNotification('Звонок готов к принятию');
+                        // Обрабатываем ожидающие ICE кандидаты
+                        processPendingIceCandidates();
                         
                     } catch (error) {
                         console.error('❌ Ошибка установки оффера:', error);
@@ -953,6 +959,10 @@
                         const answer = JSON.parse(updatedCall.answer);
                         await peerConnection.setRemoteDescription(answer);
                         console.log('✅ Ответ установлен');
+                        
+                        // Обрабатываем ожидающие ICE кандидаты
+                        processPendingIceCandidates();
+                        
                     } catch (error) {
                         console.error('❌ Ошибка установки ответа:', error);
                     }
@@ -964,12 +974,38 @@
                 const candidateData = snapshot.val();
                 try {
                     const candidate = JSON.parse(candidateData);
+                    await addIceCandidate(candidate);
+                } catch (error) {
+                    console.error('❌ Ошибка добавления ICE кандидата:', error);
+                }
+            });
+        }
+
+        async function addIceCandidate(candidate) {
+            if (peerConnection.remoteDescription) {
+                try {
                     await peerConnection.addIceCandidate(candidate);
                     console.log('✅ ICE кандидат добавлен');
                 } catch (error) {
                     console.error('❌ Ошибка добавления ICE кандидата:', error);
                 }
-            });
+            } else {
+                // Сохраняем кандидаты до установки remote description
+                pendingIceCandidates.push(candidate);
+                console.log('📥 ICE кандидат сохранен в ожидании');
+            }
+        }
+
+        function processPendingIceCandidates() {
+            if (peerConnection.remoteDescription && pendingIceCandidates.length > 0) {
+                console.log(`🔄 Обработка ${pendingIceCandidates.length} ожидающих ICE кандидатов`);
+                pendingIceCandidates.forEach(candidate => {
+                    peerConnection.addIceCandidate(candidate).catch(e => {
+                        console.error('Ошибка добавления ожидающего ICE кандидата:', e);
+                    });
+                });
+                pendingIceCandidates = [];
+            }
         }
 
         async function sendIceCandidate(candidate) {
@@ -984,15 +1020,10 @@
 
         // Управление звонком
         async function acceptCall() {
-            if (!hasRemoteOffer) {
-                showNotification('Ожидаем данные звонка...');
-                return;
-            }
-
             try {
                 // Проверяем состояние перед созданием answer
                 if (peerConnection.signalingState !== 'have-remote-offer') {
-                    showNotification('Звонок еще не готов к принятию');
+                    showNotification('Ожидаем данные звонка...');
                     return;
                 }
 
