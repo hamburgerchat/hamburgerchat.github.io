@@ -6,126 +6,68 @@
     <title>Hamburger — Звонок</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
     <style>
         :root {
             --bg-primary: #ffffff;
             --bg-secondary: #f8f9fa;
-            --bg-tertiary: #f1f3f4;
             --text-primary: #1f2937;
             --text-secondary: #6b7280;
-            --text-tertiary: #9ca3af;
             --border-color: #e5e7eb;
             --accent-color: #ff7f50;
             --accent-gradient: linear-gradient(135deg, #ff7f50, #ffcc70);
             --call-color: #10b981;
             --danger-color: #ef4444;
-            --success-color: #10b981;
-            --card-bg: #ffffff;
-            --shadow: 0 1px 3px rgba(0,0,0,0.1);
-            --shadow-light: 0 1px 2px rgba(0,0,0,0.05);
-            --online-color: #10b981;
-            --call-ringing: #3b82f6;
-            --call-connected: #10b981;
-            --call-ended: #ef4444;
-            --call-waiting: #f59e0b;
         }
 
         [data-theme="dark"] {
             --bg-primary: #0f172a;
             --bg-secondary: #1e293b;
-            --bg-tertiary: #334155;
             --text-primary: #f1f5f9;
             --text-secondary: #cbd5e1;
-            --text-tertiary: #94a3b8;
             --border-color: #334155;
-            --card-bg: #1e293b;
-            --call-color: #34d399;
-            --call-ringing: #60a5fa;
-            --call-connected: #34d399;
-            --call-ended: #f87171;
-            --call-waiting: #fbbf24;
         }
 
         * {
-            box-sizing: border-box;
             margin: 0;
             padding: 0;
+            box-sizing: border-box;
             font-family: 'Inter', sans-serif;
         }
 
         body {
             background: var(--bg-primary);
             color: var(--text-primary);
-            min-height: 100vh;
+            height: 100vh;
             overflow: hidden;
-            transition: all 0.3s ease;
         }
 
         .call-container {
             height: 100vh;
             display: flex;
             flex-direction: column;
-            background: var(--bg-primary);
-            position: relative;
         }
 
         .call-header {
-            background: var(--bg-primary);
-            padding: 1rem 1.5rem;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
+            padding: 1rem;
             border-bottom: 1px solid var(--border-color);
-            z-index: 100;
-            backdrop-filter: blur(10px);
-        }
-
-        .back-button {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            border: none;
-            background: transparent;
-            color: var(--text-secondary);
-            font-size: 1rem;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s ease;
-        }
-
-        .back-button:hover {
-            background: var(--bg-secondary);
-        }
-
-        .call-info {
             display: flex;
             align-items: center;
             gap: 1rem;
         }
 
-        .call-avatar {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background: var(--accent-gradient);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 600;
-            color: white;
+        .back-button {
+            background: none;
+            border: none;
             font-size: 1.2rem;
-            background-size: cover;
-            background-position: center;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 0.5rem;
         }
 
-        .call-details {
-            display: flex;
-            flex-direction: column;
+        .call-info {
+            flex: 1;
         }
 
         .call-title {
@@ -136,32 +78,6 @@
         .call-status {
             font-size: 0.9rem;
             color: var(--text-secondary);
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .status-indicator {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: var(--call-waiting);
-        }
-
-        .status-indicator.connected {
-            background: var(--call-connected);
-        }
-
-        .status-indicator.ringing {
-            background: var(--call-ringing);
-            animation: pulse 1.5s infinite;
-        }
-
-        .call-timer {
-            font-size: 1rem;
-            font-weight: 600;
-            font-variant-numeric: tabular-nums;
-            color: var(--text-primary);
         }
 
         .call-content {
@@ -172,421 +88,181 @@
             justify-content: center;
             padding: 2rem;
             text-align: center;
-            background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-primary) 100%);
         }
 
-        .call-avatar-large {
-            width: 180px;
-            height: 180px;
+        .call-avatar {
+            width: 120px;
+            height: 120px;
             border-radius: 50%;
             background: var(--accent-gradient);
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-bottom: 2rem;
-            border: 6px solid var(--bg-primary);
-            box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: white;
+            margin-bottom: 1.5rem;
             background-size: cover;
             background-position: center;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .call-avatar-large::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: var(--accent-gradient);
-            opacity: 0.3;
-        }
-
-        .call-avatar-initial {
-            font-size: 4rem;
-            font-weight: 700;
-            color: white;
-            position: relative;
-            z-index: 2;
-        }
-
-        .call-avatar-large.ringing {
-            animation: avatarPulse 2s ease-in-out infinite;
-        }
-
-        @keyframes avatarPulse {
-            0%, 100% { 
-                transform: scale(1);
-                box-shadow: 0 8px 32px rgba(0,0,0,0.15);
-            }
-            50% { 
-                transform: scale(1.05);
-                box-shadow: 0 12px 40px rgba(59, 130, 246, 0.3);
-            }
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
         }
 
         .call-name {
-            font-size: 2rem;
-            font-weight: 700;
+            font-size: 1.5rem;
+            font-weight: 600;
             margin-bottom: 0.5rem;
-            background: var(--accent-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
         }
 
         .call-description {
-            font-size: 1.2rem;
             color: var(--text-secondary);
             margin-bottom: 2rem;
-            font-weight: 500;
         }
 
         .ringing-animation {
             display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 1rem;
+            gap: 0.5rem;
             margin-bottom: 2rem;
-            background: var(--card-bg);
-            padding: 1rem 2rem;
-            border-radius: 50px;
-            box-shadow: var(--shadow);
-            border: 1px solid var(--border-color);
         }
 
         .ringing-dot {
-            width: 12px;
-            height: 12px;
+            width: 10px;
+            height: 10px;
             border-radius: 50%;
-            background: var(--call-ringing);
-            animation: ring 1.4s ease-in-out infinite both;
+            background: var(--call-color);
+            animation: ring 1.4s infinite;
         }
 
-        .ringing-dot:nth-child(1) { animation-delay: -0.32s; }
-        .ringing-dot:nth-child(2) { animation-delay: -0.16s; }
-        .ringing-dot:nth-child(3) { animation-delay: 0s; }
+        .ringing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .ringing-dot:nth-child(3) { animation-delay: 0.4s; }
 
         @keyframes ring {
-            0%, 80%, 100% { transform: scale(0); }
-            40% { transform: scale(1); }
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.2); opacity: 0.7; }
         }
 
         .call-controls {
-            background: var(--bg-primary);
             padding: 2rem;
             display: flex;
-            align-items: center;
             justify-content: center;
             gap: 2rem;
             border-top: 1px solid var(--border-color);
-            backdrop-filter: blur(10px);
         }
 
         .control-button {
-            width: 70px;
-            height: 70px;
+            width: 60px;
+            height: 60px;
             border-radius: 50%;
             border: none;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
+            font-size: 1.3rem;
             cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: var(--shadow);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .control-button::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0) 100%);
-            border-radius: 50%;
+            transition: all 0.2s;
         }
 
         .control-button:hover {
             transform: scale(1.1);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-        }
-
-        .mute-button {
-            background: var(--bg-secondary);
-            color: var(--text-primary);
-            border: 2px solid var(--border-color);
-        }
-
-        .mute-button.muted {
-            background: var(--danger-color);
-            color: white;
-            border-color: var(--danger-color);
         }
 
         .end-call-button {
             background: var(--danger-color);
             color: white;
-            width: 80px;
-            height: 80px;
-            font-size: 1.8rem;
-            border: 2px solid var(--danger-color);
-        }
-
-        .end-call-button:hover {
-            background: #dc2626;
-            border-color: #dc2626;
+            width: 70px;
+            height: 70px;
+            font-size: 1.5rem;
         }
 
         .accept-call-button {
             background: var(--call-color);
             color: white;
-            width: 80px;
-            height: 80px;
-            font-size: 1.8rem;
-            border: 2px solid var(--call-color);
-        }
-
-        .accept-call-button:hover {
-            background: #0da271;
-            border-color: #0da271;
+            width: 70px;
+            height: 70px;
+            font-size: 1.5rem;
         }
 
         .call-ended {
             text-align: center;
             padding: 2rem;
-            background: var(--bg-primary);
-            border-radius: 20px;
-            box-shadow: var(--shadow);
-            margin: 2rem;
-            border: 1px solid var(--border-color);
         }
 
         .call-ended-icon {
-            font-size: 4rem;
-            color: var(--call-ended);
-            margin-bottom: 1.5rem;
-        }
-
-        .call-ended-title {
-            font-size: 1.8rem;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-        }
-
-        .call-ended-description {
-            color: var(--text-secondary);
-            margin-bottom: 2rem;
-            font-size: 1.1rem;
-        }
-
-        .back-button-large {
-            padding: 1rem 2rem;
-            background: var(--accent-color);
-            color: white;
-            border: none;
-            border-radius: 12px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            font-size: 1rem;
-            box-shadow: 0 4px 12px rgba(255, 127, 80, 0.3);
-        }
-
-        .back-button-large:hover {
-            background: #ff6b35;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(255, 127, 80, 0.4);
-        }
-
-        .notification {
-            position: fixed;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: var(--card-bg);
-            color: var(--text-primary);
-            padding: 1rem 2rem;
-            border-radius: 12px;
-            box-shadow: var(--shadow);
-            z-index: 1000;
-            border: 1px solid var(--border-color);
-            text-align: center;
-            backdrop-filter: blur(10px);
-        }
-
-        .loading-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100%;
-            padding: 2rem;
-            color: var(--text-secondary);
-            background: var(--bg-primary);
-        }
-
-        .loading-spinner {
-            width: 50px;
-            height: 50px;
-            border: 4px solid var(--border-color);
-            border-top: 4px solid var(--accent-color);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-bottom: 1.5rem;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .user-info {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 0.5rem;
-            margin-bottom: 2rem;
-        }
-
-        .user-avatar {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            background: var(--accent-gradient);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 600;
-            color: white;
-            font-size: 2rem;
-            background-size: cover;
-            background-position: center;
+            font-size: 3rem;
+            color: var(--danger-color);
             margin-bottom: 1rem;
         }
 
-        @media (max-width: 480px) {
-            .call-avatar-large {
-                width: 140px;
-                height: 140px;
-            }
-
-            .call-avatar-initial {
-                font-size: 3rem;
-            }
-
-            .call-name {
-                font-size: 1.5rem;
-            }
-
-            .call-controls {
-                gap: 1.5rem;
-                padding: 1.5rem;
-            }
-
-            .control-button {
-                width: 60px;
-                height: 60px;
-                font-size: 1.3rem;
-            }
-
-            .end-call-button,
-            .accept-call-button {
-                width: 70px;
-                height: 70px;
-                font-size: 1.5rem;
-            }
+        .back-to-chat {
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 1rem;
         }
     </style>
 </head>
 <body>
     <div class="call-container">
         <div class="call-header">
+            <button class="back-button" onclick="goBack()">
+                <i class="fas fa-arrow-left"></i>
+            </button>
             <div class="call-info">
-                <button class="back-button" onclick="goBack()">
-                    <i class="fas fa-arrow-left"></i>
-                </button>
-                <div class="call-avatar" id="headerAvatar">
-                    <span id="headerAvatarInitial">U</span>
-                </div>
-                <div class="call-details">
-                    <div class="call-title" id="headerTitle">Звонок</div>
-                    <div class="call-status">
-                        <div class="status-indicator" id="statusIndicator"></div>
-                        <span id="statusText">Подключение...</span>
-                    </div>
-                </div>
+                <div class="call-title">Звонок</div>
+                <div class="call-status" id="callStatus">Подключение...</div>
             </div>
-            <div class="call-timer" id="callTimer">00:00</div>
         </div>
 
-        <div class="call-content" id="callContent">
-            <div class="loading-container" id="loadingContainer">
-                <div class="loading-spinner"></div>
-                <div>Подключение к звонку...</div>
-            </div>
-
-            <div id="callMain" style="display: none;">
-                <div class="user-info">
-                    <div class="call-avatar-large" id="callAvatar">
-                        <span class="call-avatar-initial" id="callAvatarInitial">U</span>
-                    </div>
-                    <div class="call-name" id="callName">Пользователь</div>
-                    <div class="call-description" id="callDescription">Установка соединения...</div>
+        <div class="call-content">
+            <div id="activeCall">
+                <div class="call-avatar" id="callAvatar">
+                    <span id="avatarInitial">U</span>
                 </div>
-                
-                <div class="ringing-animation" id="ringingAnimation" style="display: none;">
+                <div class="call-name" id="callName">Пользователь</div>
+                <div class="call-description" id="callDescription">Соединение...</div>
+                <div class="ringing-animation" id="ringingAnimation">
                     <div class="ringing-dot"></div>
                     <div class="ringing-dot"></div>
                     <div class="ringing-dot"></div>
-                    <span style="margin-left: 1rem; color: var(--call-ringing); font-weight: 600;">Вызов...</span>
                 </div>
             </div>
 
-            <div class="call-ended" id="callEnded" style="display: none;">
+            <div id="callEnded" style="display: none;">
                 <div class="call-ended-icon">
                     <i class="fas fa-phone-slash"></i>
                 </div>
-                <div class="call-ended-title">Звонок завершён</div>
-                <div class="call-ended-description" id="callEndedDescription">Соединение разорвано</div>
-                <button class="back-button-large" onclick="goBack()">Вернуться в чат</button>
+                <div class="call-name">Звонок завершён</div>
+                <div class="call-description" id="endReason">Соединение разорвано</div>
+                <button class="back-to-chat" onclick="goBack()">Вернуться в чат</button>
             </div>
         </div>
 
-        <div class="call-controls" id="callControls" style="display: none;">
-            <button class="control-button mute-button" id="muteButton" onclick="toggleMute()">
+        <div class="call-controls" id="outgoingControls" style="display: none;">
+            <button class="control-button end-call-button" onclick="endCall()">
+                <i class="fas fa-phone-slash"></i>
+            </button>
+        </div>
+
+        <div class="call-controls" id="incomingControls" style="display: none;">
+            <button class="control-button end-call-button" onclick="declineCall()">
+                <i class="fas fa-times"></i>
+            </button>
+            <button class="control-button accept-call-button" onclick="acceptCall()">
+                <i class="fas fa-phone"></i>
+            </button>
+        </div>
+
+        <div class="call-controls" id="activeControls" style="display: none;">
+            <button class="control-button" onclick="toggleMute()" id="muteButton">
                 <i class="fas fa-microphone"></i>
             </button>
             <button class="control-button end-call-button" onclick="endCall()">
                 <i class="fas fa-phone-slash"></i>
             </button>
         </div>
-
-        <div class="call-controls" id="incomingCallControls" style="display: none;">
-            <button class="control-button end-call-button" onclick="declineCall()">
-                <i class="fas fa-times"></i>
-            </button>
-            <button class="control-button accept-call-button" id="acceptCallButton" onclick="acceptCall()">
-                <i class="fas fa-phone"></i>
-            </button>
-        </div>
-    </div>
-
-    <div class="notification" id="notification" style="display: none;">
-        <span id="notificationText"></span>
     </div>
 
     <script>
-        // Firebase конфигурация
+        // Конфигурация Firebase
         const firebaseConfig = {
             databaseURL: "https://hamburgerchat-e8f2a-default-rtdb.firebaseio.com/"
         };
@@ -597,151 +273,45 @@
         }
         const database = firebase.database();
 
-        // Переменные состояния
-        let currentUser = null;
+        // Переменные
         let currentUserId = null;
         let callId = null;
         let callData = null;
-        let peerConnection = null;
-        let localStream = null;
-        let remoteStream = null;
-        let isMuted = false;
-        let callStartTime = null;
-        let callTimerInterval = null;
-        let isCallActive = false;
         let isIncomingCall = false;
-        let otherUserId = null;
-        let otherUserName = null;
-        let otherUserAvatar = null;
+        let callTimer = null;
+        let callDuration = 0;
 
-        // DOM элементы
+        // Элементы
         const elements = {
-            loadingContainer: document.getElementById('loadingContainer'),
-            callMain: document.getElementById('callMain'),
-            callEnded: document.getElementById('callEnded'),
-            callControls: document.getElementById('callControls'),
-            incomingCallControls: document.getElementById('incomingCallControls'),
-            callAvatar: document.getElementById('callAvatar'),
-            callAvatarInitial: document.getElementById('callAvatarInitial'),
+            callStatus: document.getElementById('callStatus'),
             callName: document.getElementById('callName'),
             callDescription: document.getElementById('callDescription'),
+            callAvatar: document.getElementById('callAvatar'),
+            avatarInitial: document.getElementById('avatarInitial'),
             ringingAnimation: document.getElementById('ringingAnimation'),
-            callTimer: document.getElementById('callTimer'),
-            muteButton: document.getElementById('muteButton'),
-            statusIndicator: document.getElementById('statusIndicator'),
-            statusText: document.getElementById('statusText'),
-            headerTitle: document.getElementById('headerTitle'),
-            headerAvatar: document.getElementById('headerAvatar'),
-            headerAvatarInitial: document.getElementById('headerAvatarInitial'),
-            notification: document.getElementById('notification'),
-            notificationText: document.getElementById('notificationText'),
-            acceptCallButton: document.getElementById('acceptCallButton')
+            activeCall: document.getElementById('activeCall'),
+            callEnded: document.getElementById('callEnded'),
+            endReason: document.getElementById('endReason'),
+            outgoingControls: document.getElementById('outgoingControls'),
+            incomingControls: document.getElementById('incomingControls'),
+            activeControls: document.getElementById('activeControls'),
+            muteButton: document.getElementById('muteButton')
         };
 
-        // Утилиты
+        // Получить ID звонка из URL
         function getCallIdFromUrl() {
             const urlParams = new URLSearchParams(window.location.search);
             return urlParams.get('id');
         }
 
-        function showNotification(message) {
-            elements.notificationText.textContent = message;
-            elements.notification.style.display = 'block';
-            setTimeout(() => {
-                elements.notification.style.display = 'none';
-            }, 3000);
-        }
-
-        function formatTime(seconds) {
-            const mins = Math.floor(seconds / 60);
-            const secs = seconds % 60;
-            return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-        }
-
-        function updateCallUI(status, description) {
-            elements.callDescription.textContent = description;
-            elements.statusText.textContent = description;
-            
-            switch(status) {
-                case 'waiting':
-                    elements.statusIndicator.className = 'status-indicator ringing';
-                    elements.ringingAnimation.style.display = 'flex';
-                    elements.callAvatar.classList.add('ringing');
-                    elements.callControls.style.display = 'flex';
-                    elements.incomingCallControls.style.display = 'none';
-                    elements.headerTitle.textContent = 'Исходящий звонок';
-                    break;
-                    
-                case 'ringing':
-                    elements.statusIndicator.className = 'status-indicator ringing';
-                    elements.ringingAnimation.style.display = 'flex';
-                    elements.callAvatar.classList.add('ringing');
-                    elements.callControls.style.display = 'none';
-                    elements.incomingCallControls.style.display = 'flex';
-                    elements.headerTitle.textContent = 'Входящий звонок';
-                    break;
-                    
-                case 'connected':
-                    elements.statusIndicator.className = 'status-indicator connected';
-                    elements.ringingAnimation.style.display = 'none';
-                    elements.callAvatar.classList.remove('ringing');
-                    elements.callControls.style.display = 'flex';
-                    elements.incomingCallControls.style.display = 'none';
-                    elements.headerTitle.textContent = 'Разговор';
-                    break;
-            }
-        }
-
-        function startCallTimer() {
-            callStartTime = Date.now();
-            callTimerInterval = setInterval(() => {
-                const duration = Math.floor((Date.now() - callStartTime) / 1000);
-                elements.callTimer.textContent = formatTime(duration);
-            }, 1000);
-        }
-
-        function stopCallTimer() {
-            if (callTimerInterval) {
-                clearInterval(callTimerInterval);
-                callTimerInterval = null;
-            }
-        }
-
-        // Загрузка аватарки пользователя
-        async function loadUserAvatar(userId) {
-            try {
-                const userRef = database.ref(`users/${userId}`);
-                const snapshot = await userRef.once('value');
-                
-                if (snapshot.exists()) {
-                    const userData = snapshot.val();
-                    if (userData.encryptedData) {
-                        const bytes = CryptoJS.AES.decrypt(userData.encryptedData, "HamburgerSecureKey2024!");
-                        const decryptedData = bytes.toString(CryptoJS.enc.Utf8);
-                        if (decryptedData) {
-                            const userProfile = JSON.parse(decryptedData);
-                            return userProfile.avatar || null;
-                        }
-                    }
-                }
-            } catch (error) {
-                console.error('Ошибка загрузки аватарки:', error);
-            }
-            return null;
-        }
-
-        // Основная логика звонка - ПРОСТАЯ КАК В Звонки хамбургер йоу.html
+        // Основная функция инициализации
         async function initializeCall() {
             try {
-                // Получаем данные пользователя
-                currentUser = localStorage.getItem('hamburger_user');
                 currentUserId = localStorage.getItem('hamburger_user_id');
-                
-                if (!currentUser || !currentUserId) {
+                if (!currentUserId) {
                     throw new Error('Пользователь не авторизован');
                 }
 
-                // Получаем ID звонка из URL
                 callId = getCallIdFromUrl();
                 if (!callId) {
                     throw new Error('ID звонка не указан');
@@ -750,38 +320,27 @@
                 // Загружаем данные звонка
                 await loadCallData();
                 
-                // Настраиваем медиа
-                await setupMedia();
-                
-                // Создаем PeerConnection
-                createPeerConnection();
-                
-                // Настраиваем слушатели Firebase
-                setupFirebaseListeners();
+                // Настраиваем слушатели
+                setupCallListeners();
 
-                // Показываем основной интерфейс
-                elements.loadingContainer.style.display = 'none';
-                elements.callMain.style.display = 'block';
-
-                // Определяем тип звонка
+                // Показываем соответствующий интерфейс
                 if (callData.from === currentUserId) {
                     // Исходящий звонок
                     isIncomingCall = false;
-                    updateCallUI('waiting', 'Вызов...');
-                    createAndSendOffer();
+                    showOutgoingCall();
                 } else {
                     // Входящий звонок
                     isIncomingCall = true;
-                    updateCallUI('ringing', 'Входящий вызов...');
+                    showIncomingCall();
                 }
 
             } catch (error) {
-                console.error('Ошибка инициализации звонка:', error);
-                showNotification('Ошибка: ' + error.message);
-                setTimeout(goBack, 2000);
+                console.error('Ошибка инициализации:', error);
+                endCallWithReason('Ошибка: ' + error.message);
             }
         }
 
+        // Загрузка данных звонка
         async function loadCallData() {
             const callRef = database.ref(`calls/${callId}`);
             const snapshot = await callRef.once('value');
@@ -792,263 +351,171 @@
 
             callData = snapshot.val();
             
-            // Определяем собеседника
-            if (callData.from === currentUserId) {
-                otherUserId = callData.to;
-                otherUserName = callData.receiverName || 'Пользователь';
-            } else {
-                otherUserId = callData.from;
-                otherUserName = callData.callerName || 'Пользователь';
-            }
-
-            // Загружаем аватарку собеседника
-            otherUserAvatar = await loadUserAvatar(otherUserId);
-
-            // Обновляем UI с данными собеседника
-            elements.callName.textContent = otherUserName;
-            elements.callAvatarInitial.textContent = otherUserName.charAt(0).toUpperCase();
-            elements.headerAvatarInitial.textContent = otherUserName.charAt(0).toUpperCase();
-
-            if (otherUserAvatar) {
-                elements.callAvatar.style.backgroundImage = `url(${otherUserAvatar})`;
-                elements.callAvatarInitial.style.display = 'none';
-                elements.headerAvatar.style.backgroundImage = `url(${otherUserAvatar})`;
-                elements.headerAvatarInitial.style.display = 'none';
-            }
+            // Определяем собеседника и обновляем UI
+            const otherUserId = callData.from === currentUserId ? callData.to : callData.from;
+            const otherUserName = callData.from === currentUserId ? callData.receiverName : callData.callerName;
+            
+            elements.callName.textContent = otherUserName || 'Пользователь';
+            elements.avatarInitial.textContent = (otherUserName || 'U').charAt(0).toUpperCase();
         }
 
-        async function setupMedia() {
-            try {
-                localStream = await navigator.mediaDevices.getUserMedia({
-                    audio: {
-                        echoCancellation: true,
-                        noiseSuppression: true,
-                        autoGainControl: true
-                    },
-                    video: false
-                });
-                console.log('✅ Микрофон подключен');
-            } catch (error) {
-                console.error('❌ Ошибка доступа к микрофону:', error);
-                throw new Error('Не удалось получить доступ к микрофону');
-            }
-        }
-
-        function createPeerConnection() {
-            const configuration = {
-                iceServers: [
-                    { urls: 'stun:stun.l.google.com:19302' },
-                    { urls: 'stun:stun1.l.google.com:19302' }
-                ]
-            };
-
-            peerConnection = new RTCPeerConnection(configuration);
-
-            // Добавляем локальный поток
-            localStream.getTracks().forEach(track => {
-                peerConnection.addTrack(track, localStream);
-            });
-
-            // Обработчики событий WebRTC
-            peerConnection.onicecandidate = (event) => {
-                if (event.candidate) {
-                    sendIceCandidate(event.candidate);
-                }
-            };
-
-            peerConnection.ontrack = (event) => {
-                console.log('✅ Получен удалённый аудиопоток');
-                remoteStream = event.streams[0];
-                
-                // Создаем аудио элемент для воспроизведения
-                const audio = new Audio();
-                audio.srcObject = remoteStream;
-                audio.play().catch(e => console.log('Ошибка воспроизведения:', e));
-                
-                if (!isCallActive) {
-                    isCallActive = true;
-                    updateCallUI('connected', 'Разговор активен');
-                    startCallTimer();
-                    showNotification('Соединение установлено!');
-                }
-            };
-        }
-
-        async function createAndSendOffer() {
-            try {
-                const offer = await peerConnection.createOffer();
-                await peerConnection.setLocalDescription(offer);
-                
-                await database.ref(`calls/${callId}`).update({
-                    offer: JSON.stringify(offer)
-                });
-                
-                console.log('✅ Оффер создан и отправлен');
-                
-            } catch (error) {
-                console.error('❌ Ошибка создания оффера:', error);
-            }
-        }
-
-        function setupFirebaseListeners() {
-            // Слушаем изменения в звонке
-            database.ref(`calls/${callId}`).on('value', async (snapshot) => {
-                const updatedCall = snapshot.val();
-                if (!updatedCall) {
-                    endCall();
+        // Настройка слушателей Firebase
+        function setupCallListeners() {
+            // Слушаем изменения статуса звонка
+            database.ref(`calls/${callId}`).on('value', (snapshot) => {
+                const call = snapshot.val();
+                if (!call) {
+                    endCallWithReason('Звонок не найден');
                     return;
                 }
 
-                // Проверяем статус звонка
-                if (updatedCall.status === 'ended' || updatedCall.status === 'declined') {
-                    showNotification('Звонок завершен');
-                    endCall();
-                    return;
+                // Обрабатываем ответ на звонок
+                if (call.answer && !isIncomingCall) {
+                    handleCallAnswered();
                 }
 
-                // Обрабатываем ответ для исходящего звонка
-                if (!isIncomingCall && updatedCall.answer && peerConnection.signalingState === 'have-local-offer') {
-                    try {
-                        const answer = JSON.parse(updatedCall.answer);
-                        await peerConnection.setRemoteDescription(answer);
-                        console.log('✅ Ответ установлен');
-                    } catch (error) {
-                        console.error('❌ Ошибка установки ответа:', error);
-                    }
-                }
-
-                // Обрабатываем оффер для входящего звонка
-                if (isIncomingCall && updatedCall.offer && peerConnection.signalingState === 'stable') {
-                    try {
-                        const offer = JSON.parse(updatedCall.offer);
-                        await peerConnection.setRemoteDescription(offer);
-                        
-                        console.log('✅ Оффер установлен');
-                        
-                    } catch (error) {
-                        console.error('❌ Ошибка установки оффера:', error);
-                    }
-                }
-            });
-
-            // Слушаем ICE кандидаты
-            database.ref(`calls/${callId}/iceCandidates`).on('child_added', async (snapshot) => {
-                const candidateData = snapshot.val();
-                try {
-                    const candidate = JSON.parse(candidateData);
-                    await peerConnection.addIceCandidate(candidate);
-                } catch (error) {
-                    // Игнорируем ошибки ICE кандидатов
+                // Обрабатываем завершение звонка
+                if (call.status === 'ended' || call.status === 'declined') {
+                    endCallWithReason('Звонок завершён');
                 }
             });
         }
 
-        async function sendIceCandidate(candidate) {
-            try {
-                await database.ref(`calls/${callId}/iceCandidates`).push().set(
-                    JSON.stringify(candidate)
-                );
-            } catch (error) {
-                console.error('❌ Ошибка отправки ICE кандидата:', error);
-            }
+        // Показать интерфейс исходящего звонка
+        function showOutgoingCall() {
+            elements.callStatus.textContent = 'Вызов...';
+            elements.callDescription.textContent = 'Ожидание ответа...';
+            elements.outgoingControls.style.display = 'flex';
+            elements.ringingAnimation.style.display = 'flex';
         }
 
-        // Управление звонком - ПРОСТОЕ КАК В ОРИГИНАЛЕ
+        // Показать интерфейс входящего звонка
+        function showIncomingCall() {
+            elements.callStatus.textContent = 'Входящий вызов';
+            elements.callDescription.textContent = 'Вам звонят...';
+            elements.incomingControls.style.display = 'flex';
+            elements.ringingAnimation.style.display = 'flex';
+        }
+
+        // Обработка принятия звонка
+        function handleCallAnswered() {
+            elements.callStatus.textContent = 'Разговор';
+            elements.callDescription.textContent = '00:00';
+            elements.ringingAnimation.style.display = 'none';
+            elements.outgoingControls.style.display = 'none';
+            elements.activeControls.style.display = 'flex';
+            
+            // Запускаем таймер
+            startCallTimer();
+        }
+
+        // Принять звонок
         async function acceptCall() {
             try {
-                const answer = await peerConnection.createAnswer();
-                await peerConnection.setLocalDescription(answer);
-                
                 await database.ref(`calls/${callId}`).update({
-                    answer: JSON.stringify(answer),
-                    status: 'answered'
+                    answer: true,
+                    status: 'answered',
+                    answeredAt: Date.now()
                 });
+
+                elements.callStatus.textContent = 'Разговор';
+                elements.callDescription.textContent = '00:00';
+                elements.ringingAnimation.style.display = 'none';
+                elements.incomingControls.style.display = 'none';
+                elements.activeControls.style.display = 'flex';
                 
-                updateCallUI('connected', 'Разговор активен');
                 startCallTimer();
-                showNotification('Звонок принят');
-                
+
             } catch (error) {
-                console.error('❌ Ошибка принятия звонка:', error);
-                showNotification('Ошибка принятия звонка');
+                console.error('Ошибка принятия звонка:', error);
             }
         }
 
+        // Отклонить звонок
         async function declineCall() {
             try {
                 await database.ref(`calls/${callId}`).update({
                     status: 'declined',
                     endedAt: Date.now()
                 });
-                showNotification('Звонок отклонен');
-                endCall();
+                endCallWithReason('Звонок отклонён');
             } catch (error) {
-                console.error('❌ Ошибка отклонения звонка:', error);
-                endCall();
+                console.error('Ошибка отклонения:', error);
+                endCallWithReason('Звонок отклонён');
             }
         }
 
-        function toggleMute() {
-            if (!localStream) return;
-
-            isMuted = !isMuted;
-            localStream.getAudioTracks().forEach(track => {
-                track.enabled = !isMuted;
-            });
-
-            const icon = elements.muteButton.querySelector('i');
-            
-            if (isMuted) {
-                elements.muteButton.classList.add('muted');
-                icon.className = 'fas fa-microphone-slash';
-                showNotification('Микрофон отключён');
-            } else {
-                elements.muteButton.classList.remove('muted');
-                icon.className = 'fas fa-microphone';
-                showNotification('Микрофон включён');
-            }
-        }
-
+        // Завершить звонок
         async function endCall() {
             try {
                 await database.ref(`calls/${callId}`).update({
                     status: 'ended',
-                    endedAt: Date.now()
+                    endedAt: Date.now(),
+                    duration: callDuration
                 });
+                endCallWithReason('Звонок завершён');
             } catch (error) {
-                console.error('❌ Ошибка завершения звонка:', error);
+                console.error('Ошибка завершения:', error);
+                endCallWithReason('Звонок завершён');
             }
-
-            stopCallTimer();
-            isCallActive = false;
-
-            if (peerConnection) {
-                peerConnection.close();
-            }
-
-            if (localStream) {
-                localStream.getTracks().forEach(track => track.stop());
-            }
-
-            // Показываем экран завершения
-            elements.callMain.style.display = 'none';
-            elements.callEnded.style.display = 'block';
-            elements.callControls.style.display = 'none';
-            elements.incomingCallControls.style.display = 'none';
         }
 
+        // Завершение звонка с причиной
+        function endCallWithReason(reason) {
+            if (callTimer) {
+                clearInterval(callTimer);
+            }
+
+            elements.activeCall.style.display = 'none';
+            elements.callEnded.style.display = 'block';
+            elements.endReason.textContent = reason;
+            elements.outgoingControls.style.display = 'none';
+            elements.incomingControls.style.display = 'none';
+            elements.activeControls.style.display = 'none';
+        }
+
+        // Таймер звонка
+        function startCallTimer() {
+            callTimer = setInterval(() => {
+                callDuration++;
+                const minutes = Math.floor(callDuration / 60);
+                const seconds = callDuration % 60;
+                elements.callDescription.textContent = 
+                    `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            }, 1000);
+        }
+
+        // Переключение микрофона
+        function toggleMute() {
+            const icon = elements.muteButton.querySelector('i');
+            if (icon.classList.contains('fa-microphone')) {
+                icon.className = 'fas fa-microphone-slash';
+                elements.muteButton.style.background = '#6b7280';
+            } else {
+                icon.className = 'fas fa-microphone';
+                elements.muteButton.style.background = '';
+            }
+        }
+
+        // Назад в чат
         function goBack() {
             window.history.back();
         }
 
-        // Инициализация
-        document.addEventListener('DOMContentLoaded', function() {
-            const savedTheme = localStorage.getItem('hamburger_theme') || 'light';
-            document.documentElement.setAttribute('data-theme', savedTheme);
+        // Инициализация при загрузке
+        document.addEventListener('DOMContentLoaded', () => {
             initializeCall();
         });
 
-        window.addEventListener('beforeunload', endCall);
+        // Завершить звонок при закрытии страницы
+        window.addEventListener('beforeunload', () => {
+            if (callId) {
+                database.ref(`calls/${callId}`).update({
+                    status: 'ended',
+                    endedAt: Date.now()
+                });
+            }
+        });
     </script>
 </body>
 </html>
