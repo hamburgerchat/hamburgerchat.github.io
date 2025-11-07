@@ -9,6 +9,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
     <style>
+        /* Стили остаются такими же */
         :root {
             --bg-primary: #ffffff;
             --bg-secondary: #f8f9fa;
@@ -390,11 +391,24 @@
                     // Исходящий звонок
                     isIncomingCall = false;
                     showOutgoingCall();
-                    await createAndSendOffer();
+                    
+                    // Если ответ уже есть, обрабатываем его сразу
+                    if (callData.answer) {
+                        console.log('📥 Ответ уже есть, обрабатываем...');
+                        await handleAnswer(callData.answer);
+                    } else {
+                        await createAndSendOffer();
+                    }
                 } else {
                     // Входящий звонок
                     isIncomingCall = true;
                     showIncomingCall();
+                    
+                    // Если оффер уже есть, обрабатываем его
+                    if (callData.offer) {
+                        console.log('📥 Оффер уже есть, обрабатываем...');
+                        await handleOffer(callData.offer);
+                    }
                 }
 
             } catch (error) {
@@ -501,15 +515,20 @@
             // Отслеживание состояния соединения
             peerConnection.onconnectionstatechange = () => {
                 console.log('Состояние соединения:', peerConnection.connectionState);
+                if (peerConnection.connectionState === 'connected') {
+                    console.log('🎉 Соединение установлено!');
+                }
             };
         }
 
         // Создание и отправка оффера
         async function createAndSendOffer() {
             try {
+                console.log('📤 Создание оффера...');
                 const offer = await peerConnection.createOffer();
                 await peerConnection.setLocalDescription(offer);
                 
+                console.log('📤 Отправка оффера в Firebase...');
                 await database.ref(`calls/${callId}`).update({
                     offer: JSON.stringify(offer)
                 });
@@ -518,6 +537,35 @@
                 
             } catch (error) {
                 console.error('❌ Ошибка создания оффера:', error);
+            }
+        }
+
+        // Обработка входящего оффера
+        async function handleOffer(offerData) {
+            try {
+                console.log('📥 Обработка входящего оффера...');
+                const offer = JSON.parse(offerData);
+                await peerConnection.setRemoteDescription(offer);
+                console.log('✅ Входящий оффер установлен');
+                
+            } catch (error) {
+                console.error('❌ Ошибка установки входящего оффера:', error);
+            }
+        }
+
+        // Обработка ответа
+        async function handleAnswer(answerData) {
+            try {
+                console.log('📥 Обработка ответа...');
+                const answer = JSON.parse(answerData);
+                await peerConnection.setRemoteDescription(answer);
+                console.log('✅ Ответ установлен');
+                
+                // Показываем активный звонок
+                showActiveCall();
+                
+            } catch (error) {
+                console.error('❌ Ошибка установки ответа:', error);
             }
         }
 
@@ -542,6 +590,13 @@
             }
 
             callData = snapshot.val();
+            console.log('📞 Данные звонка:', {
+                from: callData.from,
+                to: callData.to,
+                hasOffer: !!callData.offer,
+                hasAnswer: !!callData.answer,
+                status: callData.status
+            });
             
             // Определяем собеседника и обновляем UI
             const otherUserId = callData.from === currentUserId ? callData.to : callData.from;
@@ -555,6 +610,8 @@
 
         // Настройка слушателей Firebase
         function setupCallListeners() {
+            console.log('👂 Настройка слушателей Firebase...');
+
             // Слушаем изменения звонка
             database.ref(`calls/${callId}`).on('value', async (snapshot) => {
                 const call = snapshot.val();
@@ -563,26 +620,20 @@
                     return;
                 }
 
+                console.log('📡 Обновление данных звонка:', {
+                    offer: !!call.offer,
+                    answer: !!call.answer,
+                    status: call.status
+                });
+
                 // Обрабатываем оффер для входящего звонка
-                if (isIncomingCall && call.offer && peerConnection.signalingState === 'stable') {
-                    try {
-                        const offer = JSON.parse(call.offer);
-                        await peerConnection.setRemoteDescription(offer);
-                        console.log('✅ Оффер установлен');
-                    } catch (error) {
-                        console.error('❌ Ошибка установки оффера:', error);
-                    }
+                if (isIncomingCall && call.offer && !peerConnection.remoteDescription) {
+                    await handleOffer(call.offer);
                 }
 
                 // Обрабатываем ответ для исходящего звонка
-                if (!isIncomingCall && call.answer && peerConnection.signalingState === 'have-local-offer') {
-                    try {
-                        const answer = JSON.parse(call.answer);
-                        await peerConnection.setRemoteDescription(answer);
-                        console.log('✅ Ответ установлен');
-                    } catch (error) {
-                        console.error('❌ Ошибка установки ответа:', error);
-                    }
+                if (!isIncomingCall && call.answer && !peerConnection.remoteDescription) {
+                    await handleAnswer(call.answer);
                 }
 
                 // Обрабатываем завершение звонка
@@ -597,8 +648,9 @@
                 try {
                     const candidate = JSON.parse(candidateData);
                     await peerConnection.addIceCandidate(candidate);
+                    console.log('✅ ICE кандидат добавлен');
                 } catch (error) {
-                    // Игнорируем ошибки ICE
+                    console.error('❌ Ошибка добавления ICE кандидата:', error);
                 }
             });
         }
@@ -634,15 +686,24 @@
         // Принять звонок
         async function acceptCall() {
             try {
+                console.log('✅ Принятие звонка...');
+
+                if (!peerConnection.remoteDescription) {
+                    console.log('❌ Remote description не установлен');
+                    return;
+                }
+
                 const answer = await peerConnection.createAnswer();
                 await peerConnection.setLocalDescription(answer);
                 
+                console.log('📤 Отправка ответа...');
                 await database.ref(`calls/${callId}`).update({
                     answer: JSON.stringify(answer),
                     status: 'answered'
                 });
 
                 showActiveCall();
+                console.log('✅ Звонок принят');
 
             } catch (error) {
                 console.error('❌ Ошибка принятия звонка:', error);
@@ -680,6 +741,8 @@
 
         // Завершение звонка с причиной
         function endCallWithReason(reason) {
+            console.log('🛑 Завершение звонка:', reason);
+
             if (callTimerInterval) {
                 clearInterval(callTimerInterval);
             }
@@ -743,7 +806,7 @@
 
         // Завершить звонок при закрытии страницы
         window.addEventListener('beforeunload', () => {
-            if (callId) {
+            if (callId && peerConnection) {
                 database.ref(`calls/${callId}`).update({
                     status: 'ended',
                     endedAt: Date.now()
