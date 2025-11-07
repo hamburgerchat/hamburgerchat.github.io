@@ -10,7 +10,6 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
     <style>
-        /* Стили остаются такими же как в вашем файле */
         :root {
             --bg-primary: #ffffff;
             --bg-secondary: #f8f9fa;
@@ -81,6 +80,7 @@
             justify-content: space-between;
             border-bottom: 1px solid var(--border-color);
             z-index: 100;
+            backdrop-filter: blur(10px);
         }
 
         .back-button {
@@ -119,6 +119,8 @@
             font-weight: 600;
             color: white;
             font-size: 1.2rem;
+            background-size: cover;
+            background-position: center;
         }
 
         .call-details {
@@ -150,10 +152,16 @@
             background: var(--call-connected);
         }
 
+        .status-indicator.ringing {
+            background: var(--call-ringing);
+            animation: pulse 1.5s infinite;
+        }
+
         .call-timer {
             font-size: 1rem;
             font-weight: 600;
             font-variant-numeric: tabular-nums;
+            color: var(--text-primary);
         }
 
         .call-content {
@@ -164,6 +172,7 @@
             justify-content: center;
             padding: 2rem;
             text-align: center;
+            background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-primary) 100%);
         }
 
         .call-avatar-large {
@@ -176,34 +185,67 @@
             justify-content: center;
             margin-bottom: 2rem;
             border: 6px solid var(--bg-primary);
-            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+            background-size: cover;
+            background-position: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .call-avatar-large::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--accent-gradient);
+            opacity: 0.3;
         }
 
         .call-avatar-initial {
             font-size: 4rem;
             font-weight: 700;
             color: white;
+            position: relative;
+            z-index: 2;
         }
 
         .call-avatar-large.ringing {
-            animation: pulse 2s ease-in-out infinite;
+            animation: avatarPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes avatarPulse {
+            0%, 100% { 
+                transform: scale(1);
+                box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+            }
+            50% { 
+                transform: scale(1.05);
+                box-shadow: 0 12px 40px rgba(59, 130, 246, 0.3);
+            }
         }
 
         @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
         }
 
         .call-name {
             font-size: 2rem;
-            font-weight: 600;
+            font-weight: 700;
             margin-bottom: 0.5rem;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         .call-description {
             font-size: 1.2rem;
             color: var(--text-secondary);
             margin-bottom: 2rem;
+            font-weight: 500;
         }
 
         .ringing-animation {
@@ -212,6 +254,11 @@
             justify-content: center;
             gap: 1rem;
             margin-bottom: 2rem;
+            background: var(--card-bg);
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
         }
 
         .ringing-dot {
@@ -239,6 +286,7 @@
             justify-content: center;
             gap: 2rem;
             border-top: 1px solid var(--border-color);
+            backdrop-filter: blur(10px);
         }
 
         .control-button {
@@ -253,20 +301,36 @@
             cursor: pointer;
             transition: all 0.3s ease;
             box-shadow: var(--shadow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .control-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0) 100%);
+            border-radius: 50%;
         }
 
         .control-button:hover {
-            transform: scale(1.05);
+            transform: scale(1.1);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
         }
 
         .mute-button {
             background: var(--bg-secondary);
             color: var(--text-primary);
+            border: 2px solid var(--border-color);
         }
 
         .mute-button.muted {
             background: var(--danger-color);
             color: white;
+            border-color: var(--danger-color);
         }
 
         .end-call-button {
@@ -275,6 +339,12 @@
             width: 80px;
             height: 80px;
             font-size: 1.8rem;
+            border: 2px solid var(--danger-color);
+        }
+
+        .end-call-button:hover {
+            background: #dc2626;
+            border-color: #dc2626;
         }
 
         .accept-call-button {
@@ -283,11 +353,22 @@
             width: 80px;
             height: 80px;
             font-size: 1.8rem;
+            border: 2px solid var(--call-color);
+        }
+
+        .accept-call-button:hover {
+            background: #0da271;
+            border-color: #0da271;
         }
 
         .call-ended {
             text-align: center;
             padding: 2rem;
+            background: var(--bg-primary);
+            border-radius: 20px;
+            box-shadow: var(--shadow);
+            margin: 2rem;
+            border: 1px solid var(--border-color);
         }
 
         .call-ended-icon {
@@ -313,15 +394,18 @@
             background: var(--accent-color);
             color: white;
             border: none;
-            border-radius: 1rem;
+            border-radius: 12px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.2s ease;
+            font-size: 1rem;
+            box-shadow: 0 4px 12px rgba(255, 127, 80, 0.3);
         }
 
         .back-button-large:hover {
             background: #ff6b35;
             transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 127, 80, 0.4);
         }
 
         .notification {
@@ -332,11 +416,12 @@
             background: var(--card-bg);
             color: var(--text-primary);
             padding: 1rem 2rem;
-            border-radius: 1rem;
+            border-radius: 12px;
             box-shadow: var(--shadow);
             z-index: 1000;
             border: 1px solid var(--border-color);
             text-align: center;
+            backdrop-filter: blur(10px);
         }
 
         .loading-container {
@@ -347,6 +432,7 @@
             height: 100%;
             padding: 2rem;
             color: var(--text-secondary);
+            background: var(--bg-primary);
         }
 
         .loading-spinner {
@@ -362,6 +448,30 @@
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
+        }
+
+        .user-info {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .user-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: var(--accent-gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            color: white;
+            font-size: 2rem;
+            background-size: cover;
+            background-position: center;
+            margin-bottom: 1rem;
         }
 
         @media (max-width: 480px) {
@@ -382,6 +492,19 @@
                 gap: 1.5rem;
                 padding: 1.5rem;
             }
+
+            .control-button {
+                width: 60px;
+                height: 60px;
+                font-size: 1.3rem;
+            }
+
+            .end-call-button,
+            .accept-call-button {
+                width: 70px;
+                height: 70px;
+                font-size: 1.5rem;
+            }
         }
     </style>
 </head>
@@ -392,6 +515,9 @@
                 <button class="back-button" onclick="goBack()">
                     <i class="fas fa-arrow-left"></i>
                 </button>
+                <div class="call-avatar" id="headerAvatar">
+                    <span id="headerAvatarInitial">U</span>
+                </div>
                 <div class="call-details">
                     <div class="call-title" id="headerTitle">Звонок</div>
                     <div class="call-status">
@@ -410,17 +536,19 @@
             </div>
 
             <div id="callMain" style="display: none;">
-                <div class="call-avatar-large" id="callAvatar">
-                    <span class="call-avatar-initial" id="callAvatarInitial">U</span>
+                <div class="user-info">
+                    <div class="call-avatar-large" id="callAvatar">
+                        <span class="call-avatar-initial" id="callAvatarInitial">U</span>
+                    </div>
+                    <div class="call-name" id="callName">Пользователь</div>
+                    <div class="call-description" id="callDescription">Установка соединения...</div>
                 </div>
-                
-                <div class="call-name" id="callName">Пользователь</div>
-                <div class="call-description" id="callDescription">Установка соединения...</div>
                 
                 <div class="ringing-animation" id="ringingAnimation" style="display: none;">
                     <div class="ringing-dot"></div>
                     <div class="ringing-dot"></div>
                     <div class="ringing-dot"></div>
+                    <span style="margin-left: 1rem; color: var(--call-ringing); font-weight: 600;">Вызов...</span>
                 </div>
             </div>
 
@@ -447,7 +575,7 @@
             <button class="control-button end-call-button" onclick="declineCall()">
                 <i class="fas fa-times"></i>
             </button>
-            <button class="control-button accept-call-button" onclick="acceptCall()">
+            <button class="control-button accept-call-button" id="acceptCallButton" onclick="acceptCall()">
                 <i class="fas fa-phone"></i>
             </button>
         </div>
@@ -469,6 +597,8 @@
         }
         const database = firebase.database();
 
+        const ENCRYPTION_KEY = "HamburgerSecureKey2024!";
+
         // Переменные состояния
         let currentUser = null;
         let currentUserId = null;
@@ -484,6 +614,8 @@
         let isIncomingCall = false;
         let otherUserId = null;
         let otherUserName = null;
+        let otherUserAvatar = null;
+        let hasRemoteOffer = false;
 
         // DOM элементы
         const elements = {
@@ -502,8 +634,11 @@
             statusIndicator: document.getElementById('statusIndicator'),
             statusText: document.getElementById('statusText'),
             headerTitle: document.getElementById('headerTitle'),
+            headerAvatar: document.getElementById('headerAvatar'),
+            headerAvatarInitial: document.getElementById('headerAvatarInitial'),
             notification: document.getElementById('notification'),
-            notificationText: document.getElementById('notificationText')
+            notificationText: document.getElementById('notificationText'),
+            acceptCallButton: document.getElementById('acceptCallButton')
         };
 
         // Утилиты
@@ -532,7 +667,7 @@
             
             switch(status) {
                 case 'waiting':
-                    elements.statusIndicator.className = 'status-indicator';
+                    elements.statusIndicator.className = 'status-indicator ringing';
                     elements.ringingAnimation.style.display = 'flex';
                     elements.callAvatar.classList.add('ringing');
                     elements.callControls.style.display = 'flex';
@@ -541,12 +676,15 @@
                     break;
                     
                 case 'ringing':
-                    elements.statusIndicator.className = 'status-indicator';
+                    elements.statusIndicator.className = 'status-indicator ringing';
                     elements.ringingAnimation.style.display = 'flex';
                     elements.callAvatar.classList.add('ringing');
                     elements.callControls.style.display = 'none';
                     elements.incomingCallControls.style.display = 'flex';
                     elements.headerTitle.textContent = 'Входящий звонок';
+                    // Блокируем кнопку принятия до получения offer
+                    elements.acceptCallButton.disabled = true;
+                    elements.acceptCallButton.style.opacity = '0.6';
                     break;
                     
                 case 'connected':
@@ -556,6 +694,13 @@
                     elements.callControls.style.display = 'flex';
                     elements.incomingCallControls.style.display = 'none';
                     elements.headerTitle.textContent = 'Разговор';
+                    break;
+
+                case 'ready':
+                    elements.statusIndicator.className = 'status-indicator';
+                    elements.ringingAnimation.style.display = 'flex';
+                    elements.acceptCallButton.disabled = false;
+                    elements.acceptCallButton.style.opacity = '1';
                     break;
             }
         }
@@ -573,6 +718,28 @@
                 clearInterval(callTimerInterval);
                 callTimerInterval = null;
             }
+        }
+
+        // Загрузка аватарки пользователя
+        async function loadUserAvatar(userId) {
+            try {
+                const userRef = database.ref(`users/${userId}`);
+                const snapshot = await userRef.once('value');
+                
+                if (snapshot.exists()) {
+                    const userData = snapshot.val();
+                    if (userData.encryptedData) {
+                        const decryptedData = CryptoJS.AES.decrypt(userData.encryptedData, ENCRYPTION_KEY).toString(CryptoJS.enc.Utf8);
+                        if (decryptedData) {
+                            const userProfile = JSON.parse(decryptedData);
+                            return userProfile.avatar || null;
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('Ошибка загрузки аватарки:', error);
+            }
+            return null;
         }
 
         // Основная логика звонка
@@ -646,9 +813,20 @@
                 otherUserName = callData.callerName || 'Пользователь';
             }
 
+            // Загружаем аватарку собеседника
+            otherUserAvatar = await loadUserAvatar(otherUserId);
+
             // Обновляем UI с данными собеседника
             elements.callName.textContent = otherUserName;
             elements.callAvatarInitial.textContent = otherUserName.charAt(0).toUpperCase();
+            elements.headerAvatarInitial.textContent = otherUserName.charAt(0).toUpperCase();
+
+            if (otherUserAvatar) {
+                elements.callAvatar.style.backgroundImage = `url(${otherUserAvatar})`;
+                elements.callAvatarInitial.style.display = 'none';
+                elements.headerAvatar.style.backgroundImage = `url(${otherUserAvatar})`;
+                elements.headerAvatarInitial.style.display = 'none';
+            }
         }
 
         async function setupMedia() {
@@ -697,7 +875,7 @@
                 // Создаем аудио элемент для воспроизведения
                 const audio = new Audio();
                 audio.srcObject = remoteStream;
-                audio.play();
+                audio.play().catch(e => console.log('Ошибка воспроизведения:', e));
                 
                 if (!isCallActive) {
                     isCallActive = true;
@@ -711,7 +889,10 @@
                 console.log('Состояние соединения:', peerConnection.connectionState);
                 if (peerConnection.connectionState === 'connected') {
                     updateCallUI('connected', 'Разговор активен');
-                    startCallTimer();
+                    if (!isCallActive) {
+                        isCallActive = true;
+                        startCallTimer();
+                    }
                 }
             };
         }
@@ -749,46 +930,31 @@
                     return;
                 }
 
-                // Обрабатываем ответ на входящий звонок
-                if (isIncomingCall && updatedCall.answer && !isCallActive) {
+                // Обрабатываем оффер для входящего звонка
+                if (isIncomingCall && updatedCall.offer && !hasRemoteOffer) {
+                    try {
+                        const offer = JSON.parse(updatedCall.offer);
+                        await peerConnection.setRemoteDescription(offer);
+                        hasRemoteOffer = true;
+                        console.log('✅ Оффер установлен как remote description');
+                        
+                        // Разблокируем кнопку принятия
+                        updateCallUI('ready', 'Готов к принятию...');
+                        showNotification('Звонок готов к принятию');
+                        
+                    } catch (error) {
+                        console.error('❌ Ошибка установки оффера:', error);
+                    }
+                }
+
+                // Обрабатываем ответ для исходящего звонка
+                if (!isIncomingCall && updatedCall.answer && peerConnection.signalingState === 'have-local-offer') {
                     try {
                         const answer = JSON.parse(updatedCall.answer);
                         await peerConnection.setRemoteDescription(answer);
                         console.log('✅ Ответ установлен');
                     } catch (error) {
                         console.error('❌ Ошибка установки ответа:', error);
-                    }
-                }
-
-                // Обрабатываем оффер для исходящего звонка
-                if (!isIncomingCall && updatedCall.offer && peerConnection.signalingState === 'stable') {
-                    try {
-                        const offer = JSON.parse(updatedCall.offer);
-                        await peerConnection.setRemoteDescription(offer);
-                        
-                        const answer = await peerConnection.createAnswer();
-                        await peerConnection.setLocalDescription(answer);
-                        
-                        await database.ref(`calls/${callId}`).update({
-                            answer: JSON.stringify(answer)
-                        });
-                        
-                        console.log('✅ Ответ отправлен');
-                    } catch (error) {
-                        console.error('❌ Ошибка обработки оффера:', error);
-                    }
-                }
-
-                // Обрабатываем ICE кандидаты
-                if (updatedCall.iceCandidates) {
-                    for (const candidateId in updatedCall.iceCandidates) {
-                        const candidateData = updatedCall.iceCandidates[candidateId];
-                        try {
-                            const candidate = JSON.parse(candidateData);
-                            await peerConnection.addIceCandidate(candidate);
-                        } catch (error) {
-                            console.error('❌ Ошибка добавления ICE кандидата:', error);
-                        }
                     }
                 }
             });
@@ -799,6 +965,7 @@
                 try {
                     const candidate = JSON.parse(candidateData);
                     await peerConnection.addIceCandidate(candidate);
+                    console.log('✅ ICE кандидат добавлен');
                 } catch (error) {
                     console.error('❌ Ошибка добавления ICE кандидата:', error);
                 }
@@ -817,7 +984,18 @@
 
         // Управление звонком
         async function acceptCall() {
+            if (!hasRemoteOffer) {
+                showNotification('Ожидаем данные звонка...');
+                return;
+            }
+
             try {
+                // Проверяем состояние перед созданием answer
+                if (peerConnection.signalingState !== 'have-remote-offer') {
+                    showNotification('Звонок еще не готов к принятию');
+                    return;
+                }
+
                 const answer = await peerConnection.createAnswer();
                 await peerConnection.setLocalDescription(answer);
                 
@@ -832,7 +1010,7 @@
                 
             } catch (error) {
                 console.error('❌ Ошибка принятия звонка:', error);
-                showNotification('Ошибка принятия звонка');
+                showNotification('Ошибка принятия звонка: ' + error.message);
             }
         }
 
