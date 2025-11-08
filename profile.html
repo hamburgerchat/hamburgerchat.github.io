@@ -27,6 +27,7 @@
       --success-color: #10b981;
       --online-color: #10b981;
       --offline-color: #9ca3af;
+      --bot-color: #10b981;
     }
 
     [data-theme="dark"] {
@@ -42,6 +43,7 @@
       --shadow: 0 1px 3px rgba(0,0,0,0.3);
       --online-color: #10b981;
       --offline-color: #6b7280;
+      --bot-color: #34d399;
     }
 
     * { 
@@ -608,6 +610,66 @@
       color: var(--text-secondary);
     }
     
+    /* Стили для секции бота */
+    .bot-script-section {
+        background: var(--card-bg);
+        padding: 1.5rem;
+        margin: 1.5rem;
+        border-radius: 1rem;
+        box-shadow: var(--shadow);
+        border: 1px solid var(--border-color);
+    }
+    
+    .script-url {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        background: var(--bg-secondary);
+        padding: 1rem;
+        border-radius: 0.8rem;
+        margin-bottom: 1rem;
+    }
+    
+    .script-text {
+        flex: 1;
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+        word-break: break-all;
+    }
+    
+    .copy-script {
+        background: var(--bot-color);
+        color: white;
+        border: none;
+        border-radius: 0.5rem;
+        padding: 0.5rem 1rem;
+        cursor: pointer;
+        font-size: 0.8rem;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+    
+    .copy-script:hover {
+        background: #0da271;
+    }
+    
+    .bot-info {
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+        line-height: 1.5;
+    }
+    
+    .bot-tag {
+        display: inline-block;
+        background: var(--bot-color);
+        color: white;
+        padding: 0.3rem 0.8rem;
+        border-radius: 1rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        margin-left: 0.5rem;
+    }
+    
     @media (max-width: 768px) {
       .members-list {
         grid-template-columns: 1fr;
@@ -639,6 +701,11 @@
       }
       
       .profile-section {
+        margin: 1rem;
+        padding: 1rem;
+      }
+      
+      .bot-script-section {
         margin: 1rem;
         padding: 1rem;
       }
@@ -678,6 +745,17 @@
       
       .profile-name-input {
         font-size: 1.3rem;
+      }
+      
+      .script-url {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.8rem;
+      }
+      
+      .copy-script {
+        align-self: stretch;
+        text-align: center;
       }
     }
   </style>
@@ -760,6 +838,22 @@
           </div>
         </div>
         
+        <!-- Секция для скрипта бота -->
+        <div class="bot-script-section" id="botScriptSection" style="display: none;">
+          <div class="section-title">
+            <i class="fas fa-code"></i>
+            <span>Код бота</span>
+          </div>
+          <div class="script-url">
+            <div class="script-text" id="scriptUrlText">https://example.com/bot-script.js</div>
+            <button class="copy-script" id="copyScriptButton">Копировать URL</button>
+          </div>
+          <div class="bot-info">
+            Этот бот работает на JavaScript коде, который загружается при каждом входе в чат.
+            Только создатель бота может редактировать его код и настройки.
+          </div>
+        </div>
+        
         <div class="profile-section" id="shareSection" style="display: none;">
           <div class="section-title">
             <i class="fas fa-link"></i>
@@ -822,6 +916,7 @@
     let profileId = null;
     let profileData = null;
     let isGroup = false;
+    let isBot = false;
     let isOwnProfile = false;
     let isEditing = false;
     let isCreator = false;
@@ -891,17 +986,17 @@
       try {
         console.log('Загружаю профиль с ID:', profileId);
         
-        // Сначала проверяем, является ли это группой
+        // Сначала проверяем, является ли это чатом (группой, каналом или ботом)
         const chatRef = database.ref(`chats/${profileId}`);
         const chatSnapshot = await chatRef.once('value');
         
         if (chatSnapshot.exists()) {
-          // Это группа
-          isGroup = true;
-          await loadGroupData(chatSnapshot);
+          // Это чат (группа, канал или бот)
+          await loadChatData(chatSnapshot);
         } else {
           // Это пользователь
           isGroup = false;
+          isBot = false;
           await loadUserData();
         }
         
@@ -911,11 +1006,11 @@
       }
     }
 
-    // Загрузка данных группы
-    async function loadGroupData(chatSnapshot) {
+    // Загрузка данных чата (группы, канала или бота)
+    async function loadChatData(chatSnapshot) {
       try {
         const chatData = chatSnapshot.val();
-        console.log('Данные группы:', chatData);
+        console.log('Данные чата:', chatData);
         
         let decryptedData = null;
         
@@ -926,33 +1021,38 @@
         }
         
         if (!decryptedData) {
-          throw new Error('Не удалось расшифровать данные группы');
-        }
-        
-        // Проверяем, является ли группа группой
-        if (decryptedData.type !== 'group') {
-          throw new Error('Это не группа');
+          throw new Error('Не удалось расшифровать данные чата');
         }
         
         profileData = decryptedData;
-        console.log('Расшифрованные данные группы:', profileData);
+        console.log('Расшифрованные данные чата:', profileData);
+        
+        // Определяем тип чата
+        isGroup = profileData.type === 'group';
+        isBot = profileData.type === 'bot';
         
         // Проверяем права доступа
         isCreator = profileData.createdBy === currentUserId;
         isAdmin = isCreator || (profileData.admins && profileData.admins.includes(currentUserId));
         
-        // Отображаем данные группы
-        await displayGroupData();
+        // Отображаем данные в зависимости от типа
+        if (isBot) {
+          await displayBotData();
+        } else if (isGroup) {
+          await displayGroupData();
+        } else {
+          // Канал или другой тип чата
+          await displayGroupData();
+        }
         
         // Скрываем загрузку и показываем контент
         document.getElementById('loadingContainer').style.display = 'none';
         document.getElementById('profileData').style.display = 'block';
-        document.getElementById('shareSection').style.display = 'block';
-        document.getElementById('membersSection').style.display = 'block';
-        document.getElementById('statsGrid').style.display = 'grid';
         
-        // Загружаем статистику
-        await loadGroupStats();
+        // Загружаем статистику для групп и ботов
+        if (isGroup || isBot) {
+          await loadChatStats();
+        }
         
         // Показываем кнопки в зависимости от прав
         if (isAdmin) {
@@ -961,7 +1061,7 @@
         document.getElementById('chatButton').style.display = 'block';
         
       } catch (error) {
-        console.error('Ошибка загрузки группы:', error);
+        console.error('Ошибка загрузки чата:', error);
         showError(error.message);
       }
     }
@@ -1014,10 +1114,65 @@
       }
     }
 
+    // Отображение данных бота
+    async function displayBotData() {
+      // Заголовок
+      document.getElementById('headerTitle').textContent = 'Профиль бота';
+      
+      // Баннер
+      const profileBanner = document.getElementById('profileBanner');
+      if (profileData.banner) {
+        profileBanner.style.backgroundImage = `url(${profileData.banner})`;
+        profileBanner.style.backgroundSize = 'cover';
+        profileBanner.style.backgroundPosition = 'center';
+      }
+      
+      // Аватар
+      const profileAvatar = document.getElementById('profileAvatar');
+      const profileAvatarInitial = document.getElementById('profileAvatarInitial');
+      
+      if (profileData.avatar) {
+        profileAvatar.style.backgroundImage = `url(${profileData.avatar})`;
+        profileAvatarInitial.style.display = 'none';
+      } else {
+        profileAvatarInitial.textContent = profileData.name ? profileData.name.charAt(0).toUpperCase() : 'B';
+      }
+      
+      // Добавляем тег бота к имени
+      const nameWithTag = `${profileData.name || 'Без названия'} <span class="bot-tag">БОТ</span>`;
+      document.getElementById('profileName').innerHTML = nameWithTag;
+      document.getElementById('profileNameInput').value = profileData.name || '';
+      
+      // Описание
+      document.getElementById('profileDescription').textContent = profileData.description || 'Автоматический бот для общения';
+      document.getElementById('profileDescriptionInput').value = profileData.description || '';
+      
+      // Скрываем статус для ботов
+      document.getElementById('profileStatus').style.display = 'none';
+      
+      // Показываем секцию скрипта бота
+      document.getElementById('botScriptSection').style.display = 'block';
+      if (profileData.botScriptUrl) {
+        document.getElementById('scriptUrlText').textContent = profileData.botScriptUrl;
+      }
+      
+      // Ссылка для приглашения
+      document.getElementById('shareLinkText').textContent = `https://hamburgerchat.github.io/chat.html?id=${profileId}`;
+      document.getElementById('shareSection').style.display = 'block';
+      
+      // Участники
+      document.getElementById('membersSection').style.display = 'block';
+      await displayMembers();
+      
+      // Статистика
+      document.getElementById('statsGrid').style.display = 'grid';
+    }
+
     // Отображение данных группы
     async function displayGroupData() {
       // Заголовок
-      document.getElementById('headerTitle').textContent = 'Профиль группы';
+      const chatType = isBot ? 'бота' : (isGroup ? 'группы' : 'канала');
+      document.getElementById('headerTitle').textContent = `Профиль ${chatType}`;
       
       // Баннер
       const profileBanner = document.getElementById('profileBanner');
@@ -1049,15 +1204,23 @@
       // Скрываем статус для групп
       document.getElementById('profileStatus').style.display = 'none';
       
+      // Скрываем секцию скрипта для не-ботов
+      document.getElementById('botScriptSection').style.display = 'none';
+      
       // Ссылка для приглашения
       document.getElementById('shareLinkText').textContent = `https://hamburgerchat.github.io/chat.html?id=${profileId}`;
+      document.getElementById('shareSection').style.display = 'block';
       
       // Участники
+      document.getElementById('membersSection').style.display = 'block';
       await displayMembers();
+      
+      // Статистика
+      document.getElementById('statsGrid').style.display = 'grid';
     }
 
-    // Загрузка статистики группы
-    async function loadGroupStats() {
+    // Загрузка статистики чата
+    async function loadChatStats() {
       try {
         // Подсчет участников
         let membersCount = 0;
@@ -1119,7 +1282,6 @@
       const statusText = document.getElementById('statusText');
       
       // В реальном приложении статус должен загружаться из базы данных
-      // Здесь для примера используем случайный статус
       const isOnline = Math.random() > 0.5;
       
       if (isOnline) {
@@ -1135,12 +1297,13 @@
       document.getElementById('profileDescriptionInput').value = profileData.bio || '';
       
       // Скрываем секции, которые не нужны для пользователя
+      document.getElementById('botScriptSection').style.display = 'none';
       document.getElementById('shareSection').style.display = 'none';
       document.getElementById('membersSection').style.display = 'none';
       document.getElementById('statsGrid').style.display = 'none';
     }
 
-    // Отображение участников группы
+    // Отображение участников
     async function displayMembers() {
       const membersList = document.getElementById('membersList');
       membersList.innerHTML = '';
@@ -1315,7 +1478,7 @@
         if (action === 'makeAdmin') {
           await toggleAdminStatus(userId);
         } else if (action === 'removeFromGroup') {
-          await removeFromGroup(userId);
+          await removeFromChat(userId);
         }
       } catch (error) {
         console.error('Ошибка выполнения действия:', error);
@@ -1360,10 +1523,10 @@
       }
     }
 
-    // Удаление участника из группы
-    async function removeFromGroup(userId) {
+    // Удаление участника из чата
+    async function removeFromChat(userId) {
       try {
-        if (!confirm('Вы уверены, что хотите удалить этого участника из группы?')) {
+        if (!confirm('Вы уверены, что хотите удалить этого участника?')) {
           return;
         }
         
@@ -1395,9 +1558,9 @@
         await displayMembers();
         
         // Обновляем статистику
-        await loadGroupStats();
+        await loadChatStats();
         
-        alert('Пользователь удален из группы');
+        alert('Пользователь удален');
         
       } catch (error) {
         console.error('Ошибка удаления участника:', error);
@@ -1436,6 +1599,12 @@
       document.getElementById('copyLinkButton').addEventListener('click', () => {
         copyToClipboard(document.getElementById('shareLinkText').textContent);
         alert('Ссылка скопирована в буфер обмена');
+      });
+      
+      // Кнопка "Копировать URL скрипта"
+      document.getElementById('copyScriptButton').addEventListener('click', () => {
+        copyToClipboard(document.getElementById('scriptUrlText').textContent);
+        alert('URL скрипта скопирован в буфер обмена');
       });
       
       // Кнопка "На главную"
@@ -1504,7 +1673,7 @@
       document.getElementById('cancelButton').style.display = 'none';
       
       // Показываем кнопки в зависимости от типа профиля
-      if (isGroup) {
+      if (isGroup || isBot) {
         if (isAdmin) {
           document.getElementById('editButton').style.display = 'block';
         }
@@ -1518,8 +1687,13 @@
       }
       
       // Сбрасываем значения полей ввода
-      document.getElementById('profileNameInput').value = profileData.name || profileData.username || '';
-      document.getElementById('profileDescriptionInput').value = profileData.description || profileData.bio || '';
+      if (isGroup || isBot) {
+        document.getElementById('profileNameInput').value = profileData.name || '';
+        document.getElementById('profileDescriptionInput').value = profileData.description || '';
+      } else {
+        document.getElementById('profileNameInput').value = profileData.username || '';
+        document.getElementById('profileDescriptionInput').value = profileData.bio || '';
+      }
     }
 
     // Сохранение изменений
@@ -1535,39 +1709,29 @@
         }
         
         // Обновляем данные профиля
-        if (isGroup) {
+        if (isGroup || isBot) {
           profileData.name = newName;
           profileData.description = newDescription;
-          
-          // Обновляем аватар, если загружен новый
-          if (uploadedAvatarUrl) {
-            profileData.avatar = uploadedAvatarUrl;
-          }
-          
-          // Обновляем баннер, если загружен новый
-          if (uploadedBannerUrl) {
-            profileData.banner = uploadedBannerUrl;
-          }
         } else {
           profileData.username = newName;
           profileData.bio = newDescription;
-          
-          // Обновляем аватар, если загружен новый
-          if (uploadedAvatarUrl) {
-            profileData.avatar = uploadedAvatarUrl;
-          }
-          
-          // Обновляем баннер, если загружен новый
-          if (uploadedBannerUrl) {
-            profileData.banner = uploadedBannerUrl;
-          }
+        }
+        
+        // Обновляем аватар, если загружен новый
+        if (uploadedAvatarUrl) {
+          profileData.avatar = uploadedAvatarUrl;
+        }
+        
+        // Обновляем баннер, если загружен новый
+        if (uploadedBannerUrl) {
+          profileData.banner = uploadedBannerUrl;
         }
         
         // Шифруем обновленные данные
         const encryptedData = encryptData(profileData);
         
         // Сохраняем в базу данных
-        if (isGroup) {
+        if (isGroup || isBot) {
           await database.ref(`chats/${profileId}`).update({
             encryptedData: encryptedData
           });
@@ -1578,7 +1742,9 @@
         }
         
         // Обновляем отображение
-        if (isGroup) {
+        if (isBot) {
+          await displayBotData();
+        } else if (isGroup) {
           await displayGroupData();
         } else {
           displayUserData();
