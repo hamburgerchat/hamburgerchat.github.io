@@ -10,36 +10,6 @@
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
   <style>
-    :root {
-      --bg-primary: #ffffff;
-      --bg-secondary: #f8f9fa;
-      --bg-tertiary: #f1f3f4;
-      --text-primary: #1f2937;
-      --text-secondary: #6b7280;
-      --text-tertiary: #9ca3af;
-      --border-color: #e5e7eb;
-      --accent-color: #ff7f50;
-      --accent-gradient: linear-gradient(135deg, #ff7f50, #ffcc70);
-      --shadow: 0 1px 3px rgba(0,0,0,0.1);
-      --card-bg: #ffffff;
-      --hover-bg: #f3f4f6;
-      --danger-color: #ef4444;
-      --success-color: #10b981;
-    }
-
-    [data-theme="dark"] {
-      --bg-primary: #111827;
-      --bg-secondary: #1f2937;
-      --bg-tertiary: #374151;
-      --text-primary: #f9fafb;
-      --text-secondary: #d1d5db;
-      --text-tertiary: #9ca3af;
-      --border-color: #374151;
-      --card-bg: #1f2937;
-      --hover-bg: #374151;
-      --shadow: 0 1px 3px rgba(0,0,0,0.3);
-    }
-
     * { 
       box-sizing: border-box; 
       margin: 0; 
@@ -48,176 +18,120 @@
     }
     
     body {
-      background: var(--bg-primary);
-      color: var(--text-primary);
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      overflow-x: hidden;
-      transition: all 0.3s ease;
-    }
-    
-    .header {
-      background: var(--bg-primary);
-      padding: 1rem;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      border-bottom: 1px solid var(--border-color);
-      position: sticky;
-      top: 0;
-      z-index: 100;
-    }
-    
-    .header-left {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-    }
-    
-    .back-button {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      border: none;
-      background: transparent;
-      color: var(--text-secondary);
-      font-size: 1.1rem;
-      cursor: pointer;
+      background: linear-gradient(135deg, #ffcc70, #ff7f50);
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: all 0.2s ease;
+      min-height: 100vh;
+      padding: 20px;
+      overflow: hidden;
     }
     
-    .back-button:hover {
-      background: var(--hover-bg);
-    }
-    
-    .header-title {
-      font-size: 1.2rem;
-      font-weight: 600;
-      color: var(--text-primary);
-    }
-    
-    .auth-content {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      padding: 2rem 1rem;
-      max-width: 400px;
-      margin: 0 auto;
+    .loader {
+      position: fixed;
+      top: 0;
+      left: 0;
       width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #ffcc70, #ff7f50);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      z-index: 1000;
+      transition: opacity 0.5s ease, visibility 0.5s ease;
+    }
+    
+    .loader.hidden {
+      opacity: 0;
+      visibility: hidden;
+    }
+    
+    .loader-logo {
+      width: 120px;
+      height: 120px;
+      background: linear-gradient(135deg, #ff7f50, #ffcc70);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 15px 30px rgba(255, 127, 80, 0.4);
+      margin-bottom: 20px;
+      animation: logoFloat 2s ease-in-out infinite;
+    }
+    
+    @keyframes logoFloat {
+      0%, 100% { transform: translateY(0) scale(1); }
+      50% { transform: translateY(-10px) scale(1.05); }
+    }
+    
+    .loader-logo i {
+      font-size: 3rem;
+      color: white;
+    }
+    
+    .loader-text {
+      color: white;
+      font-size: 1.5rem;
+      font-weight: 600;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+    
+    .container {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border-radius: 2rem;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.15), 0 10px 20px rgba(0,0,0,0.1);
+      padding: 2.5rem;
+      width: 100%;
+      max-width: 420px;
+      animation: fadeInUp 0.8s ease forwards;
+      position: relative;
+      overflow: hidden;
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    
+    @keyframes fadeInUp {
+      0% { opacity: 0; transform: translateY(20px); }
+      100% { opacity: 1; transform: translateY(0); }
     }
     
     .logo-container {
       display: flex;
       justify-content: center;
-      margin-bottom: 2rem;
+      margin-bottom: 1.5rem;
     }
     
-    .logo-large {
+    .logo {
       width: 100px;
       height: 100px;
-      background: var(--accent-gradient);
+      background: linear-gradient(135deg, #ff7f50, #ffcc70);
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 8px 20px rgba(255, 127, 80, 0.3);
+      box-shadow: 0 10px 20px rgba(255, 127, 80, 0.3);
+      animation: pulse 2s infinite;
     }
     
-    .logo-large i {
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+    
+    .logo i {
       font-size: 2.5rem;
       color: white;
     }
     
     h1 {
       text-align: center;
-      font-size: 1.8rem;
-      color: var(--text-primary);
-      margin-bottom: 2rem;
+      font-size: 2rem;
+      color: #333;
+      margin-bottom: 1.5rem;
       font-weight: 700;
-    }
-    
-    .saved-accounts {
-      margin-bottom: 2rem;
-    }
-    
-    .saved-accounts-title {
-      font-size: 1rem;
-      color: var(--text-secondary);
-      margin-bottom: 1rem;
-      font-weight: 600;
-    }
-    
-    .saved-account {
-      display: flex;
-      align-items: center;
-      padding: 1rem;
-      background: var(--card-bg);
-      border-radius: 1rem;
-      margin-bottom: 0.5rem;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      border: 1px solid var(--border-color);
-      box-shadow: var(--shadow);
-    }
-    
-    .saved-account:hover {
-      background: var(--hover-bg);
-    }
-    
-    .account-avatar {
-      width: 44px;
-      height: 44px;
-      border-radius: 50%;
-      background: var(--accent-gradient);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 600;
-      color: white;
-      margin-right: 1rem;
-      background-size: cover;
-      background-position: center;
-      flex-shrink: 0;
-    }
-    
-    .account-info {
-      flex: 1;
-      min-width: 0;
-    }
-    
-    .account-name {
-      font-weight: 600;
-      color: var(--text-primary);
-      margin-bottom: 0.2rem;
-    }
-    
-    .account-id {
-      font-size: 0.8rem;
-      color: var(--text-secondary);
-    }
-    
-    .divider {
-      display: flex;
-      align-items: center;
-      margin: 2rem 0;
-      color: var(--text-secondary);
-    }
-    
-    .divider::before,
-    .divider::after {
-      content: '';
-      flex: 1;
-      height: 1px;
-      background: var(--border-color);
-    }
-    
-    .divider-text {
-      padding: 0 1rem;
-      font-size: 0.9rem;
     }
     
     .form-group {
@@ -227,20 +141,19 @@
     
     input {
       width: 100%;
-      padding: 1rem 3rem 1rem 1rem;
-      border: 1px solid var(--border-color);
+      padding: 1rem 1rem 1rem 3rem;
+      border: 2px solid #f0f0f0;
       border-radius: 1rem;
       font-size: 1rem;
       transition: all 0.3s ease;
-      background-color: var(--bg-secondary);
-      color: var(--text-primary);
+      background-color: #f9f9f9;
     }
     
     input:focus {
-      border-color: var(--accent-color);
+      border-color: #ff7f50;
       outline: none;
       box-shadow: 0 0 0 3px rgba(255, 127, 80, 0.2);
-      background-color: var(--bg-primary);
+      background-color: white;
     }
     
     .input-icon {
@@ -248,12 +161,12 @@
       left: 1rem;
       top: 50%;
       transform: translateY(-50%);
-      color: var(--text-secondary);
+      color: #888;
       transition: color 0.3s ease;
     }
     
     input:focus + .input-icon {
-      color: var(--accent-color);
+      color: #ff7f50;
     }
     
     .password-toggle {
@@ -261,27 +174,19 @@
       right: 1rem;
       top: 50%;
       transform: translateY(-50%);
-      color: var(--text-secondary);
+      color: #888;
       cursor: pointer;
       transition: color 0.3s ease;
-      background: none;
-      border: none;
-      font-size: 1rem;
-      width: 24px;
-      height: 24px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
     }
     
     .password-toggle:hover {
-      color: var(--accent-color);
+      color: #ff7f50;
     }
     
     button {
       width: 100%;
       padding: 1rem;
-      background: var(--accent-gradient);
+      background: linear-gradient(135deg, #ff7f50, #ff9966);
       color: white;
       border: none;
       border-radius: 1rem;
@@ -289,32 +194,44 @@
       font-size: 1.1rem;
       cursor: pointer;
       transition: all 0.3s ease;
+      box-shadow: 0 5px 15px rgba(255, 127, 80, 0.4);
+      position: relative;
+      overflow: hidden;
     }
     
     button:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 20px rgba(255, 127, 80, 0.4);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(255, 127, 80, 0.5);
     }
     
     button:active {
       transform: translateY(0);
     }
     
-    button:disabled {
-      opacity: 0.7;
-      cursor: not-allowed;
-      transform: none;
+    button::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+      transition: left 0.5s;
+    }
+    
+    button:hover::after {
+      left: 100%;
     }
     
     .footer {
       margin-top: 2rem;
       text-align: center;
       font-size: 0.9rem;
-      color: var(--text-secondary);
+      color: #666;
     }
     
     .footer a {
-      color: var(--accent-color);
+      color: #ff7f50;
       text-decoration: none;
       font-weight: 600;
       transition: color 0.3s ease;
@@ -335,11 +252,10 @@
       display: inline-block;
       width: 20px;
       height: 20px;
-      border: 3px solid rgba(255, 255, 255, 0.3);
+      border: 3px solid rgba(255, 127, 80, 0.3);
       border-radius: 50%;
-      border-top-color: white;
+      border-top-color: #ff7f50;
       animation: spin 1s ease-in-out infinite;
-      margin-right: 0.5rem;
     }
     
     @keyframes spin {
@@ -356,60 +272,76 @@
     }
     
     .error {
-      background-color: rgba(239, 68, 68, 0.1);
-      color: var(--danger-color);
-      border: 1px solid rgba(239, 68, 68, 0.2);
+      background-color: #ffeaea;
+      color: #d32f2f;
+      border: 1px solid #ffcdd2;
     }
     
     .success {
-      background-color: rgba(16, 185, 129, 0.1);
-      color: var(--success-color);
-      border: 1px solid rgba(16, 185, 129, 0.2);
+      background-color: #e8f5e9;
+      color: #2e7d32;
+      border: 1px solid #c8e6c9;
     }
     
     .info {
-      background-color: rgba(59, 130, 246, 0.1);
-      color: #3b82f6;
-      border: 1px solid rgba(59, 130, 246, 0.2);
+      background-color: #e3f2fd;
+      color: #1565c0;
+      border: 1px solid #bbdefb;
+    }
+    
+    .particles {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      overflow: hidden;
+    }
+    
+    .particle {
+      position: absolute;
+      background: rgba(255, 127, 80, 0.3);
+      border-radius: 50%;
+      animation: float 15s infinite linear;
+    }
+    
+    @keyframes float {
+      0% { transform: translateY(0) rotate(0deg); opacity: 0; }
+      10% { opacity: 1; }
+      90% { opacity: 1; }
+      100% { transform: translateY(-1000%) rotate(720deg); opacity: 0; }
     }
     
     @media (max-width: 480px) {
-      .auth-content {
-        padding: 1rem;
+      .container {
+        padding: 2rem 1.5rem;
+        border-radius: 1.5rem;
       }
       
       h1 {
-        font-size: 1.5rem;
+        font-size: 1.7rem;
       }
       
-      .logo-large {
-        width: 80px;
-        height: 80px;
-      }
-      
-      .logo-large i {
-        font-size: 2rem;
-      }
-      
-      .header {
-        padding: 1rem 0.8rem;
+      input {
+        padding: 0.9rem 0.9rem 0.9rem 2.8rem;
       }
     }
   </style>
 </head>
 <body>
-  <div class="header">
-    <div class="header-left">
-      <button class="back-button" onclick="window.history.back()">
-        <i class="fas fa-arrow-left"></i>
-      </button>
-      <div class="header-title">Вход</div>
+  <div class="loader" id="loader">
+    <div class="loader-logo">
+      <i class="fas fa-hamburger"></i>
     </div>
+    <div class="loader-text">Hamburger</div>
   </div>
   
-  <div class="auth-content">
+  <div class="particles" id="particles"></div>
+  
+  <div class="container" id="container">
     <div class="logo-container">
-      <div class="logo-large">
+      <div class="logo">
         <i class="fas fa-hamburger"></i>
       </div>
     </div>
@@ -417,15 +349,6 @@
     <h1>Вход в Hamburger</h1>
     
     <div class="message" id="message"></div>
-    
-    <div class="saved-accounts" id="savedAccounts" style="display: none;">
-      <div class="saved-accounts-title">Ранее вы входили в:</div>
-      <div id="savedAccountsList"></div>
-    </div>
-    
-    <div class="divider" id="divider" style="display: none;">
-      <div class="divider-text">Или войдите в другой аккаунт</div>
-    </div>
     
     <div class="form-group">
       <i class="fas fa-user input-icon"></i>
@@ -435,9 +358,7 @@
     <div class="form-group">
       <i class="fas fa-lock input-icon"></i>
       <input type="password" id="password" placeholder="Пароль" required />
-      <button class="password-toggle" id="togglePassword" type="button">
-        <i class="fas fa-eye"></i>
-      </button>
+      <i class="fas fa-eye password-toggle" id="togglePassword"></i>
     </div>
     
     <button onclick="login()" id="loginBtn">
@@ -464,13 +385,9 @@
     firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
     
-    // Ключ для шифрования
+    // Ключ для шифрования (должен совпадать с ключом на странице регистрации)
     const ENCRYPTION_KEY = "HamburgerSecureKey2024!";
     
-    // Применяем сохраненную тему при загрузке
-    const savedTheme = localStorage.getItem('hamburger_theme') || 'light';
-    document.documentElement.setAttribute('data-theme', savedTheme);
-
     // Хеширование пароля
     function hashPassword(password) {
       return CryptoJS.SHA256(password + ENCRYPTION_KEY).toString();
@@ -486,92 +403,38 @@
       }
     }
     
-    // Получение сохраненных аккаунтов
-    function getSavedAccounts() {
-      const saved = localStorage.getItem('hamburger_saved_accounts');
-      return saved ? JSON.parse(saved) : [];
-    }
-    
-    // Сохранение аккаунта
-    function saveAccount(username, userId, avatar = null) {
-      const accounts = getSavedAccounts();
+    // Создание частиц для фона
+    function createParticles() {
+      const particlesContainer = document.getElementById('particles');
+      const particleCount = 15;
       
-      // Проверяем, нет ли уже такого аккаунта
-      const existingIndex = accounts.findIndex(acc => acc.userId === userId);
-      if (existingIndex !== -1) {
-        accounts.splice(existingIndex, 1);
-      }
-      
-      // Добавляем аккаунт в начало
-      accounts.unshift({
-        username,
-        userId,
-        avatar,
-        lastLogin: Date.now()
-      });
-      
-      // Ограничиваем количество сохраненных аккаунтов
-      const maxAccounts = 5;
-      if (accounts.length > maxAccounts) {
-        accounts.splice(maxAccounts);
-      }
-      
-      localStorage.setItem('hamburger_saved_accounts', JSON.stringify(accounts));
-    }
-    
-    // Отображение сохраненных аккаунтов
-    function displaySavedAccounts() {
-      const accounts = getSavedAccounts();
-      const container = document.getElementById('savedAccounts');
-      const list = document.getElementById('savedAccountsList');
-      const divider = document.getElementById('divider');
-      
-      if (accounts.length === 0) {
-        container.style.display = 'none';
-        divider.style.display = 'none';
-        return;
-      }
-      
-      container.style.display = 'block';
-      divider.style.display = 'flex';
-      list.innerHTML = '';
-      
-      accounts.forEach(account => {
-        const accountElement = document.createElement('div');
-        accountElement.className = 'saved-account';
-        accountElement.addEventListener('click', () => {
-          document.getElementById('username').value = account.username;
-          document.getElementById('password').focus();
-        });
+      for (let i = 0; i < particleCount; i++) {
+        const particle = document.createElement('div');
+        particle.classList.add('particle');
         
-        const avatarHtml = account.avatar 
-          ? `<div class="account-avatar" style="background-image: url(${account.avatar});"></div>`
-          : `<div class="account-avatar">${account.username.charAt(0).toUpperCase()}</div>`;
+        // Случайные параметры для частиц
+        const size = Math.random() * 20 + 5;
+        const left = Math.random() * 100;
+        const animationDuration = Math.random() * 20 + 10;
+        const animationDelay = Math.random() * 5;
         
-        accountElement.innerHTML = `
-          ${avatarHtml}
-          <div class="account-info">
-            <div class="account-name">${account.username}</div>
-            <div class="account-id">ID: ${account.userId.substring(0, 8)}...</div>
-          </div>
-        `;
+        particle.style.width = `${size}px`;
+        particle.style.height = `${size}px`;
+        particle.style.left = `${left}%`;
+        particle.style.animationDuration = `${animationDuration}s`;
+        particle.style.animationDelay = `${animationDelay}s`;
         
-        list.appendChild(accountElement);
-      });
+        particlesContainer.appendChild(particle);
+      }
     }
     
     // Переключение видимости пароля
     document.getElementById('togglePassword').addEventListener('click', function() {
       const passwordInput = document.getElementById('password');
-      const icon = this.querySelector('i');
       const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
       passwordInput.setAttribute('type', type);
-      
-      if (type === 'password') {
-        icon.className = 'fas fa-eye';
-      } else {
-        icon.className = 'fas fa-eye-slash';
-      }
+      this.classList.toggle('fa-eye');
+      this.classList.toggle('fa-eye-slash');
     });
     
     // Функция входа в систему
@@ -619,7 +482,7 @@
           
           if (userData && userData.username === username) {
             userFound = true;
-            return true;
+            return true; // Останавливаем перебор
           }
         });
 
@@ -640,14 +503,11 @@
         // Успешный вход
         showMessage("Вход выполнен успешно! Перенаправление...", "success");
         
-        // Сохраняем аккаунт
-        saveAccount(username, userId, userData.avatar || null);
-        
         // Сохраняем в localStorage
         localStorage.setItem("hamburger_user", username);
         localStorage.setItem("hamburger_user_id", userId);
         
-        // Задержка перед перенаправлением
+        // Задержка перед перенаправлением на main.html
         setTimeout(() => {
           window.location.href = "https://hamburgerchat.github.io/main.html";
         }, 1500);
@@ -664,11 +524,12 @@
       const messageEl = document.getElementById("message");
       messageEl.textContent = text;
       messageEl.className = `message ${type}`;
-      messageEl.style.display = 'block';
+      messageEl.style.display = "block";
       
+      // Автоматическое скрытие сообщений об ошибках через 5 секунд
       if (type === "error") {
         setTimeout(() => {
-          messageEl.style.display = 'none';
+          messageEl.style.display = "none";
         }, 5000);
       }
     }
@@ -681,7 +542,7 @@
       
       loginBtn.disabled = false;
       btnText.textContent = "Войти";
-      loading.style.display = 'none';
+      loading.style.display = "none";
     }
     
     // Проверка существования пользователя на сервере
@@ -712,26 +573,37 @@
     
     // Инициализация при загрузке страницы
     window.addEventListener("DOMContentLoaded", async () => {
-      // Показываем сохраненные аккаунты
-      displaySavedAccounts();
+      createParticles();
       
-      // Проверка авторизации
+      // Проверка авторизации и существования пользователя на сервере
       const user = localStorage.getItem("hamburger_user");
       const userId = localStorage.getItem("hamburger_user_id");
       
       if (user && userId) {
         const userExists = await verifyUserOnServer();
         if (userExists) {
+          // Пользователь существует на сервере - перенаправляем
           window.location.href = "https://hamburgerchat.github.io/main.html";
           return;
         } else {
+          // Пользователь не существует на сервере - очищаем localStorage
           localStorage.removeItem("hamburger_user");
           localStorage.removeItem("hamburger_user_id");
           showMessage("Ваша сессия истекла. Пожалуйста, войдите снова.", "info");
         }
       }
       
-      // Обработчики для клавиши Enter
+      // Запуск анимации загрузки
+      setTimeout(() => {
+        document.getElementById('loader').classList.add('hidden');
+        document.getElementById('container').style.animation = 'fadeInUp 0.8s ease forwards';
+        
+        setTimeout(() => {
+          document.getElementById('loader').style.display = 'none';
+        }, 500);
+      }, 2000);
+      
+      // Добавляем обработчики для клавиши Enter
       document.getElementById("username").addEventListener("keypress", function(e) {
         if (e.key === "Enter") {
           document.getElementById("password").focus();
