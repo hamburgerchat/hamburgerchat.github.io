@@ -1,183 +1,156 @@
-class GameBot {
+class SimpleBot {
     constructor() {
-        this.name = "ИгровойБот";
-        this.games = new Map();
+        this.name = "ПростойБот";
+        this.greetings = ["привет", "hello", "здравствуй", "хай", "ку"];
+        this.farewells = ["пока", "до свидания", "прощай", "bye"];
     }
 
     async onStart(context) {
         await context.reply({
-            text: "🎮 **Добро пожаловать в игровую зону!**\\\\nВыберите игру:",
+            text: "👋 Привет! Я простой тестовый бот.\nНапиши мне что-нибудь, и я отвечу!",
             buttons: [
                 [
-                    { type: "text", label: "🎲 Угадай число", payload: "guess_number" },
-                    { type: "text", label: "❓ Викторина", payload: "quiz" }
+                    { type: "text", label: "❓ Помощь", payload: "help" },
+                    { type: "text", label: "ℹ️ Инфо", payload: "info" }
                 ],
                 [
-                    { type: "text", label: "🎯 Камень-ножницы-бумага", payload: "rps" },
-                    { type: "text", label: "🏆 Статистика", payload: "stats" }
+                    { type: "text", label: "🎲 Случайное число", payload: "random" },
+                    { type: "text", label: "🕐 Время", payload: "time" }
                 ]
             ]
         });
     }
 
     async onMessage(message, context) {
-        const text = message.text.toLowerCase();
+        const text = message.text.toLowerCase().trim();
 
-        if (text.includes('start') || text.includes('игры') || text.includes('игра')) {
-            await this.onStart(context);
+        // Приветствие
+        if (this.greetings.some(greet => text.includes(greet))) {
+            await context.reply({
+                text: `👋 Привет, ${context.userName}! Рад тебя видеть! Чем могу помочь?`,
+                buttons: [
+                    [
+                        { type: "text", label: "❓ Помощь", payload: "help" }
+                    ]
+                ]
+            });
             return;
         }
 
-        // Обработка нажатий кнопок
-        if (context.buttonPayload) {
-            await this.handleButton(context.buttonPayload, context);
+        // Прощание
+        if (this.farewells.some(farewell => text.includes(farewell))) {
+            await context.reply({
+                text: "👋 Пока! Возвращайся скорее! 😊"
+            });
+            return;
         }
 
-        // Обработка игровых команд
-        const userGame = this.games.get(context.userId);
-        if (userGame && userGame.type === 'guess_number') {
-            await this.handleGuessNumber(text, context);
+        // Простые команды
+        if (text.includes("как дела") || text.includes("как ты")) {
+            await context.reply({
+                text: "🤖 У меня всё отлично! Спасибо, что спросил! А у тебя как?"
+            });
+            return;
+        }
+
+        if (text.includes("что ты умеешь") || text.includes("помощь")) {
+            await this.showHelp(context);
+            return;
+        }
+
+        if (text.includes("погода")) {
+            await context.reply({
+                text: "☀️ Сегодня отличная погода для общения! (К сожалению, я не умею показывать реальную погоду)"
+            });
+            return;
+        }
+
+        // Обработка кнопок
+        if (context.buttonPayload) {
+            await this.handleButton(context.buttonPayload, context);
+            return;
+        }
+
+        // Ответ по умолчанию
+        if (text) {
+            const responses = [
+                "Интересно! Расскажи подробнее? 🤔",
+                "Понял тебя! Что ещё хочешь узнать? 😊",
+                "Хм... А что ты об этом думаешь? 💭",
+                "Спасибо за сообщение! Чем ещё могу помочь? 🛠️",
+                "Записал! Есть что-то ещё? 📝"
+            ];
+            
+            const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+            await context.reply({
+                text: randomResponse
+            });
         }
     }
 
     async handleButton(payload, context) {
         switch(payload) {
-            case 'guess_number':
-                await this.startGuessNumber(context);
+            case 'help':
+                await this.showHelp(context);
                 break;
-            case 'quiz':
-                await this.startQuiz(context);
+                
+            case 'info':
+                await context.reply({
+                    text: "ℹ️ **Информация о боте:**\n\n🤖 Имя: ПростойБот\n💻 Создан: для тестирования\n⭐ Функции: базовое общение\n\nЭто демонстрационный бот для проверки работы системы ботов в Hamburger Chat.",
+                    buttons: [
+                        [
+                            { type: "text", label: "❓ Помощь", payload: "help" },
+                            { type: "text", label: "⬅️ Назад", payload: "back" }
+                        ]
+                    ]
+                });
                 break;
-            case 'rps':
-                await this.startRockPaperScissors(context);
+                
+            case 'random':
+                const randomNum = Math.floor(Math.random() * 100) + 1;
+                await context.reply({
+                    text: `🎲 Случайное число: **${randomNum}**\n\nПопробуй ещё раз!`,
+                    buttons: [
+                        [
+                            { type: "text", label: "🎲 Ещё число", payload: "random" },
+                            { type: "text", label: "⬅️ Назад", payload: "back" }
+                        ]
+                    ]
+                });
                 break;
-            case 'stats':
-                await this.showStats(context);
+                
+            case 'time':
+                const now = new Date();
+                const timeString = now.toLocaleTimeString('ru-RU');
+                const dateString = now.toLocaleDateString('ru-RU');
+                await context.reply({
+                    text: `🕐 **Текущее время:**\n\n📅 Дата: ${dateString}\n⏰ Время: ${timeString}`,
+                    buttons: [
+                        [
+                            { type: "text", label: "🔄 Обновить", payload: "time" },
+                            { type: "text", label: "⬅️ Назад", payload: "back" }
+                        ]
+                    ]
+                });
                 break;
-            case 'play_again':
+                
+            case 'back':
                 await this.onStart(context);
                 break;
         }
     }
 
-    async startGuessNumber(context) {
-        const secretNumber = Math.floor(Math.random() * 100) + 1;
-        this.games.set(context.userId, {
-            type: 'guess_number',
-            secretNumber: secretNumber,
-            attempts: 0
-        });
-
+    async showHelp(context) {
         await context.reply({
-            text: "🎲 **Угадай число!**\\\\n\\\\nЯ загадал число от 1 до 100. Попробуй угадать! Просто напиши число.",
+            text: "❓ **Помощь по боту:**\n\n📝 **Что я умею:**\n• Отвечать на приветствия\n• Показывать случайные числа\n• Показывать текущее время\n• Простые беседы\n\n🛠️ **Команды:**\n• \"Привет\" - поздороваться\n• \"Как дела?\" - спросить о настроении\n• \"Пока\" - попрощаться\n• \"Погода\" - шуточный ответ\n\n🎛️ **Используй кнопки** для быстрого доступа к функциям!",
             buttons: [
                 [
-                    { type: "text", label: "⬅️ Другие игры", payload: "main_menu" }
-                ]
-            ]
-        });
-    }
-
-    async handleGuessNumber(text, context) {
-        const userGame = this.games.get(context.userId);
-        if (!userGame || userGame.type !== 'guess_number') return;
-
-        const guess = parseInt(text);
-        if (isNaN(guess)) {
-            await context.reply({
-                text: "Пожалуйста, введите число от 1 до 100."
-            });
-            return;
-        }
-
-        userGame.attempts++;
-
-        if (guess === userGame.secretNumber) {
-            await context.reply({
-                text: \`🎉 **Поздравляю! Ты угадал!**\\\\n\\\\nЗагаданное число: \${userGame.secretNumber}\\\\nКоличество попыток: \${userGame.attempts}\\\\n\\\\nОтличный результат! 🏆\`,
-                buttons: [
-                    [
-                        { type: "text", label: "🔄 Играть снова", payload: "guess_number" },
-                        { type: "text", label: "⬅️ Другие игры", payload: "main_menu" }
-                    ]
-                ]
-            });
-            this.games.delete(context.userId);
-        } else if (guess < userGame.secretNumber) {
-            await context.reply({
-                text: "📈 Загаданное число БОЛЬШЕ твоего. Попробуй еще раз!"
-            });
-        } else {
-            await context.reply({
-                text: "📉 Загаданное число МЕНЬШЕ твоего. Попробуй еще раз!"
-            });
-        }
-    }
-
-    async startQuiz(context) {
-        const questions = [
-            {
-                question: "Столица Франции?",
-                options: ["Лондон", "Берлин", "Париж", "Мадрид"],
-                correct: 2
-            },
-            {
-                question: "Сколько планет в Солнечной системе?",
-                options: ["7", "8", "9", "10"],
-                correct: 1
-            },
-            {
-                question: "Самое большое млекопитающее?",
-                options: ["Слон", "Синий кит", "Жираф", "Бегемот"],
-                correct: 1
-            }
-        ];
-
-        const currentQuestion = questions[Math.floor(Math.random() * questions.length)];
-        
-        this.games.set(context.userId, {
-            type: 'quiz',
-            currentQuestion: currentQuestion
-        });
-
-        await context.reply({
-            text: \`❓ **Викторина!**\\\\n\\\\n\${currentQuestion.question}\\\\n\\\\n\${currentQuestion.options.map((opt, idx) => \`\${idx + 1}. \${opt}\`).join('\\\\n')}\`,
-            buttons: currentQuestion.options.map((opt, idx) => [
-                { 
-                    type: "text", 
-                    label: \`\${idx + 1}\`, 
-                    payload: \`quiz_answer_\${idx}\` 
-                }
-            ]).concat([
-                [
-                    { type: "text", label: "⬅️ Другие игры", payload: "main_menu" }
-                ]
-            ])
-        });
-    }
-
-    async startRockPaperScissors(context) {
-        await context.reply({
-            text: "🎯 **Камень-ножницы-бумага!**\\\\n\\\\nВыбери свой ход:",
-            buttons: [
-                [
-                    { type: "text", label: "✊ Камень", payload: "rps_rock" },
-                    { type: "text", label: "✌️ Ножницы", payload: "rps_scissors" },
-                    { type: "text", label: "✋ Бумага", payload: "rps_paper" }
+                    { type: "text", label: "🎲 Случайное число", payload: "random" },
+                    { type: "text", label: "🕐 Время", payload: "time" }
                 ],
                 [
-                    { type: "text", label: "⬅️ Другие игры", payload: "main_menu" }
-                ]
-            ]
-        });
-    }
-
-    async showStats(context) {
-        await context.reply({
-            text: "🏆 **Статистика игр**\\\\n\\\\nЗдесь будет отображаться ваша статистика по играм. Функция в разработке! 🚧",
-            buttons: [
-                [
-                    { type: "text", label: "🎮 К играм", payload: "main_menu" }
+                    { type: "text", label: "ℹ️ Инфо", payload: "info" },
+                    { type: "text", label: "⬅️ Назад", payload: "back" }
                 ]
             ]
         });
