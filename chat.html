@@ -44,6 +44,7 @@
             --link-color: #2563eb;
             --call-color: #10b981;
             --channel-color: #8b5cf6;
+            --bot-color: #10b981;
         }
 
         [data-theme="dark"] {
@@ -74,6 +75,7 @@
             --link-color: #60a5fa;
             --call-color: #34d399;
             --channel-color: #a78bfa;
+            --bot-color: #34d399;
         }
 
         * { 
@@ -173,6 +175,10 @@
         
         .chat-avatar.channel {
             background: linear-gradient(135deg, var(--channel-color), #c4b5fd);
+        }
+        
+        .chat-avatar.bot {
+            background: linear-gradient(135deg, var(--bot-color), #34d399);
         }
         
         .chat-details {
@@ -289,6 +295,10 @@
             max-width: 85%;
         }
         
+        .message.bot {
+            max-width: 85%;
+        }
+        
         .message.group:not(.own) {
             padding-left: 36px;
         }
@@ -335,8 +345,13 @@
         }
         
         .message.channel .message-content {
-            background: var(--channel-message-bg);
+            background: var(--message-bg);
             border-left: 3px solid var(--channel-color);
+        }
+        
+        .message.bot .message-content {
+            background: var(--message-bg);
+            border-left: 3px solid var(--bot-color);
         }
         
         .message:not(.own) .message-content {
@@ -1334,6 +1349,39 @@
             transform: translateY(-2px);
         }
 
+        /* Стили для кнопок бота */
+        .bot-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.8rem;
+        }
+        
+        .bot-button {
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            border-radius: 0.8rem;
+            padding: 0.6rem 1rem;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            max-width: 200px;
+            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .bot-button:hover {
+            background: #ff6b35;
+            transform: translateY(-1px);
+        }
+        
+        .bot-button:active {
+            transform: translateY(0);
+        }
+
         /* ИСПРАВЛЕНИЯ ДЛЯ ТЕЛЕФОНОВ */
         @media (max-width: 480px) {
             .messages-container {
@@ -1346,6 +1394,10 @@
             }
             
             .message.channel {
+                max-width: 90%;
+            }
+            
+            .message.bot {
                 max-width: 90%;
             }
             
@@ -1420,6 +1472,16 @@
             
             .chat-name {
                 font-size: 0.9rem;
+            }
+            
+            .bot-buttons {
+                gap: 0.3rem;
+            }
+            
+            .bot-button {
+                padding: 0.5rem 0.8rem;
+                font-size: 0.75rem;
+                max-width: 150px;
             }
         }
     </style>
@@ -1625,6 +1687,7 @@
         let currentChatData = null;
         let isGroupChat = false;
         let isChannel = false;
+        let isBotChat = false;
         let isGroupMember = false;
         let isAdmin = false;
         let isCreator = false;
@@ -1639,6 +1702,11 @@
         let spamCount = 0;
         let spamResetTime = 0;
         let userProfilesCache = new Map();
+
+        // Переменные для ботов
+        let currentBotData = null;
+        let botInstance = null;
+        let botScriptUrl = null;
 
         // Реакции
         const allReactions = ['👍', '❤️', '😂', '😮', '😢', '😡', '👏', '🔥'];
@@ -1694,6 +1762,63 @@
                 console.error('Ошибка загрузки профиля пользователя:', error);
                 return null;
             }
+        }
+
+        // Функция загрузки скрипта бота
+        async function loadBotScript(scriptUrl) {
+            try {
+                console.log('Загружаю скрипт бота:', scriptUrl);
+                
+                const response = await fetch(scriptUrl);
+                if (!response.ok) {
+                    throw new Error(`Ошибка загрузки скрипта: ${response.status}`);
+                }
+                
+                const scriptCode = await response.text();
+                
+                // Создаем функцию из кода
+                const botFunction = new Function('return ' + scriptCode)();
+                botInstance = new botFunction();
+                currentBotData = currentChatData;
+                
+                console.log('Бот успешно загружен:', botInstance);
+                
+                // Отправляем приветственное сообщение
+                if (botInstance.onStart) {
+                    const context = {
+                        userId: currentUserId,
+                        userName: currentUser,
+                        chatId: currentChatId,
+                        reply: async (response) => {
+                            await sendBotResponse(response);
+                        }
+                    };
+                    await botInstance.onStart(context);
+                }
+                
+            } catch (error) {
+                console.error('Ошибка загрузки бота:', error);
+                await sendBotErrorMessage(`Ошибка загрузки бота: ${error.message}`);
+            }
+        }
+
+        // Функция для отправки сообщения об ошибке бота
+        async function sendBotErrorMessage(errorMessage) {
+            const messageData = {
+                text: `❌ Ошибка бота: ${errorMessage}`,
+                sender: currentChatId,
+                timestamp: Date.now(),
+                type: 'text',
+                isBotMessage: true
+            };
+            
+            const encrypted = encryptData(messageData);
+            const messageId = Date.now().toString();
+            
+            await database.ref(`messages/${currentChatId}/${messageId}`).set({
+                encryptedData: encrypted,
+                timestamp: Date.now()
+            });
         }
 
         window.addEventListener('DOMContentLoaded', async () => {
@@ -1800,14 +1925,15 @@
                 
                 isGroupChat = currentChatData.type === 'group';
                 isChannel = currentChatData.type === 'channel';
+                isBotChat = currentChatData.type === 'bot';
                 
-                // Проверяем права - ИСПРАВЛЕНИЕ: правильное определение прав
+                // Проверяем права
                 isCreator = currentChatData.createdBy === currentUserId;
                 isAdmin = isCreator || (currentChatData.admins && currentChatData.admins.includes(currentUserId));
                 
                 console.log('Права пользователя:', { isCreator, isAdmin, currentUserId, createdBy: currentChatData.createdBy, admins: currentChatData.admins });
                 
-                if (isGroupChat || isChannel) {
+                if (isGroupChat || isChannel || isBotChat) {
                     isGroupMember = currentChatData.participants && 
                                  (Array.isArray(currentChatData.participants) ? 
                                   currentChatData.participants.includes(currentUserId) : 
@@ -1819,12 +1945,16 @@
                 updateChatHeader();
                 
                 if (isGroupMember) {
+                    // Для ботов загружаем код бота
+                    if (isBotChat && currentChatData.botScriptUrl) {
+                        await loadBotScript(currentChatData.botScriptUrl);
+                    }
+                    
                     await loadMessages();
                     await loadPinnedMessage();
                     document.getElementById('loadingContainer').style.display = 'none';
                     document.getElementById('joinGroupContainer').style.display = 'none';
                     
-                    // Показываем соответствующую панель ввода - ИСПРАВЛЕНИЕ: для каналов показываем обычный инпут если админ
                     if (isChannel) {
                         if (isAdmin || isCreator) {
                             document.getElementById('inputContainer').style.display = 'flex';
@@ -1860,7 +1990,6 @@
             
             chatName.textContent = currentChatData.name || 'Без названия';
             
-            // ИСПРАВЛЕНИЕ для аватарки каналов
             if (currentChatData.avatar) {
                 chatAvatar.style.backgroundImage = `url(${currentChatData.avatar})`;
                 chatAvatar.classList.add('has-image');
@@ -1873,17 +2002,28 @@
             // Для каналов меняем цвет аватарки
             if (isChannel) {
                 chatAvatar.classList.add('channel');
-                // Убедимся, что аватарка отображается правильно для каналов
                 if (!currentChatData.avatar) {
                     const channelInitial = currentChatData.name ? currentChatData.name.charAt(0).toUpperCase() : 'C';
                     chatAvatarInitial.textContent = channelInitial;
                 }
             }
             
-            if (isGroupChat || isChannel) {
+            // Для ботов меняем цвет аватарки
+            if (isBotChat) {
+                chatAvatar.classList.add('bot');
+                if (!currentChatData.avatar) {
+                    const botInitial = currentChatData.name ? currentChatData.name.charAt(0).toUpperCase() : 'B';
+                    chatAvatarInitial.textContent = botInitial;
+                }
+            }
+            
+            if (isGroupChat || isChannel || isBotChat) {
                 const participants = currentChatData.participants || [];
                 const count = Array.isArray(participants) ? participants.length : Object.keys(participants).length;
-                const chatType = isChannel ? 'канал' : 'группа';
+                let chatType = 'группа';
+                if (isChannel) chatType = 'канал';
+                if (isBotChat) chatType = 'бот';
+                
                 chatStatus.innerHTML = `<span class="online-indicator"></span> ${count} участников • ${chatType}`;
                 leaveChatItem.style.display = 'block';
                 callButton.style.display = 'none';
@@ -1918,7 +2058,7 @@
                     }
                     
                     // Статус онлайн/офлайн
-                    const isOnline = Math.random() > 0.3; // В реальном приложении брать из базы
+                    const isOnline = Math.random() > 0.3;
                     if (isOnline) {
                         chatStatus.innerHTML = `<span class="online-indicator"></span> в сети`;
                     } else {
@@ -2010,9 +2150,10 @@
 
             const isOwn = message.sender === currentUserId;
             const isChannelMessage = isChannel && message.sender === currentChatData.createdBy;
-            const showHeader = (isGroupChat && !isOwn) || (isChannel && !isChannelMessage);
+            const isBotMessage = message.isBotMessage || message.sender === currentChatId;
+            const showHeader = (isGroupChat && !isOwn) || (isChannel && !isChannelMessage) || (isBotChat && !isBotMessage);
             
-            messageEl.className = `message ${isOwn ? 'own' : ''} ${isChannel ? 'channel' : ''} ${isGroupChat ? 'group' : ''} ${message.pinned ? 'pinned-message' : ''}`;
+            messageEl.className = `message ${isOwn ? 'own' : ''} ${isChannel ? 'channel' : ''} ${isBotChat ? 'bot' : ''} ${isGroupChat ? 'group' : ''} ${message.pinned ? 'pinned-message' : ''} ${isBotMessage ? 'bot-message' : ''}`;
             messageEl.dataset.messageId = message.id;
             messageEl.dataset.timestamp = message.timestamp;
             
@@ -2023,16 +2164,21 @@
             
             if (showHeader) {
                 try {
-                    const userProfile = await getUserProfile(message.sender);
-                    if (userProfile) {
-                        senderName = userProfile.username || 'Пользователь';
-                        
-                        // Определяем роль в группе/канале
-                        if (isGroupChat || isChannel) {
-                            if (message.sender === currentChatData.createdBy) {
-                                senderRole = '<div class="message-role role-creator">Создатель</div>';
-                            } else if (currentChatData.admins && currentChatData.admins.includes(message.sender)) {
-                                senderRole = '<div class="message-role role-admin">Админ</div>';
+                    // Для ботов используем данные из currentChatData
+                    if (isBotMessage) {
+                        senderName = currentChatData.name || 'Бот';
+                    } else {
+                        const userProfile = await getUserProfile(message.sender);
+                        if (userProfile) {
+                            senderName = userProfile.username || 'Пользователь';
+                            
+                            // Определяем роль в группе/канале
+                            if (isGroupChat || isChannel) {
+                                if (message.sender === currentChatData.createdBy) {
+                                    senderRole = '<div class="message-role role-creator">Создатель</div>';
+                                } else if (currentChatData.admins && currentChatData.admins.includes(message.sender)) {
+                                    senderRole = '<div class="message-role role-admin">Админ</div>';
+                                }
                             }
                         }
                     }
@@ -2042,12 +2188,18 @@
             }
             
             let avatar = '';
-            if (showHeader && !isChannelMessage) {
+            if (showHeader && !isChannelMessage && !isBotMessage) {
                 const userProfile = await getUserProfile(message.sender);
                 const avatarUrl = userProfile ? userProfile.avatar : null;
                 const avatarInitial = userProfile && userProfile.username ? userProfile.username.charAt(0).toUpperCase() : 'U';
                 
                 avatar = `<div class="message-avatar" onclick="openUserProfile('${message.sender}')" style="${avatarUrl ? `background-image: url(${avatarUrl})` : ''}">${avatarUrl ? '' : avatarInitial}</div>`;
+            } else if (isBotMessage) {
+                // Аватарка для бота
+                const avatarUrl = currentChatData.avatar;
+                const avatarInitial = currentChatData.name ? currentChatData.name.charAt(0).toUpperCase() : 'B';
+                
+                avatar = `<div class="message-avatar" onclick="openBotProfile()" style="${avatarUrl ? `background-image: url(${avatarUrl})` : ''}">${avatarUrl ? '' : avatarInitial}</div>`;
             }
             
             let replyContent = '';
@@ -2097,16 +2249,32 @@
                 messageText = messageText.replace(urlRegex, '<a href="$1" target="_blank" onclick="event.stopPropagation()">$1</a>');
             }
             
+            // Добавляем кнопки бота если они есть
+            let botButtons = '';
+            if (message.botButtons && Array.isArray(message.botButtons)) {
+                botButtons = `<div class="bot-buttons">${
+                    message.botButtons.flat().map(buttonRow => 
+                        buttonRow.map(button => {
+                            if (button.type === "text") {
+                                return `<button class="bot-button" data-payload="${button.payload}">${button.label}</button>`;
+                            }
+                            return '';
+                        }).join('')
+                    ).join('')
+                }</div>`;
+            }
+            
             let content = '';
             if (message.image) {
                 content = `
                     ${replyContent}
                     ${showHeader ? `<div class="message-header">
-                        <div class="sender-name" onclick="openUserProfile('${message.sender}')">${senderName}</div>
+                        <div class="sender-name" onclick="${isBotMessage ? 'openBotProfile()' : `openUserProfile('${message.sender}')`}">${senderName}</div>
                         ${senderRole}
                     </div>` : ''}
                     <img src="${message.image}" class="message-image" onclick="openImage('${message.image}')">
                     ${messageText ? `<div class="message-text">${messageText}</div>` : ''}
+                    ${botButtons}
                     ${reactions}
                     <div class="message-time">${formatTime(message.timestamp)} ${statusIcons}</div>
                 `;
@@ -2114,10 +2282,11 @@
                 content = `
                     ${replyContent}
                     ${showHeader ? `<div class="message-header">
-                        <div class="sender-name" onclick="openUserProfile('${message.sender}')">${senderName}</div>
+                        <div class="sender-name" onclick="${isBotMessage ? 'openBotProfile()' : `openUserProfile('${message.sender}')`}">${senderName}</div>
                         ${senderRole}
                     </div>` : ''}
                     <div class="message-sticker">${message.sticker}</div>
+                    ${botButtons}
                     ${reactions}
                     <div class="message-time">${formatTime(message.timestamp)} ${statusIcons}</div>
                 `;
@@ -2125,10 +2294,11 @@
                 content = `
                     ${replyContent}
                     ${showHeader ? `<div class="message-header">
-                        <div class="sender-name" onclick="openUserProfile('${message.sender}')">${senderName}</div>
+                        <div class="sender-name" onclick="${isBotMessage ? 'openBotProfile()' : `openUserProfile('${message.sender}')`}">${senderName}</div>
                         ${senderRole}
                     </div>` : ''}
                     <div class="message-text">${messageText}</div>
+                    ${botButtons}
                     ${reactions}
                     <div class="message-time">${formatTime(message.timestamp)} ${statusIcons}</div>
                 `;
@@ -2137,11 +2307,107 @@
             messageEl.innerHTML = `${avatar}<div class="message-content">${content}</div>`;
             
             setupMessageInteractions(messageEl, message);
+            
+            // Добавляем обработчики для кнопок бота
+            if (message.botButtons) {
+                messageEl.querySelectorAll('.bot-button').forEach(button => {
+                    button.addEventListener('click', async (e) => {
+                        e.stopPropagation();
+                        const payload = button.dataset.payload;
+                        await handleBotButtonClick(payload);
+                    });
+                });
+            }
+            
             container.appendChild(messageEl);
             
             // Автоскролл только для новых сообщений
             if (!message.delivered && !isUpdate) {
                 scrollToBottom();
+            }
+        }
+
+        // Функция обработки нажатия кнопки бота
+        async function handleBotButtonClick(payload) {
+            try {
+                // Создаем сообщение от пользователя с payload
+                const messageData = {
+                    text: `[Кнопка: ${payload}]`,
+                    sender: currentUserId,
+                    timestamp: Date.now(),
+                    type: 'text',
+                    buttonPayload: payload,
+                    delivered: false
+                };
+                
+                const encrypted = encryptData(messageData);
+                const messageId = Date.now().toString();
+                
+                await database.ref(`messages/${currentChatId}/${messageId}`).set({
+                    encryptedData: encrypted,
+                    timestamp: Date.now()
+                });
+                
+                setTimeout(async () => {
+                    messageData.delivered = true;
+                    const updatedEncrypted = encryptData(messageData);
+                    await database.ref(`messages/${currentChatId}/${messageId}`).update({
+                        encryptedData: updatedEncrypted
+                    });
+                }, 1000);
+                
+                await updateLastMessage(messageData.text);
+                
+                // Обрабатываем нажатие кнопки ботом
+                if (isBotChat && botInstance && botInstance.onMessage) {
+                    const context = {
+                        userId: currentUserId,
+                        userName: currentUser,
+                        chatId: currentChatId,
+                        messageId: messageId,
+                        reply: async (response) => {
+                            await sendBotResponse(response);
+                        },
+                        buttonPayload: payload
+                    };
+                    
+                    await botInstance.onMessage({ text: '' }, context);
+                }
+                
+            } catch (error) {
+                console.error('Ошибка обработки кнопки бота:', error);
+            }
+        }
+
+        // Функция отправки ответа от бота
+        async function sendBotResponse(response) {
+            try {
+                let messageData = {
+                    text: response.text || '',
+                    sender: currentChatId,
+                    timestamp: Date.now(),
+                    type: 'text',
+                    isBotMessage: true,
+                    delivered: true
+                };
+                
+                // Добавляем кнопки если они есть
+                if (response.buttons && response.buttons.length > 0) {
+                    messageData.botButtons = response.buttons;
+                }
+                
+                const encrypted = encryptData(messageData);
+                const messageId = Date.now().toString();
+                
+                await database.ref(`messages/${currentChatId}/${messageId}`).set({
+                    encryptedData: encrypted,
+                    timestamp: Date.now()
+                });
+                
+                await updateLastMessage(messageData.text || 'Сообщение от бота');
+                
+            } catch (error) {
+                console.error('Ошибка отправки ответа бота:', error);
             }
         }
 
@@ -2256,6 +2522,10 @@
 
         function openUserProfile(userId) {
             window.open(`https://hamburgerchat.github.io/profile.html?id=${userId}`, '_blank');
+        }
+
+        function openBotProfile() {
+            window.open(`https://hamburgerchat.github.io/profile.html?id=${currentChatId}`, '_blank');
         }
 
         function showMessageContextMenu(event, message) {
@@ -2487,13 +2757,13 @@
         }
 
         async function sendStickerAsImage(stickerUrl) {
-            // В каналах могут отправлять только админы и создатель - ИСПРАВЛЕНИЕ: правильная проверка прав
+            // В каналах могут отправлять только админы и создатель
             if (isChannel && !isAdmin && !isCreator) {
                 alert('В каналах могут отправлять сообщения только администраторы');
                 return;
             }
             
-            if (!isGroupMember && (isGroupChat || isChannel)) {
+            if (!isGroupMember && (isGroupChat || isChannel || isBotChat)) {
                 alert('Вы не являетесь участником этого чата');
                 return;
             }
@@ -2647,7 +2917,7 @@
             document.getElementById('overlay').addEventListener('click', closeAllModals);
             
             document.getElementById('chatInfo').addEventListener('click', () => {
-                if (isGroupChat || isChannel) {
+                if (isGroupChat || isChannel || isBotChat) {
                     window.open(`https://hamburgerchat.github.io/profile.html?id=${currentChatId}`, '_blank');
                 } else {
                     const otherUserId = Object.keys(currentChatData.participants).find(id => id !== currentUserId);
@@ -2746,89 +3016,89 @@
             }
         }
         
-async function startCall() {
-    if (isGroupChat || isChannel) {
-        alert('Звонки доступны только в личных чатах');
-        return;
-    }
-    
-    if (!isGroupMember) {
-        alert('Вы не можете звонить в этом чате');
-        return;
-    }
-    
-    try {
-        const callId = 'call_' + Date.now();
-        
-        const otherUserId = Object.keys(currentChatData.participants).find(id => id !== currentUserId);
-        if (!otherUserId) {
-            throw new Error('Не удалось определить собеседника');
+        async function startCall() {
+            if (isGroupChat || isChannel || isBotChat) {
+                alert('Звонки доступны только в личных чатах');
+                return;
+            }
+            
+            if (!isGroupMember) {
+                alert('Вы не можете звонить в этом чате');
+                return;
+            }
+            
+            try {
+                const callId = 'call_' + Date.now();
+                
+                const otherUserId = Object.keys(currentChatData.participants).find(id => id !== currentUserId);
+                if (!otherUserId) {
+                    throw new Error('Не удалось определить собеседника');
+                }
+
+                // Получаем данные собеседника для отображения
+                const userProfile = await getUserProfile(otherUserId);
+                const username = userProfile ? userProfile.username : 'Пользователь';
+                const avatarInitial = userProfile && userProfile.username ? userProfile.username.charAt(0).toUpperCase() : 'U';
+
+                // Создаем данные звонка по новой схеме
+                const callData = {
+                    id: callId,
+                    from: currentUserId,
+                    to: otherUserId,
+                    participants: [currentUserId, otherUserId],
+                    status: 'waiting',
+                    createdAt: Date.now(),
+                    chatId: currentChatId,
+                    callerName: currentUser,
+                    receiverName: username
+                };
+
+                // Сохраняем в Firebase по новой структуре
+                await database.ref(`calls/${callId}`).set({
+                    from: currentUserId,
+                    to: otherUserId,
+                    offer: null,
+                    status: 'waiting',
+                    createdAt: firebase.database.ServerValue.TIMESTAMP,
+                    callerName: currentUser,
+                    receiverName: username
+                });
+
+                // Создаем сообщение о звонке
+                const callMessageData = {
+                    type: 'call',
+                    callId: callId,
+                    sender: currentUserId,
+                    timestamp: Date.now(),
+                    status: 'waiting',
+                    callerName: currentUser,
+                    receiverName: username
+                };
+                
+                const encrypted = encryptData(callMessageData);
+                const messageId = Date.now().toString();
+                
+                await database.ref(`messages/${currentChatId}/${messageId}`).set({
+                    encryptedData: encrypted,
+                    timestamp: Date.now()
+                });
+                
+                await updateLastMessage('📞 Исходящий звонок');
+                
+                showNotification('Звонок начат');
+                
+                // Переходим на страницу звонка
+                window.location.href = `https://hamburgerchat.github.io/call.html?id=${callId}`;
+                
+            } catch (error) {
+                console.error('Ошибка начала звонка:', error);
+                alert('Ошибка при начале звонка: ' + error.message);
+            }
         }
-
-        // Получаем данные собеседника для отображения
-        const userProfile = await getUserProfile(otherUserId);
-        const username = userProfile ? userProfile.username : 'Пользователь';
-        const avatarInitial = userProfile && userProfile.username ? userProfile.username.charAt(0).toUpperCase() : 'U';
-
-        // Создаем данные звонка по новой схеме
-        const callData = {
-            id: callId,
-            from: currentUserId,
-            to: otherUserId,
-            participants: [currentUserId, otherUserId],
-            status: 'waiting',
-            createdAt: Date.now(),
-            chatId: currentChatId,
-            callerName: currentUser,
-            receiverName: username
-        };
-
-        // Сохраняем в Firebase по новой структуре
-        await database.ref(`calls/${callId}`).set({
-            from: currentUserId,
-            to: otherUserId,
-            offer: null,
-            status: 'waiting',
-            createdAt: firebase.database.ServerValue.TIMESTAMP,
-            callerName: currentUser,
-            receiverName: username
-        });
-
-        // Создаем сообщение о звонке
-        const callMessageData = {
-            type: 'call',
-            callId: callId,
-            sender: currentUserId,
-            timestamp: Date.now(),
-            status: 'waiting',
-            callerName: currentUser,
-            receiverName: username
-        };
         
-        const encrypted = encryptData(callMessageData);
-        const messageId = Date.now().toString();
-        
-        await database.ref(`messages/${currentChatId}/${messageId}`).set({
-            encryptedData: encrypted,
-            timestamp: Date.now()
-        });
-        
-        await updateLastMessage('📞 Исходящий звонок');
-        
-        showNotification('Звонок начат');
-        
-        // Переходим на страницу звонка
-        window.location.href = `https://hamburgerchat.github.io/call.html?id=${callId}`;
-        
-    } catch (error) {
-        console.error('Ошибка начала звонка:', error);
-        alert('Ошибка при начале звонка: ' + error.message);
-    }
-}
-        
-function acceptCall(callId) {
-    window.location.href = `https://hamburgerchat.github.io/call.html?id=${callId}`;
-}
+        function acceptCall(callId) {
+            window.location.href = `https://hamburgerchat.github.io/call.html?id=${callId}`;
+        }
         
         async function declineCall(messageId) {
             try {
@@ -2875,13 +3145,13 @@ function acceptCall(callId) {
         }
 
         async function sendMessage() {
-            // В каналах могут писать только админы и создатель - ИСПРАВЛЕНИЕ: правильная проверка прав
+            // В каналах могут писать только админы и создатель
             if (isChannel && !isAdmin && !isCreator) {
                 alert('В каналах могут отправлять сообщения только администраторы');
                 return;
             }
             
-            if (!isGroupMember && (isGroupChat || isChannel)) {
+            if (!isGroupMember && (isGroupChat || isChannel || isBotChat)) {
                 alert('Вы не являетесь участником этого чата');
                 return;
             }
@@ -2923,19 +3193,46 @@ function acceptCall(callId) {
                 document.getElementById('sendButton').disabled = true;
                 cancelReply();
                 
+                // Обрабатываем сообщение ботом, если это чат с ботом
+                if (isBotChat && botInstance && botInstance.onMessage) {
+                    await processBotMessage(text, messageId);
+                }
+                
             } catch (error) {
                 alert('Ошибка отправки: ' + error.message);
             }
         }
 
+        // Функция обработки сообщения ботом
+        async function processBotMessage(userMessage, messageId) {
+            try {
+                const context = {
+                    userId: currentUserId,
+                    userName: currentUser,
+                    chatId: currentChatId,
+                    messageId: messageId,
+                    reply: async (response) => {
+                        await sendBotResponse(response);
+                    },
+                    buttonPayload: null
+                };
+                
+                await botInstance.onMessage({ text: userMessage }, context);
+                
+            } catch (error) {
+                console.error('Ошибка обработки сообщения ботом:', error);
+                await sendBotErrorMessage(`Ошибка выполнения: ${error.message}`);
+            }
+        }
+
         async function handleImageUpload(event) {
-            // В каналах могут отправлять только админы и создатель - ИСПРАВЛЕНИЕ: правильная проверка прав
+            // В каналах могут отправлять только админы и создатель
             if (isChannel && !isAdmin && !isCreator) {
                 alert('В каналах могут отправлять сообщения только администраторы');
                 return;
             }
             
-            if (!isGroupMember && (isGroupChat || isChannel)) {
+            if (!isGroupMember && (isGroupChat || isChannel || isBotChat)) {
                 alert('Вы не являетесь участником этого чата');
                 return;
             }
@@ -3042,7 +3339,7 @@ function acceptCall(callId) {
         }
 
         async function toggleReaction(messageId, reaction) {
-            if (!isGroupMember && (isGroupChat || isChannel)) {
+            if (!isGroupMember && (isGroupChat || isChannel || isBotChat)) {
                 alert('Вы не являетесь участником этого чата');
                 return;
             }
@@ -3125,7 +3422,7 @@ function acceptCall(callId) {
         }
 
         async function leaveGroup() {
-            if (!isGroupChat && !isChannel) return;
+            if (!isGroupChat && !isChannel && !isBotChat) return;
             
             if (!confirm('Вы уверены, что хотите покинуть этот чат?')) return;
             
@@ -3181,7 +3478,6 @@ function acceptCall(callId) {
                 document.getElementById('joinGroupContainer').style.display = 'none';
                 
                 if (isChannel) {
-                    // ИСПРАВЛЕНИЕ: для каналов показываем обычный инпут если админ
                     if (isAdmin || isCreator) {
                         document.getElementById('inputContainer').style.display = 'flex';
                         document.getElementById('channelInputContainer').style.display = 'none';
@@ -3193,6 +3489,11 @@ function acceptCall(callId) {
                 } else {
                     document.getElementById('inputContainer').style.display = 'flex';
                     document.getElementById('channelInputContainer').style.display = 'none';
+                }
+                
+                // Для ботов загружаем код бота
+                if (isBotChat && currentChatData.botScriptUrl) {
+                    await loadBotScript(currentChatData.botScriptUrl);
                 }
                 
                 await loadMessages();
