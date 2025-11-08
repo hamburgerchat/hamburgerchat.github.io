@@ -824,8 +824,8 @@
           
           <div class="stats-grid" id="statsGrid" style="display: none;">
             <div class="stat-item">
-              <div class="stat-value" id="membersCount">0</div>
-              <div class="stat-label">Участников</div>
+              <div class="stat-value" id="usersCount">0</div>
+              <div class="stat-label">Пользователей</div>
             </div>
             <div class="stat-item">
               <div class="stat-value" id="messagesCount">0</div>
@@ -1150,22 +1150,28 @@
       // Скрываем статус для ботов
       document.getElementById('profileStatus').style.display = 'none';
       
-      // Показываем секцию скрипта бота
-      document.getElementById('botScriptSection').style.display = 'block';
-      if (profileData.botScriptUrl) {
-        document.getElementById('scriptUrlText').textContent = profileData.botScriptUrl;
+      // ИСПРАВЛЕНИЕ: Скрываем секцию скрипта бота для обычных пользователей
+      if (isCreator) {
+        document.getElementById('botScriptSection').style.display = 'block';
+        if (profileData.botScriptUrl) {
+          document.getElementById('scriptUrlText').textContent = profileData.botScriptUrl;
+        }
+      } else {
+        document.getElementById('botScriptSection').style.display = 'none';
       }
       
       // Ссылка для приглашения
       document.getElementById('shareLinkText').textContent = `https://hamburgerchat.github.io/chat.html?id=${profileId}`;
       document.getElementById('shareSection').style.display = 'block';
       
-      // Участники
-      document.getElementById('membersSection').style.display = 'block';
-      await displayMembers();
+      // ИСПРАВЛЕНИЕ: Скрываем участников для ботов
+      document.getElementById('membersSection').style.display = 'none';
       
       // Статистика
       document.getElementById('statsGrid').style.display = 'grid';
+      
+      // ИСПРАВЛЕНИЕ: Обновляем статистику для ботов
+      await loadBotStats();
     }
 
     // Отображение данных группы
@@ -1211,9 +1217,13 @@
       document.getElementById('shareLinkText').textContent = `https://hamburgerchat.github.io/chat.html?id=${profileId}`;
       document.getElementById('shareSection').style.display = 'block';
       
-      // Участники
-      document.getElementById('membersSection').style.display = 'block';
-      await displayMembers();
+      // Участники (только для групп, не для ботов)
+      if (isGroup) {
+        document.getElementById('membersSection').style.display = 'block';
+        await displayMembers();
+      } else {
+        document.getElementById('membersSection').style.display = 'none';
+      }
       
       // Статистика
       document.getElementById('statsGrid').style.display = 'grid';
@@ -1222,7 +1232,12 @@
     // Загрузка статистики чата
     async function loadChatStats() {
       try {
-        // Подсчет участников
+        if (isBot) {
+          await loadBotStats();
+          return;
+        }
+        
+        // Подсчет участников для групп
         let membersCount = 0;
         if (profileData.participants) {
           if (Array.isArray(profileData.participants)) {
@@ -1231,7 +1246,7 @@
             membersCount = Object.keys(profileData.participants).length;
           }
         }
-        document.getElementById('membersCount').textContent = membersCount;
+        document.getElementById('usersCount').textContent = membersCount;
         
         // Подсчет сообщений
         const messagesRef = database.ref(`messages/${profileId}`);
@@ -1246,6 +1261,52 @@
         }
       } catch (error) {
         console.error('Ошибка загрузки статистики:', error);
+      }
+    }
+
+    // Новая функция для загрузки статистики бота
+    async function loadBotStats() {
+      try {
+        // Подсчет пользователей бота
+        let usersCount = 0;
+        
+        // Для ботов считаем количество уникальных пользователей, которые писали боту
+        const messagesRef = database.ref(`messages/${profileId}`);
+        const snapshot = await messagesRef.once('value');
+        
+        if (snapshot.exists()) {
+          const messages = snapshot.val();
+          const users = new Set();
+          
+          for (const messageId in messages) {
+            const message = messages[messageId];
+            let decrypted = null;
+            
+            if (message.encryptedData) {
+              decrypted = decryptData(message.encryptedData);
+            }
+            
+            if (decrypted && decrypted.sender && decrypted.sender !== profileId) {
+              users.add(decrypted.sender);
+            }
+          }
+          
+          usersCount = users.size;
+        }
+        
+        document.getElementById('usersCount').textContent = usersCount;
+        
+        // Подсчет сообщений
+        const messagesCount = snapshot.exists() ? Object.keys(snapshot.val()).length : 0;
+        document.getElementById('messagesCount').textContent = messagesCount;
+        
+        // Дата создания
+        if (profileData.createdAt) {
+          const date = new Date(profileData.createdAt);
+          document.getElementById('createdDate').textContent = date.toLocaleDateString('ru-RU');
+        }
+      } catch (error) {
+        console.error('Ошибка загрузки статистики бота:', error);
       }
     }
 
@@ -1648,7 +1709,7 @@
       
       // Показываем кнопки сохранения и отмены
       document.getElementById('saveButton').style.display = 'block';
-      document.getElementById('cancelButton').style.display = 'block';
+      document.getElementById('cancelButton').style.display = 'none';
       document.getElementById('editButton').style.display = 'none';
       document.getElementById('chatButton').style.display = 'none';
     }
