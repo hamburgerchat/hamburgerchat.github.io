@@ -1,27 +1,18 @@
-class GameBot {
+class AIChatBot {
     constructor() {
-        this.name = "ИгровойБот";
+        this.name = "ИИБот";
         this.greetings = ["привет", "hello", "здравствуй", "хай", "ку"];
         this.farewells = ["пока", "до свидания", "прощай", "bye"];
-        this.games = {
-            "угадай число": "guessNumber",
-            "викторина": "quiz",
-            "камень ножницы бумага": "rps",
-            "слова": "words"
-        };
-        this.currentGame = null;
-        this.gameState = {};
+        this.chatHistory = [];
+        this.currentModel = 'llama-3.1-8b-instruct-fast';
     }
 
     async onStart(context) {
         await context.reply({
-            text: "🎮 Привет! Я игровой бот!\n\n" +
-                  "Доступные игры:\n" +
-                  "• \"угадай число\" - попробуй угадать число от 1 до 100\n" +
-                  "• \"викторина\" - ответь на интересные вопросы\n" +
-                  "• \"камень ножницы бумага\" - сыграй против бота\n" +
-                  "• \"слова\" - составь слово из букв\n\n" +
-                  "Напиши название игры, чтобы начать!"
+            text: "🤖 Привет! Я ИИ бот, основанный на нейросетях.\n\n" +
+                  "Модель: " + this.currentModel + "\n" +
+                  "Можем поговорить на любые темы!\n\n" +
+                  "Просто напиши мне сообщение, и я постараюсь дать интересный ответ."
         });
     }
 
@@ -31,7 +22,7 @@ class GameBot {
         // Приветствие
         if (this.greetings.some(greet => text.includes(greet))) {
             await context.reply({
-                text: `👋 Привет, ${context.userName}! Готов поиграть? Выбери игру из списка выше! 🎯`
+                text: `👋 Привет, ${context.userName}! Рад общению с тобой! Задавай любой вопрос или просто поболтаем. 😊`
             });
             return;
         }
@@ -39,306 +30,123 @@ class GameBot {
         // Прощание
         if (this.farewells.some(farewell => text.includes(farewell))) {
             await context.reply({
-                text: "👋 Пока! Возвращайся поиграть! 🎮"
+                text: "👋 До свидания! Было приятно пообщаться! Возвращайся ещё! ✨"
+            });
+            this.chatHistory = []; // Очищаем историю при прощании
+            return;
+        }
+
+        // Очистка истории
+        if (text.includes("очисти историю") || text.includes("новый разговор")) {
+            this.chatHistory = [];
+            await context.reply({
+                text: "🔄 История разговора очищена! Начинаем новый диалог!"
             });
             return;
         }
 
-        // Выход из игры
-        if (text === "выход" || text === "стоп" || text === "закончить") {
-            if (this.currentGame) {
-                await this.endGame(context);
-                return;
-            }
-        }
-
-        // Если есть активная игра, обрабатываем ход
-        if (this.currentGame) {
-            await this.handleGameMove(text, context);
+        // Смена модели (просто информационно)
+        if (text.includes("какая модель") || text.includes("какая нейросеть")) {
+            await context.reply({
+                text: `🧠 Текущая модель: ${this.currentModel}\n\n` +
+                      "Это одна из современных языковых моделей, обученная на огромном количестве текстов."
+            });
             return;
-        }
-
-        // Выбор игры
-        for (const [gameName, gameId] of Object.entries(this.games)) {
-            if (text.includes(gameName)) {
-                await this.startGame(gameId, context);
-                return;
-            }
         }
 
         // Помощь
         if (text.includes("помощь") || text.includes("что ты умеешь")) {
-            await this.showHelp(context);
-            return;
-        }
-
-        // Как дела
-        if (text.includes("как дела") || text.includes("как ты")) {
             await context.reply({
-                text: "🎮 Отлично! Готов к игре! Выбери, во что хочешь поиграть!"
+                text: "❓ **Что я умею:**\n\n" +
+                      "• Общаться на любые темы\n• Отвечать на вопросы\n• Помогать с идеями\n• Обсуждать книги, фильмы, науку\n• Поддерживать беседу\n\n" +
+                      "Просто напиши что-нибудь, и я постараюсь дать интересный и полезный ответ!\n\n" +
+                      "**Команды:**\n" +
+                      "• \"очисти историю\" - начать новый разговор\n" +
+                      "• \"какая модель\" - информация о нейросети"
             });
             return;
         }
 
-        // Ответ по умолчанию
-        if (text) {
-            const responses = [
-                "Хочешь поиграть? Напиши название игры! 🎲",
-                "Готов к игре! Выбери: угадай число, викторина, камень ножницы бумага или слова 🎯",
-                "Давай поиграем! Напиши, в какую игру хочешь сыграть 🕹️",
-                "Игры ждут! Выбирай одну из доступных игр 🎪"
-            ];
-            
-            const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+        // Основной ИИ ответ
+        try {
             await context.reply({
-                text: randomResponse
+                text: "🤔 Думаю..."
+            });
+
+            const response = await this.generateAIResponse(text, context.userName);
+            await context.reply({
+                text: response
+            });
+
+        } catch (error) {
+            console.error("Ошибка ИИ:", error);
+            await context.reply({
+                text: "❌ Извини, произошла ошибка при обращении к нейросети. Попробуй ещё раз немного позже."
             });
         }
     }
 
-    async startGame(gameId, context) {
-        this.currentGame = gameId;
+    async generateAIResponse(userMessage, userName) {
+        // Добавляем контекст для более персонализированного ответа
+        const enhancedPrompt = `${userName} написал(а): "${userMessage}"\n\nПожалуйста, ответь естественно и дружелюбно, как в обычной беседе.`;
         
-        switch(gameId) {
-            case 'guessNumber':
-                this.gameState = {
-                    targetNumber: Math.floor(Math.random() * 100) + 1,
-                    attempts: 0
-                };
-                await context.reply({
-                    text: "🎯 Игра 'Угадай число'!\n\n" +
-                          "Я загадал число от 1 до 100. Попробуй угадать!\n" +
-                          "Напиши число от 1 до 100.\n\n" +
-                          "Чтобы выйти из игры, напиши 'выход'"
-                });
-                break;
-                
-            case 'quiz':
-                this.gameState = {
-                    questions: [
-                        {
-                            question: "Столица Франции?",
-                            answer: "париж"
-                        },
-                        {
-                            question: "Сколько планет в Солнечной системе?",
-                            answer: "8"
-                        },
-                        {
-                            question: "Самая большая планета?",
-                            answer: "юпитер"
-                        }
-                    ],
-                    currentQuestion: 0,
-                    score: 0
-                };
-                await this.askQuizQuestion(context);
-                break;
-                
-            case 'rps':
-                await context.reply({
-                    text: "✂️ Игра 'Камень, ножницы, бумага'!\n\n" +
-                          "Напиши: камень, ножницы или бумага\n\n" +
-                          "Чтобы выйти из игры, напиши 'выход'"
-                });
-                break;
-                
-            case 'words':
-                this.gameState = {
-                    letters: this.generateRandomLetters(7),
-                    usedWords: []
-                };
-                await context.reply({
-                    text: "🔤 Игра 'Слова'!\n\n" +
-                          `Составь слово из этих букв: ${this.gameState.letters.join(', ')}\n\n` +
-                          "Напиши слово, которое можно составить из этих букв.\n" +
-                          "Чтобы выйти из игры, напиши 'выход'"
-                });
-                break;
-        }
-    }
-
-    async handleGameMove(text, context) {
-        switch(this.currentGame) {
-            case 'guessNumber':
-                await this.handleGuessNumber(text, context);
-                break;
-                
-            case 'quiz':
-                await this.handleQuizAnswer(text, context);
-                break;
-                
-            case 'rps':
-                await this.handleRPS(text, context);
-                break;
-                
-            case 'words':
-                await this.handleWords(text, context);
-                break;
-        }
-    }
-
-    async handleGuessNumber(text, context) {
-        if (isNaN(text)) {
-            await context.reply({
-                text: "Пожалуйста, введи число от 1 до 100"
-            });
-            return;
-        }
-
-        const guess = parseInt(text);
-        this.gameState.attempts++;
-
-        if (guess === this.gameState.targetNumber) {
-            await context.reply({
-                text: `🎉 Поздравляю! Ты угадал число ${this.gameState.targetNumber} за ${this.gameState.attempts} попыток!\n\nХочешь сыграть ещё? Напиши "угадай число"`
-            });
-            this.currentGame = null;
-        } else if (guess < this.gameState.targetNumber) {
-            await context.reply({
-                text: "📈 Больше! Попробуй ещё раз"
-            });
-        } else {
-            await context.reply({
-                text: "📉 Меньше! Попробуй ещё раз"
-            });
-        }
-    }
-
-    async handleQuizAnswer(text, context) {
-        const currentQ = this.gameState.questions[this.gameState.currentQuestion];
+        // Используем API из расширения
+        const API_URL = "https://freeai.logise1123.workers.dev/";
         
-        if (text === currentQ.answer) {
-            this.gameState.score++;
-            await context.reply({
-                text: "✅ Правильно! 🎉"
-            });
-        } else {
-            await context.reply({
-                text: `❌ Неправильно! Правильный ответ: ${currentQ.answer}`
-            });
-        }
+        // Формируем сообщения с историей для контекста
+        const messages = [
+            ...this.chatHistory,
+            { role: 'user', content: enhancedPrompt }
+        ];
 
-        this.gameState.currentQuestion++;
-        await this.askQuizQuestion(context);
-    }
-
-    async askQuizQuestion(context) {
-        if (this.gameState.currentQuestion >= this.gameState.questions.length) {
-            await context.reply({
-                text: `🏁 Викторина окончена!\nТвой результат: ${this.gameState.score}/${this.gameState.questions.length}\n\nХочешь сыграть ещё? Напиши "викторина"`
-            });
-            this.currentGame = null;
-            return;
-        }
-
-        const question = this.gameState.questions[this.gameState.currentQuestion];
-        await context.reply({
-            text: `❓ Вопрос ${this.gameState.currentQuestion + 1}/${this.gameState.questions.length}:\n${question.question}`
-        });
-    }
-
-    async handleRPS(text, context) {
-        const choices = ['камень', 'ножницы', 'бумага'];
-        const userChoice = choices.find(choice => text.includes(choice));
-        
-        if (!userChoice) {
-            await context.reply({
-                text: "Пожалуйста, выбери: камень, ножницы или бумага"
-            });
-            return;
-        }
-
-        const botChoice = choices[Math.floor(Math.random() * 3)];
-        let result;
-
-        if (userChoice === botChoice) {
-            result = "🤝 Ничья!";
-        } else if (
-            (userChoice === 'камень' && botChoice === 'ножницы') ||
-            (userChoice === 'ножницы' && botChoice === 'бумага') ||
-            (userChoice === 'бумага' && botChoice === 'камень')
-        ) {
-            result = "🎉 Ты выиграл!";
-        } else {
-            result = "🤖 Я выиграл!";
-        }
-
-        await context.reply({
-            text: `Ты: ${this.emojiForChoice(userChoice)}\nЯ: ${this.emojiForChoice(botChoice)}\n\n${result}\n\nИграем ещё? Напиши свой выбор или "выход" чтобы закончить`
-        });
-    }
-
-    emojiForChoice(choice) {
-        const emojis = {
-            'камень': '🪨',
-            'ножницы': '✂️',
-            'бумага': '📄'
+        const body = {
+            model: this.currentModel,
+            messages: messages
         };
-        return `${choice} ${emojis[choice]}`;
-    }
 
-    async handleWords(text, context) {
-        if (this.gameState.usedWords.includes(text.toLowerCase())) {
-            await context.reply({
-                text: "❌ Это слово уже было! Попробуй другое"
-            });
-            return;
+        const response = await fetch(API_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(body)
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
         }
 
-        if (this.canFormWord(text, this.gameState.letters)) {
-            this.gameState.usedWords.push(text.toLowerCase());
-            await context.reply({
-                text: `✅ Отлично! Слово "${text}" принято!\n\nТвои слова: ${this.gameState.usedWords.join(', ')}\n\nПродолжай или напиши "выход" чтобы закончить`
-            });
-        } else {
-            await context.reply({
-                text: "❌ Не могу составить это слово из данных букв. Попробуй другое слово"
-            });
+        const data = await response.json();
+        const aiResponse = data?.choices?.[0]?.message?.content || "Извини, не смог обработать твой запрос.";
+
+        // Обновляем историю (ограничиваем размер для экономии памяти)
+        this.chatHistory.push(
+            { role: 'user', content: userMessage },
+            { role: 'assistant', content: aiResponse }
+        );
+
+        // Ограничиваем историю последними 10 сообщениями
+        if (this.chatHistory.length > 20) {
+            this.chatHistory = this.chatHistory.slice(-20);
         }
+
+        return aiResponse;
     }
 
-    canFormWord(word, availableLetters) {
-        const wordLetters = word.toLowerCase().split('');
-        const available = [...availableLetters];
+    // Альтернативный метод для простых ответов без истории
+    async generateSimpleAIResponse(prompt) {
+        const API_URL = "https://freeai.logise1123.workers.dev/";
         
-        for (const letter of wordLetters) {
-            const index = available.indexOf(letter);
-            if (index === -1) return false;
-            available.splice(index, 1);
-        }
-        return true;
-    }
+        const body = {
+            model: this.currentModel,
+            messages: [{ role: 'user', content: prompt }]
+        };
 
-    generateRandomLetters(count) {
-        const letters = 'авеикнопрстух'; // Часто используемые русские буквы
-        const result = [];
-        for (let i = 0; i < count; i++) {
-            result.push(letters[Math.floor(Math.random() * letters.length)]);
-        }
-        return result;
-    }
-
-    async endGame(context) {
-        await context.reply({
-            text: `🎮 Игра "${this.currentGame}" завершена!\n\nВыбери другую игру или напиши "помощь" для списка игр`
+        const response = await fetch(API_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(body)
         });
-        this.currentGame = null;
-        this.gameState = {};
-    }
 
-    async showHelp(context) {
-        await context.reply({
-            text: "🎮 **Игровой бот - Помощь**\n\n" +
-                  "**Доступные игры:**\n" +
-                  "• **угадай число** - угадай число от 1 до 100\n" +
-                  "• **викторина** - ответь на вопросы\n" +
-                  "• **камень ножницы бумага** - классическая игра\n" +
-                  "• **слова** - составь слова из букв\n\n" +
-                  "**Как играть:**\n" +
-                  "Напиши название игры чтобы начать\n" +
-                  "Во время игры напиши 'выход' чтобы закончить\n\n" +
-                  "**Пример:** Напиши 'угадай число' чтобы начать игру!"
-        });
+        const data = await response.json();
+        return data?.choices?.[0]?.message?.content || "Нет ответа от ИИ";
     }
 }
