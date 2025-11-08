@@ -52,33 +52,73 @@
       color: var(--text-primary);
       min-height: 100vh;
       display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
+      flex-direction: column;
       overflow-x: hidden;
       transition: all 0.3s ease;
     }
     
-    .auth-container {
-      background: var(--card-bg);
-      border-radius: 1.5rem;
-      box-shadow: var(--shadow);
-      padding: 2.5rem;
+    .header {
+      background: var(--bg-primary);
+      padding: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border-color);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    
+    .back-button {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: none;
+      background: transparent;
+      color: var(--text-secondary);
+      font-size: 1.1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+    }
+    
+    .back-button:hover {
+      background: var(--hover-bg);
+    }
+    
+    .header-title {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    
+    .auth-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 2rem 1rem;
+      max-width: 400px;
+      margin: 0 auto;
       width: 100%;
-      max-width: 420px;
-      border: 1px solid var(--border-color);
-      position: relative;
     }
     
     .logo-container {
       display: flex;
       justify-content: center;
-      margin-bottom: 1.5rem;
+      margin-bottom: 2rem;
     }
     
-    .logo {
-      width: 80px;
-      height: 80px;
+    .logo-large {
+      width: 100px;
+      height: 100px;
       background: var(--accent-gradient);
       border-radius: 50%;
       display: flex;
@@ -87,8 +127,8 @@
       box-shadow: 0 8px 20px rgba(255, 127, 80, 0.3);
     }
     
-    .logo i {
-      font-size: 2rem;
+    .logo-large i {
+      font-size: 2.5rem;
       color: white;
     }
     
@@ -96,8 +136,88 @@
       text-align: center;
       font-size: 1.8rem;
       color: var(--text-primary);
-      margin-bottom: 1.5rem;
+      margin-bottom: 2rem;
       font-weight: 700;
+    }
+    
+    .saved-accounts {
+      margin-bottom: 2rem;
+    }
+    
+    .saved-accounts-title {
+      font-size: 1rem;
+      color: var(--text-secondary);
+      margin-bottom: 1rem;
+      font-weight: 600;
+    }
+    
+    .saved-account {
+      display: flex;
+      align-items: center;
+      padding: 1rem;
+      background: var(--card-bg);
+      border-radius: 1rem;
+      margin-bottom: 0.5rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: 1px solid var(--border-color);
+      box-shadow: var(--shadow);
+    }
+    
+    .saved-account:hover {
+      background: var(--hover-bg);
+    }
+    
+    .account-avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: var(--accent-gradient);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      color: white;
+      margin-right: 1rem;
+      background-size: cover;
+      background-position: center;
+      flex-shrink: 0;
+    }
+    
+    .account-info {
+      flex: 1;
+      min-width: 0;
+    }
+    
+    .account-name {
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 0.2rem;
+    }
+    
+    .account-id {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+    }
+    
+    .divider {
+      display: flex;
+      align-items: center;
+      margin: 2rem 0;
+      color: var(--text-secondary);
+    }
+    
+    .divider::before,
+    .divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border-color);
+    }
+    
+    .divider-text {
+      padding: 0 1rem;
+      font-size: 0.9rem;
     }
     
     .form-group {
@@ -107,7 +227,7 @@
     
     input {
       width: 100%;
-      padding: 1rem 1rem 1rem 3rem;
+      padding: 1rem 3rem 1rem 1rem;
       border: 1px solid var(--border-color);
       border-radius: 1rem;
       font-size: 1rem;
@@ -147,6 +267,11 @@
       background: none;
       border: none;
       font-size: 1rem;
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
     
     .password-toggle:hover {
@@ -164,8 +289,6 @@
       font-size: 1.1rem;
       cursor: pointer;
       transition: all 0.3s ease;
-      position: relative;
-      overflow: hidden;
     }
     
     button:hover {
@@ -250,59 +373,43 @@
       border: 1px solid rgba(59, 130, 246, 0.2);
     }
     
-    .theme-toggle {
-      position: absolute;
-      top: 1.5rem;
-      right: 1.5rem;
-      background: var(--bg-secondary);
-      border: 1px solid var(--border-color);
-      border-radius: 50%;
-      width: 40px;
-      height: 40px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      color: var(--text-secondary);
-      transition: all 0.3s ease;
-    }
-    
-    .theme-toggle:hover {
-      background: var(--hover-bg);
-      color: var(--accent-color);
-    }
-    
     @media (max-width: 480px) {
-      .auth-container {
-        padding: 2rem 1.5rem;
-        border-radius: 1.2rem;
+      .auth-content {
+        padding: 1rem;
       }
       
       h1 {
         font-size: 1.5rem;
       }
       
-      input {
-        padding: 0.9rem 0.9rem 0.9rem 2.8rem;
+      .logo-large {
+        width: 80px;
+        height: 80px;
       }
       
-      .theme-toggle {
-        top: 1rem;
-        right: 1rem;
-        width: 36px;
-        height: 36px;
+      .logo-large i {
+        font-size: 2rem;
+      }
+      
+      .header {
+        padding: 1rem 0.8rem;
       }
     }
   </style>
 </head>
 <body>
-  <div class="auth-container">
-    <div class="theme-toggle" id="themeToggle">
-      <i class="fas fa-moon" id="themeIcon"></i>
+  <div class="header">
+    <div class="header-left">
+      <button class="back-button" onclick="window.history.back()">
+        <i class="fas fa-arrow-left"></i>
+      </button>
+      <div class="header-title">Вход</div>
     </div>
-    
+  </div>
+  
+  <div class="auth-content">
     <div class="logo-container">
-      <div class="logo">
+      <div class="logo-large">
         <i class="fas fa-hamburger"></i>
       </div>
     </div>
@@ -310,6 +417,15 @@
     <h1>Вход в Hamburger</h1>
     
     <div class="message" id="message"></div>
+    
+    <div class="saved-accounts" id="savedAccounts" style="display: none;">
+      <div class="saved-accounts-title">Ранее вы входили в:</div>
+      <div id="savedAccountsList"></div>
+    </div>
+    
+    <div class="divider" id="divider" style="display: none;">
+      <div class="divider-text">Или войдите в другой аккаунт</div>
+    </div>
     
     <div class="form-group">
       <i class="fas fa-user input-icon"></i>
@@ -319,7 +435,7 @@
     <div class="form-group">
       <i class="fas fa-lock input-icon"></i>
       <input type="password" id="password" placeholder="Пароль" required />
-      <button class="password-toggle" id="togglePassword">
+      <button class="password-toggle" id="togglePassword" type="button">
         <i class="fas fa-eye"></i>
       </button>
     </div>
@@ -348,15 +464,12 @@
     firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
     
-    // Ключ для шифрования (должен совпадать с ключом на странице регистрации)
+    // Ключ для шифрования
     const ENCRYPTION_KEY = "HamburgerSecureKey2024!";
     
-    // Текущая тема
-    let currentTheme = localStorage.getItem('hamburger_theme') || 'light';
-    
     // Применяем сохраненную тему при загрузке
-    document.documentElement.setAttribute('data-theme', currentTheme);
-    updateThemeIcon();
+    const savedTheme = localStorage.getItem('hamburger_theme') || 'light';
+    document.documentElement.setAttribute('data-theme', savedTheme);
 
     // Хеширование пароля
     function hashPassword(password) {
@@ -373,14 +486,92 @@
       }
     }
     
+    // Получение сохраненных аккаунтов
+    function getSavedAccounts() {
+      const saved = localStorage.getItem('hamburger_saved_accounts');
+      return saved ? JSON.parse(saved) : [];
+    }
+    
+    // Сохранение аккаунта
+    function saveAccount(username, userId, avatar = null) {
+      const accounts = getSavedAccounts();
+      
+      // Проверяем, нет ли уже такого аккаунта
+      const existingIndex = accounts.findIndex(acc => acc.userId === userId);
+      if (existingIndex !== -1) {
+        accounts.splice(existingIndex, 1);
+      }
+      
+      // Добавляем аккаунт в начало
+      accounts.unshift({
+        username,
+        userId,
+        avatar,
+        lastLogin: Date.now()
+      });
+      
+      // Ограничиваем количество сохраненных аккаунтов
+      const maxAccounts = 5;
+      if (accounts.length > maxAccounts) {
+        accounts.splice(maxAccounts);
+      }
+      
+      localStorage.setItem('hamburger_saved_accounts', JSON.stringify(accounts));
+    }
+    
+    // Отображение сохраненных аккаунтов
+    function displaySavedAccounts() {
+      const accounts = getSavedAccounts();
+      const container = document.getElementById('savedAccounts');
+      const list = document.getElementById('savedAccountsList');
+      const divider = document.getElementById('divider');
+      
+      if (accounts.length === 0) {
+        container.style.display = 'none';
+        divider.style.display = 'none';
+        return;
+      }
+      
+      container.style.display = 'block';
+      divider.style.display = 'flex';
+      list.innerHTML = '';
+      
+      accounts.forEach(account => {
+        const accountElement = document.createElement('div');
+        accountElement.className = 'saved-account';
+        accountElement.addEventListener('click', () => {
+          document.getElementById('username').value = account.username;
+          document.getElementById('password').focus();
+        });
+        
+        const avatarHtml = account.avatar 
+          ? `<div class="account-avatar" style="background-image: url(${account.avatar});"></div>`
+          : `<div class="account-avatar">${account.username.charAt(0).toUpperCase()}</div>`;
+        
+        accountElement.innerHTML = `
+          ${avatarHtml}
+          <div class="account-info">
+            <div class="account-name">${account.username}</div>
+            <div class="account-id">ID: ${account.userId.substring(0, 8)}...</div>
+          </div>
+        `;
+        
+        list.appendChild(accountElement);
+      });
+    }
+    
     // Переключение видимости пароля
     document.getElementById('togglePassword').addEventListener('click', function() {
       const passwordInput = document.getElementById('password');
       const icon = this.querySelector('i');
       const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
       passwordInput.setAttribute('type', type);
-      icon.classList.toggle('fa-eye');
-      icon.classList.toggle('fa-eye-slash');
+      
+      if (type === 'password') {
+        icon.className = 'fas fa-eye';
+      } else {
+        icon.className = 'fas fa-eye-slash';
+      }
     });
     
     // Функция входа в систему
@@ -428,7 +619,7 @@
           
           if (userData && userData.username === username) {
             userFound = true;
-            return true; // Останавливаем перебор
+            return true;
           }
         });
 
@@ -449,11 +640,14 @@
         // Успешный вход
         showMessage("Вход выполнен успешно! Перенаправление...", "success");
         
+        // Сохраняем аккаунт
+        saveAccount(username, userId, userData.avatar || null);
+        
         // Сохраняем в localStorage
         localStorage.setItem("hamburger_user", username);
         localStorage.setItem("hamburger_user_id", userId);
         
-        // Задержка перед перенаправлением на main.html
+        // Задержка перед перенаправлением
         setTimeout(() => {
           window.location.href = "https://hamburgerchat.github.io/main.html";
         }, 1500);
@@ -472,7 +666,6 @@
       messageEl.className = `message ${type}`;
       messageEl.style.display = 'block';
       
-      // Автоматическое скрытие сообщений об ошибках через 5 секунд
       if (type === "error") {
         setTimeout(() => {
           messageEl.style.display = 'none';
@@ -517,48 +710,28 @@
       }
     }
     
-    // Переключение темы
-    function toggleTheme() {
-      currentTheme = currentTheme === 'light' ? 'dark' : 'light';
-      document.documentElement.setAttribute('data-theme', currentTheme);
-      localStorage.setItem('hamburger_theme', currentTheme);
-      updateThemeIcon();
-    }
-    
-    // Обновление иконки темы
-    function updateThemeIcon() {
-      const themeIcon = document.getElementById('themeIcon');
-      if (currentTheme === 'dark') {
-        themeIcon.className = 'fas fa-sun';
-      } else {
-        themeIcon.className = 'fas fa-moon';
-      }
-    }
-    
     // Инициализация при загрузке страницы
     window.addEventListener("DOMContentLoaded", async () => {
-      // Настройка переключателя темы
-      document.getElementById('themeToggle').addEventListener('click', toggleTheme);
+      // Показываем сохраненные аккаунты
+      displaySavedAccounts();
       
-      // Проверка авторизации и существования пользователя на сервере
+      // Проверка авторизации
       const user = localStorage.getItem("hamburger_user");
       const userId = localStorage.getItem("hamburger_user_id");
       
       if (user && userId) {
         const userExists = await verifyUserOnServer();
         if (userExists) {
-          // Пользователь существует на сервере - перенаправляем
           window.location.href = "https://hamburgerchat.github.io/main.html";
           return;
         } else {
-          // Пользователь не существует на сервере - очищаем localStorage
           localStorage.removeItem("hamburger_user");
           localStorage.removeItem("hamburger_user_id");
           showMessage("Ваша сессия истекла. Пожалуйста, войдите снова.", "info");
         }
       }
       
-      // Добавляем обработчики для клавиши Enter
+      // Обработчики для клавиши Enter
       document.getElementById("username").addEventListener("keypress", function(e) {
         if (e.key === "Enter") {
           document.getElementById("password").focus();
