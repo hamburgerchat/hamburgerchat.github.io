@@ -1923,23 +1923,27 @@
                 currentChatData = decryptedData;
                 console.log('Расшифрованные данные:', currentChatData);
                 
+                // ИСПРАВЛЕНИЕ: Правильно определяем тип чата
                 isGroupChat = currentChatData.type === 'group';
                 isChannel = currentChatData.type === 'channel';
                 isBotChat = currentChatData.type === 'bot';
+                
+                console.log('Тип чата:', { isGroupChat, isChannel, isBotChat });
                 
                 // Проверяем права
                 isCreator = currentChatData.createdBy === currentUserId;
                 isAdmin = isCreator || (currentChatData.admins && currentChatData.admins.includes(currentUserId));
                 
-                console.log('Права пользователя:', { isCreator, isAdmin, currentUserId, createdBy: currentChatData.createdBy, admins: currentChatData.admins });
-                
-                if (isGroupChat || isChannel || isBotChat) {
+                // ИСПРАВЛЕНИЕ: Для ботов всегда считаем пользователя участником
+                if (isBotChat) {
+                    isGroupMember = true; // Боты всегда доступны
+                } else if (isGroupChat || isChannel) {
                     isGroupMember = currentChatData.participants && 
                                  (Array.isArray(currentChatData.participants) ? 
                                   currentChatData.participants.includes(currentUserId) : 
                                   currentChatData.participants[currentUserId]);
                 } else {
-                    isGroupMember = true;
+                    isGroupMember = true; // Личные чаты
                 }
                 
                 updateChatHeader();
@@ -1955,6 +1959,7 @@
                     document.getElementById('loadingContainer').style.display = 'none';
                     document.getElementById('joinGroupContainer').style.display = 'none';
                     
+                    // ИСПРАВЛЕНИЕ: Для ботов показываем обычный инпут
                     if (isChannel) {
                         if (isAdmin || isCreator) {
                             document.getElementById('inputContainer').style.display = 'flex';
@@ -2151,7 +2156,9 @@
             const isOwn = message.sender === currentUserId;
             const isChannelMessage = isChannel && message.sender === currentChatData.createdBy;
             const isBotMessage = message.isBotMessage || message.sender === currentChatId;
-            const showHeader = (isGroupChat && !isOwn) || (isChannel && !isChannelMessage) || (isBotChat && !isBotMessage);
+            
+            // ИСПРАВЛЕНИЕ: Для ботов не показываем заголовок с именем
+            const showHeader = (isGroupChat && !isOwn) || (isChannel && !isChannelMessage);
             
             messageEl.className = `message ${isOwn ? 'own' : ''} ${isChannel ? 'channel' : ''} ${isBotChat ? 'bot' : ''} ${isGroupChat ? 'group' : ''} ${message.pinned ? 'pinned-message' : ''} ${isBotMessage ? 'bot-message' : ''}`;
             messageEl.dataset.messageId = message.id;
@@ -2249,11 +2256,12 @@
                 messageText = messageText.replace(urlRegex, '<a href="$1" target="_blank" onclick="event.stopPropagation()">$1</a>');
             }
             
-            // Добавляем кнопки бота если они есть
+            // ИСПРАВЛЕНИЕ: Правильно отображаем кнопки бота
             let botButtons = '';
             if (message.botButtons && Array.isArray(message.botButtons)) {
+                console.log('Отображаю кнопки бота:', message.botButtons);
                 botButtons = `<div class="bot-buttons">${
-                    message.botButtons.flat().map(buttonRow => 
+                    message.botButtons.map(buttonRow => 
                         buttonRow.map(button => {
                             if (button.type === "text") {
                                 return `<button class="bot-button" data-payload="${button.payload}">${button.label}</button>`;
@@ -2321,8 +2329,12 @@
             
             container.appendChild(messageEl);
             
-            // Автоскролл только для новых сообщений
-            if (!message.delivered && !isUpdate) {
+            // ИСПРАВЛЕНИЕ: Добавляем задержку для сообщений бота
+            if (isBotMessage && !message.delivered && !isUpdate) {
+                setTimeout(() => {
+                    scrollToBottom();
+                }, 500);
+            } else if (!message.delivered && !isUpdate) {
                 scrollToBottom();
             }
         }
