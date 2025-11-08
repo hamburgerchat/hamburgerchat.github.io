@@ -29,7 +29,6 @@
             --success-color: #10b981;
             --message-bg: #ffffff;
             --own-message-bg: #e3f2fd;
-            --channel-message-bg: #f0f9ff;
             --role-creator: #ff6b35;
             --role-admin: #4ecdc4;
             --role-member: #94a3b8;
@@ -43,8 +42,6 @@
             --notification-text: #ffffff;
             --link-color: #2563eb;
             --call-color: #10b981;
-            --channel-color: #8b5cf6;
-            --bot-color: #10b981;
         }
 
         [data-theme="dark"] {
@@ -62,10 +59,6 @@
             --shadow-light: 0 1px 2px rgba(0,0,0,0.2);
             --message-bg: #1e293b;
             --own-message-bg: #1e3a5f;
-            --channel-message-bg: #1e1b4b;
-            --role-creator: #fdba74;
-            --role-admin: #5eead4;
-            --role-member: #64748b;
             --reply-bg: #334155;
             --service-bg: rgba(253, 186, 116, 0.15);
             --service-text: #fdba74;
@@ -74,8 +67,6 @@
             --notification-text: #1e293b;
             --link-color: #60a5fa;
             --call-color: #34d399;
-            --channel-color: #a78bfa;
-            --bot-color: #34d399;
         }
 
         * { 
@@ -171,14 +162,6 @@
         .chat-avatar.has-image {
             background-size: cover;
             background-position: center;
-        }
-        
-        .chat-avatar.channel {
-            background: linear-gradient(135deg, var(--channel-color), #c4b5fd);
-        }
-        
-        .chat-avatar.bot {
-            background: linear-gradient(135deg, var(--bot-color), #34d399);
         }
         
         .chat-details {
@@ -291,14 +274,6 @@
             margin-left: auto;
         }
         
-        .message.channel {
-            max-width: 85%;
-        }
-        
-        .message.bot {
-            max-width: 85%;
-        }
-        
         .message.group:not(.own) {
             padding-left: 36px;
         }
@@ -344,16 +319,6 @@
             border-bottom-right-radius: 6px;
         }
         
-        .message.channel .message-content {
-            background: var(--message-bg);
-            border-left: 3px solid var(--channel-color);
-        }
-        
-        .message.bot .message-content {
-            background: var(--message-bg);
-            border-left: 3px solid var(--bot-color);
-        }
-        
         .message:not(.own) .message-content {
             border-bottom-left-radius: 6px;
         }
@@ -394,6 +359,7 @@
             line-height: 1.4;
             color: var(--text-primary);
             word-wrap: break-word;
+            white-space: pre-wrap;
         }
         
         .message-text a {
@@ -427,29 +393,6 @@
             color: var(--text-tertiary);
             text-align: right;
             margin-top: 0.2rem;
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-            gap: 0.2rem;
-        }
-        
-        .message.own .message-time {
-            text-align: left;
-            justify-content: flex-start;
-        }
-        
-        .message-status {
-            display: flex;
-            gap: 0.1rem;
-        }
-        
-        .status-icon {
-            font-size: 0.55rem;
-            color: var(--text-tertiary);
-        }
-        
-        .status-icon.read {
-            color: var(--read-color);
         }
         
         .reactions {
@@ -1393,14 +1336,6 @@
                 max-width: 85%;
             }
             
-            .message.channel {
-                max-width: 90%;
-            }
-            
-            .message.bot {
-                max-width: 90%;
-            }
-            
             .message-content {
                 padding: 0.5rem 0.8rem;
             }
@@ -2004,32 +1939,27 @@
                 chatAvatarInitial.textContent = initial;
             }
             
-            // Для каналов меняем цвет аватарки
-            if (isChannel) {
-                chatAvatar.classList.add('channel');
+            // ИСПРАВЛЕНИЕ: Убираем специальные цвета для каналов и ботов
+            if (isChannel || isBotChat) {
+                // Оставляем обычный цвет аватарки
                 if (!currentChatData.avatar) {
-                    const channelInitial = currentChatData.name ? currentChatData.name.charAt(0).toUpperCase() : 'C';
-                    chatAvatarInitial.textContent = channelInitial;
-                }
-            }
-            
-            // Для ботов меняем цвет аватарки
-            if (isBotChat) {
-                chatAvatar.classList.add('bot');
-                if (!currentChatData.avatar) {
-                    const botInitial = currentChatData.name ? currentChatData.name.charAt(0).toUpperCase() : 'B';
-                    chatAvatarInitial.textContent = botInitial;
+                    const initial = currentChatData.name ? currentChatData.name.charAt(0).toUpperCase() : '?';
+                    chatAvatarInitial.textContent = initial;
                 }
             }
             
             if (isGroupChat || isChannel || isBotChat) {
-                const participants = currentChatData.participants || [];
-                const count = Array.isArray(participants) ? participants.length : Object.keys(participants).length;
-                let chatType = 'группа';
-                if (isChannel) chatType = 'канал';
-                if (isBotChat) chatType = 'бот';
-                
-                chatStatus.innerHTML = `<span class="online-indicator"></span> ${count} участников • ${chatType}`;
+                // ИСПРАВЛЕНИЕ: Для ботов показываем "бот", а не количество участников
+                if (isBotChat) {
+                    chatStatus.innerHTML = `<span class="online-indicator"></span> бот`;
+                } else {
+                    const participants = currentChatData.participants || [];
+                    const count = Array.isArray(participants) ? participants.length : Object.keys(participants).length;
+                    let chatType = 'группа';
+                    if (isChannel) chatType = 'канал';
+                    
+                    chatStatus.innerHTML = `<span class="online-indicator"></span> ${count} участников • ${chatType}`;
+                }
                 leaveChatItem.style.display = 'block';
                 callButton.style.display = 'none';
             } else {
@@ -2154,13 +2084,12 @@
             }
 
             const isOwn = message.sender === currentUserId;
-            const isChannelMessage = isChannel && message.sender === currentChatData.createdBy;
             const isBotMessage = message.isBotMessage || message.sender === currentChatId;
             
-            // ИСПРАВЛЕНИЕ: Для ботов не показываем заголовок с именем
-            const showHeader = (isGroupChat && !isOwn) || (isChannel && !isChannelMessage);
+            // ИСПРАВЛЕНИЕ: Для ботов и каналов показываем обычные сообщения
+            const showHeader = (isGroupChat && !isOwn) || (isChannel && !isOwn);
             
-            messageEl.className = `message ${isOwn ? 'own' : ''} ${isChannel ? 'channel' : ''} ${isBotChat ? 'bot' : ''} ${isGroupChat ? 'group' : ''} ${message.pinned ? 'pinned-message' : ''} ${isBotMessage ? 'bot-message' : ''}`;
+            messageEl.className = `message ${isOwn ? 'own' : ''} ${isGroupChat ? 'group' : ''} ${message.pinned ? 'pinned-message' : ''}`;
             messageEl.dataset.messageId = message.id;
             messageEl.dataset.timestamp = message.timestamp;
             
@@ -2195,7 +2124,7 @@
             }
             
             let avatar = '';
-            if (showHeader && !isChannelMessage && !isBotMessage) {
+            if (showHeader && !isBotMessage) {
                 const userProfile = await getUserProfile(message.sender);
                 const avatarUrl = userProfile ? userProfile.avatar : null;
                 const avatarInitial = userProfile && userProfile.username ? userProfile.username.charAt(0).toUpperCase() : 'U';
@@ -2239,17 +2168,6 @@
                 }</div>`;
             }
             
-            let statusIcons = '';
-            if (isOwn) {
-                if (message.readBy && message.readBy.length > 0) {
-                    statusIcons = '<div class="message-status"><i class="fas fa-check-double status-icon read"></i><i class="fas fa-check-double status-icon read"></i></div>';
-                } else if (message.delivered) {
-                    statusIcons = '<div class="message-status"><i class="fas fa-check-double status-icon"></i><i class="fas fa-check-double status-icon"></i></div>';
-                } else {
-                    statusIcons = '<div class="message-status"><i class="fas fa-check status-icon"></i></div>';
-                }
-            }
-            
             let messageText = message.text || '';
             if (messageText) {
                 const urlRegex = /(https?:\/\/[^\s]+)/g;
@@ -2284,7 +2202,7 @@
                     ${messageText ? `<div class="message-text">${messageText}</div>` : ''}
                     ${botButtons}
                     ${reactions}
-                    <div class="message-time">${formatTime(message.timestamp)} ${statusIcons}</div>
+                    <div class="message-time">${formatTime(message.timestamp)}</div>
                 `;
             } else if (message.sticker) {
                 content = `
@@ -2296,7 +2214,7 @@
                     <div class="message-sticker">${message.sticker}</div>
                     ${botButtons}
                     ${reactions}
-                    <div class="message-time">${formatTime(message.timestamp)} ${statusIcons}</div>
+                    <div class="message-time">${formatTime(message.timestamp)}</div>
                 `;
             } else {
                 content = `
@@ -2308,7 +2226,7 @@
                     <div class="message-text">${messageText}</div>
                     ${botButtons}
                     ${reactions}
-                    <div class="message-time">${formatTime(message.timestamp)} ${statusIcons}</div>
+                    <div class="message-time">${formatTime(message.timestamp)}</div>
                 `;
             }
             
@@ -2333,7 +2251,7 @@
             if (isBotMessage && !message.delivered && !isUpdate) {
                 setTimeout(() => {
                     scrollToBottom();
-                }, 500);
+                }, 1500);
             } else if (!message.delivered && !isUpdate) {
                 scrollToBottom();
             }
@@ -2349,7 +2267,7 @@
                     timestamp: Date.now(),
                     type: 'text',
                     buttonPayload: payload,
-                    delivered: false
+                    delivered: true // ИСПРАВЛЕНИЕ: Убираем механику галочек
                 };
                 
                 const encrypted = encryptData(messageData);
@@ -2359,14 +2277,6 @@
                     encryptedData: encrypted,
                     timestamp: Date.now()
                 });
-                
-                setTimeout(async () => {
-                    messageData.delivered = true;
-                    const updatedEncrypted = encryptData(messageData);
-                    await database.ref(`messages/${currentChatId}/${messageId}`).update({
-                        encryptedData: updatedEncrypted
-                    });
-                }, 1000);
                 
                 await updateLastMessage(messageData.text);
                 
@@ -2400,7 +2310,7 @@
                     timestamp: Date.now(),
                     type: 'text',
                     isBotMessage: true,
-                    delivered: true
+                    delivered: true // ИСПРАВЛЕНИЕ: Убираем механику галочек
                 };
                 
                 // Добавляем кнопки если они есть
@@ -2811,7 +2721,7 @@
                         sender: currentUserId,
                         timestamp: Date.now(),
                         type: 'image',
-                        delivered: false
+                        delivered: true // ИСПРАВЛЕНИЕ: Убираем механику галочек
                     };
                     
                     const encrypted = encryptData(messageData);
@@ -2821,14 +2731,6 @@
                         encryptedData: encrypted,
                         timestamp: Date.now()
                     });
-                    
-                    setTimeout(async () => {
-                        messageData.delivered = true;
-                        const updatedEncrypted = encryptData(messageData);
-                        await database.ref(`messages/${currentChatId}/${messageId}`).update({
-                            encryptedData: updatedEncrypted
-                        });
-                    }, 1000);
                     
                     await updateLastMessage('Стикер');
                     
@@ -2876,10 +2778,17 @@
                 this.style.height = Math.min(this.scrollHeight, 100) + 'px';
             });
             
-            input.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    if (!sendBtn.disabled) sendMessage();
+            // ИСПРАВЛЕНИЕ: Поддержка Enter и Ctrl+Enter
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    if (e.ctrlKey || e.metaKey) {
+                        // Ctrl+Enter - отправка сообщения
+                        e.preventDefault();
+                        if (!sendBtn.disabled) sendMessage();
+                    } else {
+                        // Просто Enter - новая строка
+                        // Разрешаем стандартное поведение
+                    }
                 }
             });
             
@@ -3179,7 +3088,7 @@
                     timestamp: Date.now(),
                     type: 'text',
                     replyTo: replyingTo,
-                    delivered: false
+                    delivered: true // ИСПРАВЛЕНИЕ: Убираем механику галочек
                 };
                 
                 const encrypted = encryptData(messageData);
@@ -3190,14 +3099,6 @@
                     timestamp: Date.now()
                 });
                 
-                setTimeout(async () => {
-                    messageData.delivered = true;
-                    const updatedEncrypted = encryptData(messageData);
-                    await database.ref(`messages/${currentChatId}/${messageId}`).update({
-                        encryptedData: updatedEncrypted
-                    });
-                }, 1000);
-                
                 await updateLastMessage(text);
                 
                 input.value = '';
@@ -3207,7 +3108,9 @@
                 
                 // Обрабатываем сообщение ботом, если это чат с ботом
                 if (isBotChat && botInstance && botInstance.onMessage) {
-                    await processBotMessage(text, messageId);
+                    setTimeout(async () => {
+                        await processBotMessage(text, messageId);
+                    }, 1500); // ИСПРАВЛЕНИЕ: Задержка 1.5 секунды
                 }
                 
             } catch (error) {
@@ -3286,7 +3189,7 @@
                     sender: currentUserId,
                     timestamp: Date.now(),
                     type: 'image',
-                    delivered: false
+                    delivered: true // ИСПРАВЛЕНИЕ: Убираем механику галочек
                 };
                 
                 const encrypted = encryptData(messageData);
@@ -3296,14 +3199,6 @@
                     encryptedData: encrypted,
                     timestamp: Date.now()
                 });
-                
-                setTimeout(async () => {
-                    messageData.delivered = true;
-                    const updatedEncrypted = encryptData(messageData);
-                    await database.ref(`messages/${currentChatId}/${messageId}`).update({
-                        encryptedData: updatedEncrypted
-                    });
-                }, 1000);
                 
                 await updateLastMessage('Изображение');
                 
