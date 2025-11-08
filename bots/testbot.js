@@ -136,7 +136,7 @@ class ImageGeneratorBot {
         try {
             // Показываем сообщение о начале генерации
             await context.reply({
-                text: "🔄 Генерирую изображение... Это может занять несколько секунд ⏳"
+                text: "🔄 Генерирую изображение... Это может занять 10-30 секунд ⏳"
             });
 
             // Извлекаем промпт из запроса пользователя
@@ -156,9 +156,13 @@ class ImageGeneratorBot {
             // Создаем URL для генерации изображения
             const imageUrl = this.createImageUrl(englishPrompt);
 
-            // Отправляем изображение
+            // Сначала отправляем текстовое сообщение с информацией
             await context.reply({
-                text: `✅ Вот твое изображение!\n\n**Запрос:** ${prompt}\n**Сгенерировано с помощью Lyriel 1.5**`,
+                text: `✅ Вот твое изображение!\n\n**Запрос:** ${prompt}\n**Английский промпт:** ${englishPrompt}\n**Модель:** Lyriel 1.5`
+            });
+
+            // Затем отправляем изображение ОТДЕЛЬНЫМ сообщением
+            await context.reply({
                 image: imageUrl
             });
 
@@ -170,7 +174,7 @@ class ImageGeneratorBot {
         } catch (error) {
             console.error("Ошибка генерации изображения:", error);
             await context.reply({
-                text: "❌ Произошла ошибка при генерации изображения. Попробуй еще раз или измени запрос."
+                text: "❌ Произошла ошибка при генерации изображения. Попробуй еще раз или измени запрос.\n\nОшибка: " + error.message
             });
         }
     }
@@ -208,13 +212,14 @@ class ImageGeneratorBot {
         // Улучшаем промпт для лучшего качества изображения
         const enhancements = [
             "high quality", "detailed", "beautiful", "artistic", 
-            "professional", "vibrant colors", "sharp focus"
+            "professional", "vibrant colors", "sharp focus",
+            "4k", "ultra detailed", "masterpiece"
         ];
 
-        // Добавляем 2 случайных улучшения
+        // Добавляем 2-3 случайных улучшения
         const randomEnhancements = enhancements
             .sort(() => Math.random() - 0.5)
-            .slice(0, 2)
+            .slice(0, 3)
             .join(', ');
 
         return `${englishPrompt}, ${randomEnhancements}, digital art`;
@@ -248,130 +253,80 @@ class ImageGeneratorBot {
                   "Просто напиши свой запрос и наслаждайся результатом! ✨"
         });
     }
-
-    // Дополнительный метод для быстрой генерации без контекста
-    async generateImageFromPrompt(prompt) {
-        const englishPrompt = this.translateToEnglish(prompt);
-        return this.createImageUrl(englishPrompt);
-    }
 }
 
-// Альтернативная версия с кнопками для быстрого доступа
-class ImageGeneratorBotWithButtons extends ImageGeneratorBot {
+// Версия с проверкой доступности изображения
+class ImageGeneratorBotWithCheck extends ImageGeneratorBot {
     constructor() {
         super();
-        this.name = "ГенераторФото+";
-        this.popularPrompts = [
-            "Космонавт в космосе",
-            "Волшебный лес",
-            "Футуристический город",
-            "Закат на море",
-            "Единорог в радуге",
-            "Дракон в горах",
-            "Киберпанк улица",
-            "Средиземье пейзаж",
-            "Подводный мир",
-            "Космическая станция"
-        ];
     }
 
-    async onStart(context) {
-        await context.reply({
-            text: "🎨 Привет! Я продвинутый бот-генератор изображений!\n\n" +
-                  "Выбери готовый шаблон или напиши свой запрос!",
-            buttons: this.generateMainButtons()
-        });
-    }
-
-    async onMessage(message, context) {
-        const text = message.text.toLowerCase().trim();
-
-        // Обработка кнопок
-        if (context.buttonPayload) {
-            await this.handleButton(context.buttonPayload, context);
-            return;
-        }
-
-        // Быстрые команды для популярных промптов
-        const quickPrompt = this.popularPrompts.find(prompt => 
-            text.includes(prompt.toLowerCase().split(' ')[0])
-        );
-        
-        if (quickPrompt) {
-            await this.generateImage(quickPrompt, context);
-            return;
-        }
-
-        await super.onMessage(message, context);
-    }
-
-    generateMainButtons() {
-        const buttons = [];
-        
-        // Создаем кнопки для популярных промптов (по 2 в ряду)
-        for (let i = 0; i < this.popularPrompts.length; i += 2) {
-            const row = [];
-            if (this.popularPrompts[i]) {
-                row.push({ 
-                    type: "text", 
-                    label: `🎨 ${this.popularPrompts[i].split(' ')[0]}...`,
-                    payload: `prompt_${i}`
-                });
-            }
-            if (this.popularPrompts[i + 1]) {
-                row.push({ 
-                    type: "text", 
-                    label: `🎨 ${this.popularPrompts[i + 1].split(' ')[0]}...`,
-                    payload: `prompt_${i + 1}`
-                });
-            }
-            buttons.push(row);
-        }
-
-        // Добавляем служебные кнопки
-        buttons.push([
-            { type: "text", label: "❓ Помощь", payload: "help" },
-            { type: "text", label: "💡 Свой запрос", payload: "custom" }
-        ]);
-
-        return buttons;
-    }
-
-    async handleButton(payload, context) {
-        if (payload.startsWith('prompt_')) {
-            const index = parseInt(payload.split('_')[1]);
-            const prompt = this.popularPrompts[index];
-            await this.generateImage(prompt, context);
-        } else if (payload === 'help') {
-            await this.showHelp(context);
-        } else if (payload === 'custom') {
+    async generateImage(userPrompt, context) {
+        try {
+            // Показываем сообщение о начале генерации
             await context.reply({
-                text: "💡 Напиши свой запрос для генерации изображения!\n\n" +
-                      "Например: \"Сгенерируй кота в космическом шлеме\" или \"Нарисуй замок в облаках\""
+                text: "🔄 Генерирую изображение... Это может занять 10-30 секунд ⏳"
+            });
+
+            const prompt = this.extractPrompt(userPrompt);
+            
+            if (!prompt) {
+                await context.reply({
+                    text: "❌ Пожалуйста, уточни, что именно ты хочешь увидеть на изображении."
+                });
+                return;
+            }
+
+            const englishPrompt = this.translateToEnglish(prompt);
+            const imageUrl = this.createImageUrl(englishPrompt);
+
+            // Проверяем доступность изображения
+            const isImageAvailable = await this.checkImageAvailability(imageUrl);
+            
+            if (!isImageAvailable) {
+                await context.reply({
+                    text: "❌ Сервис генерации изображений временно недоступен. Попробуй позже."
+                });
+                return;
+            }
+
+            // Сначала отправляем информацию
+            await context.reply({
+                text: `✅ Вот твое изображение!\n\n**Запрос:** ${prompt}\n**Модель:** Lyriel 1.5`
+            });
+
+            // Затем отправляем изображение ОТДЕЛЬНЫМ сообщением
+            await context.reply({
+                image: imageUrl
+            });
+
+            // Предлагаем сгенерировать еще
+            await context.reply({
+                text: "✨ Хочешь создать еще одно изображение? Просто напиши новый запрос! 🎨"
+            });
+
+        } catch (error) {
+            console.error("Ошибка генерации изображения:", error);
+            await context.reply({
+                text: "❌ Произошла ошибка. Попробуй другой запрос или подожди немного."
             });
         }
     }
 
-    async showHelp(context) {
-        await context.reply({
-            text: "🎨 **Продвинутый генератор изображений**\n\n" +
-                  "**Возможности:**\n" +
-                  "• Быстрая генерация по шаблонам\n" +
-                  "• Кастомные запросы на русском/английском\n" +
-                  "• Высокое качество (1000x1000px)\n" +
-                  "• Стиль digital art\n\n" +
-                  "**Популярные шаблоны доступны по кнопкам!**",
-            buttons: [
-                [
-                    { type: "text", label: "🎨 Выбрать шаблон", payload: "back" },
-                    { type: "text", label: "💡 Свой запрос", payload: "custom" }
-                ]
-            ]
-        });
+    async checkImageAvailability(url) {
+        try {
+            const response = await fetch(url, { method: 'HEAD' });
+            return response.ok;
+        } catch (error) {
+            return false;
+        }
     }
 }
 
 // Экспорт ботов
 if (typeof module !== 'undefined') {
-    module.exports = { ImageGeneratorBot, ImageGeneratorBotWithButtons };
+    module.exports = { 
+        ImageGeneratorBot, 
+        ImageGeneratorBotWithCheck 
+    };
 }
