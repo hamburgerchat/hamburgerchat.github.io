@@ -25,6 +25,7 @@
       --hover-bg: #f3f4f6;
       --danger-color: #ef4444;
       --success-color: #10b981;
+      --bot-color: #10b981;
     }
 
     [data-theme="dark"] {
@@ -38,6 +39,7 @@
       --card-bg: #1f2937;
       --hover-bg: #374151;
       --shadow: 0 1px 3px rgba(0,0,0,0.3);
+      --bot-color: #34d399;
     }
 
     * { 
@@ -112,7 +114,7 @@
       gap: 0.5rem;
     }
     
-    .search-toggle, .menu-toggle {
+    .search-toggle, .settings-toggle {
       width: 36px;
       height: 36px;
       border-radius: 50%;
@@ -127,7 +129,7 @@
       transition: all 0.2s ease;
     }
     
-    .search-toggle:hover, .menu-toggle:hover {
+    .search-toggle:hover, .settings-toggle:hover {
       background: var(--hover-bg);
     }
     
@@ -330,6 +332,10 @@
       background-position: center;
     }
     
+    .chat-avatar.bot {
+      background: linear-gradient(135deg, var(--bot-color), #34d399);
+    }
+    
     .chat-info {
       flex: 1;
       min-width: 0;
@@ -384,6 +390,14 @@
     
     .type-channel {
       background: #8b5cf6;
+    }
+    
+    .type-bot {
+      background: var(--bot-color);
+    }
+    
+    .type-feed {
+      background: #f59e0b;
     }
     
     .unread-badge {
@@ -562,6 +576,10 @@
       background-position: center;
     }
     
+    .recommended-avatar.bot {
+      background: linear-gradient(135deg, var(--bot-color), #34d399);
+    }
+    
     .recommended-info {
       flex: 1;
       min-width: 0;
@@ -613,6 +631,10 @@
       flex-shrink: 0;
       background-size: cover;
       background-position: center;
+    }
+    
+    .result-avatar.bot {
+      background: linear-gradient(135deg, var(--bot-color), #34d399);
     }
     
     .result-info {
@@ -702,6 +724,10 @@
     
     .option-icon.channel {
       background: linear-gradient(135deg, #8b5cf6, #c4b5fd);
+    }
+    
+    .option-icon.bot {
+      background: linear-gradient(135deg, var(--bot-color), #34d399);
     }
     
     .option-info {
@@ -1094,8 +1120,8 @@
         <button class="search-toggle" id="searchToggle">
           <i class="fas fa-search"></i>
         </button>
-        <button class="menu-toggle" id="menuToggle">
-          <i class="fas fa-ellipsis-v"></i>
+        <button class="settings-toggle" id="settingsToggle">
+          <i class="fas fa-cog"></i>
         </button>
         <button class="profile-btn" id="profileBtn">
           <span id="profileInitial">U</span>
@@ -1175,32 +1201,6 @@
     </div>
   </div>
   
-  <!-- Меню настроек -->
-  <div class="settings-menu" id="settingsMenu">
-    <div class="settings-item" id="themeSettings">
-      <div class="settings-icon">
-        <i class="fas fa-palette"></i>
-      </div>
-      <div class="settings-text">
-        Тема
-        <div style="margin-top: 0.5rem;">
-          <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.75rem;">
-            <input type="radio" name="theme" value="light" checked> Светлая
-          </label>
-          <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.75rem;">
-            <input type="radio" name="theme" value="dark"> Тёмная
-          </label>
-        </div>
-      </div>
-    </div>
-    <div class="settings-item logout-btn" id="logoutBtn">
-      <div class="settings-icon">
-        <i class="fas fa-sign-out-alt"></i>
-      </div>
-      <div class="settings-text">Выйти</div>
-    </div>
-  </div>
-  
   <!-- Меню создания -->
   <div class="create-menu" id="createMenu">
     <button class="close-create" id="closeCreateMenu">
@@ -1227,6 +1227,15 @@
         <div class="option-info">
           <div class="option-title">Создать группу</div>
           <div class="option-desc">Общайтесь с несколькими участниками</div>
+        </div>
+      </div>
+      <div class="create-option" id="createBotOption">
+        <div class="option-icon bot">
+          <i class="fas fa-robot"></i>
+        </div>
+        <div class="option-info">
+          <div class="option-title">Создать бота</div>
+          <div class="option-desc">Автоматизируйте общение</div>
         </div>
       </div>
       <div class="create-option" id="createPrivateOption">
@@ -1363,6 +1372,55 @@
     </div>
   </div>
 
+  <!-- Форма создания бота -->
+  <div class="create-form" id="createBotForm">
+    <div class="form-header">
+      <button class="back-button" id="backToCreateMenuFromBot">
+        <i class="fas fa-arrow-left"></i>
+      </button>
+      <div class="form-title">Создать бота</div>
+      <div></div>
+    </div>
+    
+    <div class="form-content">
+      <div class="form-group">
+        <label class="form-label" for="botName">Имя бота</label>
+        <input type="text" class="form-input" id="botName" placeholder="Введите имя бота">
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label" for="botDescription">Описание бота</label>
+        <textarea class="form-textarea" id="botDescription" placeholder="Опишите функционал бота"></textarea>
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label">Аватарка бота</label>
+        <div class="avatar-upload-container">
+          <div class="avatar-preview" id="botAvatarPreview">
+            <span id="botAvatarInitial">B</span>
+          </div>
+          <button class="upload-avatar-btn" id="uploadBotAvatar">
+            <i class="fas fa-camera"></i> Выбрать аватар
+          </button>
+          <input type="file" id="botAvatarUpload" accept="image/*" style="display: none;">
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label" for="botScriptUrl">URL скрипта бота</label>
+        <input type="url" class="form-input" id="botScriptUrl" placeholder="https://example.com/bot-script.js">
+        <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.3rem;">
+          Укажите URL JavaScript файла с логикой бота
+        </div>
+      </div>
+    </div>
+    
+    <div class="form-actions">
+      <button class="btn btn-secondary" id="cancelBotCreate">Отмена</button>
+      <button class="btn btn-primary" id="confirmBotCreate">Создать бота</button>
+    </div>
+  </div>
+
   <!-- Контекстное меню -->
   <div class="context-menu" id="contextMenu">
     <div class="context-item" data-action="pin">
@@ -1428,6 +1486,7 @@
     let selectedPrivacy = 'public';
     let channelAvatarUrl = '';
     let groupAvatarUrl = '';
+    let botAvatarUrl = '';
     let longPressTimer = null;
 
     // Применяем настройки при загрузке
@@ -1517,7 +1576,8 @@
         { id: 'personal', name: 'Личные', type: 'system', chatIds: [] },
         { id: 'groups', name: 'Группы', type: 'system', chatIds: [] },
         { id: 'channels', name: 'Каналы', type: 'system', chatIds: [] },
-        { id: 'favorites', name: 'Избранное', type: 'system', chatIds: [] }
+        { id: 'bots', name: 'Боты', type: 'system', chatIds: [] },
+        { id: 'feed', name: 'Лента', type: 'system', chatIds: [] }
       ];
       
       systemFolders.forEach(sysFolder => {
@@ -1639,8 +1699,11 @@
       if (folderId === 'channels') {
         return userChats.filter(chat => chat.type === 'channel').length;
       }
-      if (folderId === 'favorites') {
-        return 1; // Избранное всегда есть
+      if (folderId === 'bots') {
+        return userChats.filter(chat => chat.type === 'bot').length;
+      }
+      if (folderId === 'feed') {
+        return 1; // Лента всегда есть
       }
       
       // Для пользовательских папок
@@ -1680,8 +1743,11 @@
           case 'channels':
             shouldShow = chat.type === 'channel';
             break;
-          case 'favorites':
-            shouldShow = chat.id === 'favorites';
+          case 'bots':
+            shouldShow = chat.type === 'bot';
+            break;
+          case 'feed':
+            shouldShow = chat.id === 'L';
             break;
           default:
             // Пользовательские папки
@@ -1706,12 +1772,12 @@
         
         userChats = [];
         
-        // Добавляем чат "Избранное" в начало
+        // Добавляем чат "Лента" в начало
         userChats.push({
-          id: 'favorites',
-          name: 'Избранное',
-          type: 'favorites',
-          lastMessage: 'Сохраняйте важные сообщения здесь',
+          id: 'L',
+          name: 'Лента',
+          type: 'feed',
+          lastMessage: 'Новости и обновления',
           lastMessageTime: Date.now(),
           avatar: null
         });
@@ -1721,7 +1787,7 @@
           const chatPromises = [];
           
           for (const chatId in chats) {
-            if (chatId !== 'favorites') {
+            if (chatId !== 'L') {
               chatPromises.push(loadChatData(chatId));
             }
           }
@@ -1830,7 +1896,7 @@
       }
       
       const avatar = document.createElement('div');
-      avatar.className = 'chat-avatar';
+      avatar.className = `chat-avatar ${chat.type === 'bot' ? 'bot' : ''}`;
       
       if (avatarUrl) {
         avatar.style.backgroundImage = `url(${avatarUrl})`;
@@ -1863,13 +1929,14 @@
       meta.className = 'chat-meta';
       
       const type = document.createElement('div');
-      type.className = `chat-type ${chat.type === 'channel' ? 'type-channel' : ''}`;
+      type.className = `chat-type ${chat.type === 'channel' ? 'type-channel' : ''} ${chat.type === 'bot' ? 'type-bot' : ''} ${chat.type === 'feed' ? 'type-feed' : ''}`;
       
-      if (chat.type === 'favorites') {
-        type.textContent = 'Избранное';
-        type.style.background = '#f59e0b';
+      if (chat.type === 'feed') {
+        type.textContent = 'Лента';
       } else if (chat.type === 'channel') {
         type.textContent = 'Канал';
+      } else if (chat.type === 'bot') {
+        type.textContent = 'Бот';
       } else {
         type.textContent = chat.type === 'private' ? 'Личный' : 'Группа';
       }
@@ -1885,8 +1952,8 @@
       
       // Обработчики для чата
       chatItem.addEventListener('click', () => {
-        if (chat.type === 'favorites') {
-          window.location.href = `https://hamburgerchat.github.io/favorites.html`;
+        if (chat.type === 'feed') {
+          window.location.href = `https://hamburgerchat.github.io/chat.html?id=L`;
         } else {
           window.location.href = `https://hamburgerchat.github.io/chat.html?id=${chat.id}`;
         }
@@ -1900,7 +1967,7 @@
 
     // Настройка контекстного меню для чата
     function setupChatContextMenu(chatItem, chat) {
-      if (chat.type === 'favorites') return;
+      if (chat.type === 'feed') return;
       
       let pressTimer;
       
@@ -1965,20 +2032,14 @@
       document.getElementById('closeSearch').addEventListener('click', closeSearchPanel);
       document.getElementById('searchInput').addEventListener('input', handleSearch);
       
-      // Меню настроек
-      document.getElementById('menuToggle').addEventListener('click', (e) => {
-        e.stopPropagation();
-        const settingsMenu = document.getElementById('settingsMenu');
-        settingsMenu.style.display = settingsMenu.style.display === 'block' ? 'none' : 'block';
-        document.getElementById('overlay').style.display = settingsMenu.style.display === 'block' ? 'block' : 'none';
-        setupThemeSettings();
+      // Настройки
+      document.getElementById('settingsToggle').addEventListener('click', () => {
+        window.location.href = 'https://hamburgerchat.github.io/settings.html';
       });
       
-      // Выход из аккаунта
-      document.getElementById('logoutBtn').addEventListener('click', () => {
-        localStorage.removeItem('hamburger_user');
-        localStorage.removeItem('hamburger_user_id');
-        window.location.href = 'https://hamburgerchat.github.io/';
+      // Профиль
+      document.getElementById('profileBtn').addEventListener('click', () => {
+        window.location.href = 'https://hamburgerchat.github.io/profile.html';
       });
       
       // Создание чата
@@ -1986,19 +2047,25 @@
       document.getElementById('closeCreateMenu').addEventListener('click', closeCreateMenuPanel);
       document.getElementById('createChannelOption').addEventListener('click', openChannelForm);
       document.getElementById('createGroupOption').addEventListener('click', openGroupForm);
+      document.getElementById('createBotOption').addEventListener('click', openBotForm);
       document.getElementById('createPrivateOption').addEventListener('click', openPrivateChatSearch);
       
       // Навигация между формами
       document.getElementById('backToCreateMenuFromChannel').addEventListener('click', backToMenu);
       document.getElementById('backToCreateMenuFromGroup').addEventListener('click', backToMenu);
+      document.getElementById('backToCreateMenuFromBot').addEventListener('click', backToMenu);
       document.getElementById('cancelChannelCreate').addEventListener('click', closeAllModals);
       document.getElementById('cancelGroupCreate').addEventListener('click', closeAllModals);
+      document.getElementById('cancelBotCreate').addEventListener('click', closeAllModals);
       
       // Создание канала
       document.getElementById('confirmChannelCreate').addEventListener('click', createNewChannel);
       
       // Создание группы
       document.getElementById('confirmGroupCreate').addEventListener('click', createNewGroup);
+      
+      // Создание бота
+      document.getElementById('confirmBotCreate').addEventListener('click', createNewBot);
       
       // Загрузка аватаров
       document.getElementById('uploadChannelAvatar').addEventListener('click', () => {
@@ -2015,6 +2082,14 @@
       
       document.getElementById('groupAvatarUpload').addEventListener('change', (e) => {
         handleAvatarUpload(e, 'group');
+      });
+      
+      document.getElementById('uploadBotAvatar').addEventListener('click', () => {
+        document.getElementById('botAvatarUpload').click();
+      });
+      
+      document.getElementById('botAvatarUpload').addEventListener('change', (e) => {
+        handleAvatarUpload(e, 'bot');
       });
       
       // Приватность
@@ -2036,32 +2111,8 @@
       
       // Оверлей
       document.getElementById('overlay').addEventListener('click', closeAllModals);
-
-      // Профиль
-      document.getElementById('profileBtn').addEventListener('click', () => {
-        window.location.href = 'https://hamburgerchat.github.io/profile.html';
-      });
     }
     
-    // Настройка темы
-    function setupThemeSettings() {
-      const themeRadios = document.querySelectorAll('input[name="theme"]');
-      themeRadios.forEach(radio => {
-        radio.checked = radio.value === currentTheme;
-        radio.addEventListener('change', (e) => {
-          toggleTheme(e.target.value);
-        });
-      });
-    }
-
-    // Переключение темы
-    function toggleTheme(theme) {
-      currentTheme = theme;
-      document.documentElement.setAttribute('data-theme', theme);
-      localStorage.setItem('hamburger_theme', theme);
-      closeAllModals();
-    }
-
     // Поиск
     function openSearch() {
       document.getElementById('searchOverlay').style.display = 'block';
@@ -2094,6 +2145,7 @@
         
         const publicChannels = [];
         const publicGroups = [];
+        const publicBots = [];
         
         snapshot.forEach((childSnapshot) => {
           const chatData = childSnapshot.val();
@@ -2110,6 +2162,8 @@
               publicChannels.push(chatInfo);
             } else if (decryptedData.type === 'group') {
               publicGroups.push(chatInfo);
+            } else if (decryptedData.type === 'bot') {
+              publicBots.push(chatInfo);
             }
           }
         });
@@ -2123,8 +2177,24 @@
           .sort((a, b) => b.participantCount - a.participantCount)
           .slice(0, 4);
         
+        const topBots = publicBots
+          .sort((a, b) => b.participantCount - a.participantCount)
+          .slice(0, 4);
+        
         renderRecommendedChats(topChannels, 'recommendedChannels');
         renderRecommendedChats(topGroups, 'recommendedChats');
+        
+        // Добавляем ботов в рекомендации если есть
+        if (topBots.length > 0) {
+          const botsSection = document.createElement('div');
+          botsSection.className = 'search-section';
+          botsSection.innerHTML = `
+            <div class="section-title">Рекомендуемые боты</div>
+            <div class="recommended-chats" id="recommendedBots"></div>
+          `;
+          document.getElementById('searchResultsContainer').appendChild(botsSection);
+          renderRecommendedChats(topBots, 'recommendedBots');
+        }
         
       } catch (error) {
         console.error('Ошибка загрузки рекомендуемых чатов:', error);
@@ -2137,7 +2207,8 @@
       container.innerHTML = '';
       
       if (chats.length === 0) {
-        const noChatsText = containerId === 'recommendedChannels' ? 'каналов' : 'чатов';
+        const noChatsText = containerId === 'recommendedChannels' ? 'каналов' : 
+                           containerId === 'recommendedBots' ? 'ботов' : 'чатов';
         container.innerHTML = `<div style="padding: 1rem; text-align: center; color: var(--text-secondary);">Нет публичных ${noChatsText}</div>`;
         return;
       }
@@ -2149,9 +2220,10 @@
           joinPublicChat(chat.id, chat);
         });
         
+        const avatarClass = chat.type === 'bot' ? 'recommended-avatar bot' : 'recommended-avatar';
         const avatarHtml = chat.avatar 
-          ? `<div class="recommended-avatar" style="background-image: url(${chat.avatar});"></div>`
-          : `<div class="recommended-avatar">${chat.name.charAt(0)}</div>`;
+          ? `<div class="${avatarClass}" style="background-image: url(${chat.avatar});"></div>`
+          : `<div class="${avatarClass}">${chat.name.charAt(0)}</div>`;
         
         chatElement.innerHTML = `
           ${avatarHtml}
@@ -2249,11 +2321,13 @@
                 joinPublicChat(childSnapshot.key, decryptedData);
               });
               
+              const avatarClass = decryptedData.type === 'bot' ? 'result-avatar bot' : 'result-avatar';
               const avatarHtml = decryptedData.avatar 
-                ? `<div class="result-avatar" style="background-image: url(${decryptedData.avatar});"></div>`
-                : `<div class="result-avatar">${decryptedData.name.charAt(0)}</div>`;
+                ? `<div class="${avatarClass}" style="background-image: url(${decryptedData.avatar});"></div>`
+                : `<div class="${avatarClass}">${decryptedData.name.charAt(0)}</div>`;
               
               const chatType = decryptedData.type === 'channel' ? 'Канал' : 
+                              decryptedData.type === 'bot' ? 'Бот' :
                               decryptedData.type === 'private' ? 'Личный чат' : 'Группа';
               
               resultItem.innerHTML = `
@@ -2301,6 +2375,11 @@
       document.getElementById('createGroupForm').style.display = 'block';
     }
 
+    function openBotForm() {
+      document.getElementById('createMenu').style.display = 'none';
+      document.getElementById('createBotForm').style.display = 'block';
+    }
+
     function openPrivateChatSearch() {
       closeAllModals();
       openSearch();
@@ -2309,6 +2388,7 @@
     function backToMenu() {
       document.getElementById('createChannelForm').style.display = 'none';
       document.getElementById('createGroupForm').style.display = 'none';
+      document.getElementById('createBotForm').style.display = 'none';
       document.getElementById('createMenu').style.display = 'block';
     }
 
@@ -2317,6 +2397,7 @@
       document.getElementById('createMenu').style.display = 'none';
       document.getElementById('createChannelForm').style.display = 'none';
       document.getElementById('createGroupForm').style.display = 'none';
+      document.getElementById('createBotForm').style.display = 'none';
       document.getElementById('overlay').style.display = 'none';
       document.getElementById('settingsMenu').style.display = 'none';
       document.getElementById('contextMenu').style.display = 'none';
@@ -2355,6 +2436,11 @@
           preview.style.backgroundImage = `url(${imageUrl})`;
           document.getElementById('groupAvatarInitial').style.display = 'none';
           groupAvatarUrl = imageUrl;
+        } else if (type === 'bot') {
+          const preview = document.getElementById('botAvatarPreview');
+          preview.style.backgroundImage = `url(${imageUrl})`;
+          document.getElementById('botAvatarInitial').style.display = 'none';
+          botAvatarUrl = imageUrl;
         }
       };
       
@@ -2448,6 +2534,58 @@
       } catch (error) {
         console.error('Ошибка создания группы:', error);
         alert('Ошибка при создании группы');
+      }
+    }
+
+    // Создание нового бота
+    async function createNewBot() {
+      const name = document.getElementById('botName').value.trim();
+      const description = document.getElementById('botDescription').value.trim();
+      const scriptUrl = document.getElementById('botScriptUrl').value.trim();
+      
+      if (!name) {
+        alert('Введите имя бота');
+        return;
+      }
+      
+      if (!scriptUrl) {
+        alert('Введите URL скрипта бота');
+        return;
+      }
+      
+      try {
+        const chatId = generateId();
+        const chatData = {
+          name: name,
+          description: description,
+          type: 'bot',
+          participants: {
+            [currentUserId]: true
+          },
+          createdBy: currentUserId,
+          createdAt: Date.now(),
+          privacy: 'public',
+          lastMessage: 'Бот готов к работе!',
+          lastMessageTime: Date.now(),
+          avatar: botAvatarUrl,
+          botScriptUrl: scriptUrl
+        };
+        
+        const encryptedData = encryptData(chatData);
+        
+        await database.ref(`chats/${chatId}`).set({
+          encryptedData: encryptedData,
+          createdAt: Date.now()
+        });
+        
+        await database.ref(`userChats/${currentUserId}/${chatId}`).set(true);
+        
+        closeAllModals();
+        window.location.href = `https://hamburgerchat.github.io/chat.html?id=${chatId}`;
+        
+      } catch (error) {
+        console.error('Ошибка создания бота:', error);
+        alert('Ошибка при создании бота');
       }
     }
 
