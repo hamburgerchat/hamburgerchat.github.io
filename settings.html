@@ -26,6 +26,8 @@
       --danger-color: #ef4444;
       --success-color: #10b981;
       --premium-color: #f59e0b;
+      --premium-gradient: linear-gradient(135deg, #f59e0b, #fbbf24);
+      --bot-color: #10b981;
     }
 
     [data-theme="dark"] {
@@ -39,6 +41,9 @@
       --card-bg: #1f2937;
       --hover-bg: #374151;
       --shadow: 0 1px 3px rgba(0,0,0,0.3);
+      --premium-color: #fbbf24;
+      --premium-gradient: linear-gradient(135deg, #fbbf24, #fcd34d);
+      --bot-color: #34d399;
     }
 
     * { 
@@ -77,6 +82,7 @@
       position: sticky;
       top: 0;
       z-index: 100;
+      backdrop-filter: blur(10px);
     }
     
     .header-left {
@@ -117,215 +123,425 @@
       padding: 1rem;
     }
     
-    .settings-section {
+    .settings-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    
+    .settings-card {
       background: var(--card-bg);
       border-radius: 1rem;
       padding: 1.5rem;
-      margin-bottom: 1rem;
       box-shadow: var(--shadow);
       border: 1px solid var(--border-color);
-    }
-    
-    .section-title {
-      font-size: 1.1rem;
-      font-weight: 600;
-      color: var(--text-primary);
-      margin-bottom: 1.2rem;
-      display: flex;
-      align-items: center;
-      gap: 0.7rem;
-    }
-    
-    .section-title i {
-      color: var(--accent-color);
-      width: 20px;
-    }
-    
-    .theme-options {
-      display: flex;
-      gap: 1rem;
-    }
-    
-    .theme-option {
-      flex: 1;
-      text-align: center;
-      padding: 1.2rem;
-      border: 2px solid var(--border-color);
-      border-radius: 0.8rem;
+      transition: all 0.3s ease;
       cursor: pointer;
-      transition: all 0.2s ease;
-    }
-    
-    .theme-option.selected {
-      border-color: var(--accent-color);
-      background: rgba(255, 127, 80, 0.05);
-    }
-    
-    .theme-icon {
-      font-size: 1.5rem;
-      margin-bottom: 0.7rem;
-    }
-    
-    .theme-name {
-      font-weight: 600;
-      font-size: 0.9rem;
-      margin-bottom: 0.3rem;
-    }
-    
-    .theme-desc {
-      font-size: 0.75rem;
-      color: var(--text-secondary);
-    }
-    
-    .premium-card {
-      background: linear-gradient(135deg, #f59e0b, #fbbf24);
-      color: white;
-      border-radius: 1rem;
-      padding: 1.5rem;
-      margin-bottom: 1rem;
       position: relative;
       overflow: hidden;
     }
     
-    .premium-badge {
+    .settings-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+    }
+    
+    .settings-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: var(--accent-gradient);
+      transform: scaleX(0);
+      transition: transform 0.3s ease;
+    }
+    
+    .settings-card:hover::before {
+      transform: scaleX(1);
+    }
+    
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    
+    .card-icon {
+      width: 50px;
+      height: 50px;
+      border-radius: 12px;
+      background: var(--accent-gradient);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 1.3rem;
+    }
+    
+    .card-icon.premium {
+      background: var(--premium-gradient);
+    }
+    
+    .card-icon.bots {
+      background: linear-gradient(135deg, var(--bot-color), #34d399);
+    }
+    
+    .card-icon.stickers {
+      background: linear-gradient(135deg, #8b5cf6, #a78bfa);
+    }
+    
+    .card-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 0.2rem;
+    }
+    
+    .card-desc {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      line-height: 1.4;
+    }
+    
+    .card-badge {
       position: absolute;
       top: 1rem;
       right: 1rem;
-      background: rgba(255,255,255,0.2);
+      background: var(--premium-gradient);
+      color: white;
       padding: 0.3rem 0.7rem;
       border-radius: 1rem;
       font-size: 0.7rem;
       font-weight: 600;
     }
     
-    .premium-title {
-      font-size: 1.3rem;
-      font-weight: 700;
-      margin-bottom: 0.5rem;
-    }
-    
-    .premium-features {
-      list-style: none;
-      margin: 1rem 0;
-    }
-    
-    .premium-features li {
-      padding: 0.3rem 0;
+    .theme-selector {
       display: flex;
+      gap: 0.8rem;
+      margin-top: 1rem;
+    }
+    
+    .theme-btn {
+      flex: 1;
+      padding: 0.8rem;
+      border: 2px solid var(--border-color);
+      border-radius: 0.8rem;
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      flex-direction: column;
       align-items: center;
       gap: 0.5rem;
     }
     
-    .premium-features li i {
+    .theme-btn.active {
+      border-color: var(--accent-color);
+      background: rgba(255, 127, 80, 0.05);
+    }
+    
+    .theme-btn i {
+      font-size: 1.2rem;
+    }
+    
+    .theme-name {
       font-size: 0.8rem;
+      font-weight: 500;
+    }
+    
+    /* Модальные окна */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      backdrop-filter: blur(5px);
+      z-index: 1000;
+      animation: fadeIn 0.3s ease;
+    }
+    
+    .modal {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: var(--card-bg);
+      border-radius: 1.5rem;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      z-index: 1001;
+      animation: modalAppear 0.4s ease;
+      max-width: 90%;
+      width: 400px;
+      overflow: hidden;
+      border: 1px solid var(--border-color);
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    
+    @keyframes modalAppear {
+      from { opacity: 0; transform: translate(-50%, -40%); }
+      to { opacity: 1; transform: translate(-50%, -50%); }
+    }
+    
+    .modal-header {
+      padding: 1.5rem;
+      border-bottom: 1px solid var(--border-color);
+      text-align: center;
+      position: relative;
+    }
+    
+    .modal-close {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      background: none;
+      border: none;
+      color: var(--text-secondary);
+      font-size: 1.2rem;
+      cursor: pointer;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+    }
+    
+    .modal-close:hover {
+      background: var(--hover-bg);
+    }
+    
+    .modal-title {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 0.5rem;
+    }
+    
+    .modal-subtitle {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+    }
+    
+    .modal-content {
+      padding: 1.5rem;
+      max-height: 60vh;
+      overflow-y: auto;
+    }
+    
+    .modal-actions {
+      padding: 1.5rem;
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      gap: 0.8rem;
+    }
+    
+    .btn {
+      flex: 1;
+      padding: 0.9rem;
+      border: none;
+      border-radius: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-size: 0.9rem;
+    }
+    
+    .btn-primary {
+      background: var(--accent-gradient);
+      color: white;
+    }
+    
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(255, 127, 80, 0.3);
+    }
+    
+    .btn-secondary {
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+    }
+    
+    .btn-secondary:hover {
+      background: var(--hover-bg);
+    }
+    
+    /* Премиум модалка */
+    .premium-modal {
+      width: 95%;
+      max-width: 500px;
+    }
+    
+    .premium-header {
+      background: var(--premium-gradient);
+      color: white;
+      padding: 2rem 1.5rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .premium-header::before {
+      content: '✨';
+      position: absolute;
+      top: 10px;
+      left: 20px;
+      font-size: 1.5rem;
+      animation: float 3s ease-in-out infinite;
+    }
+    
+    .premium-header::after {
+      content: '⭐';
+      position: absolute;
+      bottom: 10px;
+      right: 20px;
+      font-size: 1.5rem;
+      animation: float 3s ease-in-out infinite 1.5s;
+    }
+    
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+    }
+    
+    .premium-title {
+      font-size: 1.8rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+    
+    .premium-subtitle {
+      font-size: 1rem;
+      opacity: 0.9;
+    }
+    
+    .premium-features {
+      list-style: none;
+      margin: 1.5rem 0;
+    }
+    
+    .premium-feature {
+      padding: 0.8rem 0;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+    
+    .premium-feature:last-child {
+      border-bottom: none;
+    }
+    
+    .feature-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--premium-gradient);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 0.8rem;
+      flex-shrink: 0;
+    }
+    
+    .feature-text {
+      flex: 1;
+    }
+    
+    .feature-title {
+      font-weight: 600;
+      font-size: 0.95rem;
+      margin-bottom: 0.2rem;
+    }
+    
+    .feature-desc {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+    }
+    
+    .promo-section {
+      background: var(--bg-secondary);
+      border-radius: 0.8rem;
+      padding: 1.2rem;
+      margin: 1.5rem 0;
+    }
+    
+    .promo-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-bottom: 0.8rem;
+      color: var(--text-primary);
     }
     
     .promo-input {
       display: flex;
       gap: 0.7rem;
-      margin-top: 1rem;
     }
     
     .promo-input input {
       flex: 1;
       padding: 0.8rem;
-      border: 1px solid rgba(255,255,255,0.3);
+      border: 1px solid var(--border-color);
       border-radius: 0.7rem;
-      background: rgba(255,255,255,0.1);
-      color: white;
+      background: var(--bg-primary);
+      color: var(--text-primary);
       font-size: 0.9rem;
-    }
-    
-    .promo-input input::placeholder {
-      color: rgba(255,255,255,0.7);
     }
     
     .apply-promo {
       padding: 0.8rem 1.2rem;
-      background: white;
-      color: #f59e0b;
+      background: var(--premium-gradient);
+      color: white;
       border: none;
       border-radius: 0.7rem;
       font-weight: 600;
       cursor: pointer;
       transition: all 0.2s ease;
+      white-space: nowrap;
     }
     
     .apply-promo:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
     }
     
-    .settings-item {
-      display: flex;
-      align-items: center;
-      padding: 1.2rem 0;
-      cursor: pointer;
-      transition: background 0.2s ease;
-      border-bottom: 1px solid var(--border-color);
-    }
-    
-    .settings-item:last-child {
-      border-bottom: none;
-    }
-    
-    .settings-item:hover {
-      background: var(--hover-bg);
-      margin: 0 -1rem;
-      padding: 1.2rem 1rem;
-      border-radius: 0.5rem;
-    }
-    
-    .item-icon {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      background: var(--accent-gradient);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      font-size: 1.1rem;
-      margin-right: 1rem;
-      flex-shrink: 0;
-    }
-    
-    .item-icon.bots {
+    .active-premium {
       background: linear-gradient(135deg, #10b981, #34d399);
+      color: white;
+      padding: 1.5rem;
+      text-align: center;
+      border-radius: 1rem;
+      margin: 1rem 0;
     }
     
-    .item-icon.stickers {
-      background: linear-gradient(135deg, #8b5cf6, #a78bfa);
+    .active-premium i {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      display: block;
     }
     
-    .item-info {
-      flex: 1;
+    .active-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
     }
     
-    .item-title {
-      font-weight: 600;
-      font-size: 1rem;
-      color: var(--text-primary);
-      margin-bottom: 0.2rem;
-    }
-    
-    .item-desc {
-      font-size: 0.8rem;
-      color: var(--text-secondary);
-    }
-    
-    .item-arrow {
-      color: var(--text-tertiary);
+    .active-subtitle {
       font-size: 0.9rem;
-    }
-    
-    .logout-btn {
-      color: var(--danger-color);
-      margin-top: 1rem;
-    }
-    
-    .logout-btn .item-icon {
-      background: var(--danger-color);
+      opacity: 0.9;
     }
     
     .notification {
@@ -358,17 +574,51 @@
       to { opacity: 0; transform: translate(-50%, -60%); }
     }
     
+    /* Анимации для премиум модалки */
+    .floating-emoji {
+      position: absolute;
+      font-size: 1.2rem;
+      animation: floatAround 6s linear infinite;
+      opacity: 0.7;
+    }
+    
+    @keyframes floatAround {
+      0% { transform: translate(0, 0) rotate(0deg); }
+      25% { transform: translate(20px, -15px) rotate(90deg); }
+      50% { transform: translate(0, -30px) rotate(180deg); }
+      75% { transform: translate(-20px, -15px) rotate(270deg); }
+      100% { transform: translate(0, 0) rotate(360deg); }
+    }
+    
+    .pulse-effect {
+      animation: pulse 2s ease-in-out infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+    
+    /* Адаптивность */
     @media (max-width: 768px) {
-      .theme-options {
-        flex-direction: column;
+      .settings-grid {
+        grid-template-columns: 1fr;
       }
       
       .settings-content {
         padding: 0.8rem;
       }
       
-      .settings-section {
+      .settings-card {
         padding: 1.2rem;
+      }
+      
+      .modal {
+        width: 95%;
+      }
+      
+      .theme-selector {
+        flex-direction: column;
       }
     }
     
@@ -379,6 +629,18 @@
       
       .promo-input {
         flex-direction: column;
+      }
+      
+      .modal-actions {
+        flex-direction: column;
+      }
+      
+      .premium-header {
+        padding: 1.5rem 1rem;
+      }
+      
+      .premium-title {
+        font-size: 1.5rem;
       }
     }
   </style>
@@ -395,88 +657,103 @@
     </div>
     
     <div class="settings-content">
-      <!-- Секция темы -->
-      <div class="settings-section">
-        <div class="section-title">
-          <i class="fas fa-palette"></i>
-          <span>Тема оформления</span>
-        </div>
-        <div class="theme-options">
-          <div class="theme-option selected" data-theme="light">
-            <div class="theme-icon">🌞</div>
-            <div class="theme-name">Светлая</div>
-            <div class="theme-desc">Яркая и чистая</div>
+      <div class="settings-grid">
+        <!-- Карточка темы -->
+        <div class="settings-card" id="themeCard">
+          <div class="card-header">
+            <div class="card-icon">
+              <i class="fas fa-palette"></i>
+            </div>
+            <div>
+              <div class="card-title">Внешний вид</div>
+              <div class="card-desc">Настройте тему оформления приложения</div>
+            </div>
           </div>
-          <div class="theme-option" data-theme="dark">
-            <div class="theme-icon">🌙</div>
-            <div class="theme-name">Тёмная</div>
-            <div class="theme-desc">Комфорт для глаз</div>
-          </div>
-        </div>
-      </div>
-      
-      <!-- Секция премиума -->
-      <div class="premium-card">
-        <div class="premium-badge">PREMIUM</div>
-        <div class="premium-title">Двойной Хамбургер</div>
-        <div style="opacity: 0.9; margin-bottom: 1rem;">Расширенные возможности для комфортного общения</div>
-        
-        <ul class="premium-features">
-          <li><i class="fas fa-check"></i> Создание собственных ботов</li>
-          <li><i class="fas fa-check"></i> Персональные стикерпаки</li>
-          <li><i class="fas fa-check"></i> Увеличенный размер файлов</li>
-          <li><i class="fas fa-check"></i> Приоритетная поддержка</li>
-        </ul>
-        
-        <div class="promo-input">
-          <input type="text" id="promoCodeInput" placeholder="Введите промокод">
-          <button class="apply-promo" id="applyPromoBtn">Активировать</button>
-        </div>
-      </div>
-      
-      <!-- Секция дополнительных настроек -->
-      <div class="settings-section">
-        <div class="section-title">
-          <i class="fas fa-cogs"></i>
-          <span>Дополнительно</span>
-        </div>
-        
-        <div class="settings-item" id="botsItem">
-          <div class="item-icon bots">
-            <i class="fas fa-robot"></i>
-          </div>
-          <div class="item-info">
-            <div class="item-title">Мои боты</div>
-            <div class="item-desc">Создавайте и настраивайте ботов</div>
-          </div>
-          <div class="item-arrow">
-            <i class="fas fa-chevron-right"></i>
+          <div class="theme-selector">
+            <button class="theme-btn active" data-theme="light">
+              <i class="fas fa-sun"></i>
+              <span class="theme-name">Светлая</span>
+            </button>
+            <button class="theme-btn" data-theme="dark">
+              <i class="fas fa-moon"></i>
+              <span class="theme-name">Тёмная</span>
+            </button>
           </div>
         </div>
         
-        <div class="settings-item" id="stickersItem">
-          <div class="item-icon stickers">
-            <i class="fas fa-sticker"></i>
+        <!-- Карточка премиума -->
+        <div class="settings-card" id="premiumCard">
+          <div class="card-header">
+            <div class="card-icon premium">
+              <i class="fas fa-crown"></i>
+            </div>
+            <div>
+              <div class="card-title">Двойной Хамбургер</div>
+              <div class="card-desc">Расширенные возможности и привилегии</div>
+            </div>
           </div>
-          <div class="item-info">
-            <div class="item-title">Стикеры</div>
-            <div class="item-desc">Управление стикерпаками</div>
+          <div class="card-badge" id="premiumBadge">PREMIUM</div>
+        </div>
+        
+        <!-- Карточка ботов -->
+        <div class="settings-card" id="botsCard">
+          <div class="card-header">
+            <div class="card-icon bots">
+              <i class="fas fa-robot"></i>
+            </div>
+            <div>
+              <div class="card-title">Мои боты</div>
+              <div class="card-desc">Создавайте и управляйте ботами</div>
+            </div>
           </div>
-          <div class="item-arrow">
-            <i class="fas fa-chevron-right"></i>
+        </div>
+        
+        <!-- Карточка стикеров -->
+        <div class="settings-card" id="stickersCard">
+          <div class="card-header">
+            <div class="card-icon stickers">
+              <i class="fas fa-sticker"></i>
+            </div>
+            <div>
+              <div class="card-title">Стикеры</div>
+              <div class="card-desc">Коллекции и создание стикеров</div>
+            </div>
           </div>
         </div>
       </div>
       
       <!-- Выход -->
-      <div class="settings-item logout-btn" id="logoutItem">
-        <div class="item-icon">
-          <i class="fas fa-sign-out-alt"></i>
+      <div class="settings-card logout-btn" id="logoutCard">
+        <div class="card-header">
+          <div class="card-icon">
+            <i class="fas fa-sign-out-alt"></i>
+          </div>
+          <div>
+            <div class="card-title">Выйти из аккаунта</div>
+            <div class="card-desc">Завершить текущий сеанс</div>
+          </div>
         </div>
-        <div class="item-info">
-          <div class="item-title">Выйти из аккаунта</div>
-          <div class="item-desc">Завершить текущий сеанс</div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Модальное окно премиума -->
+  <div class="modal-overlay" id="premiumModalOverlay">
+    <div class="modal premium-modal" id="premiumModal">
+      <div class="premium-header">
+        <div class="floating-emoji" style="top: 20%; left: 10%;">🚀</div>
+        <div class="floating-emoji" style="top: 60%; right: 15%;">💫</div>
+        <div class="floating-emoji" style="bottom: 20%; left: 20%;">🌟</div>
+        <div class="premium-title pulse-effect">Двойной Хамбургер</div>
+        <div class="premium-subtitle">Премиум возможности для комфортного общения</div>
+      </div>
+      <div class="modal-content">
+        <div id="premiumContent">
+          <!-- Контент будет динамически меняться -->
         </div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" id="closePremiumModal">Закрыть</button>
       </div>
     </div>
   </div>
@@ -557,23 +834,13 @@
 
     // Обновление отображения премиума
     function updatePremiumDisplay() {
+      const premiumBadge = document.getElementById('premiumBadge');
+      const premiumCard = document.getElementById('premiumCard');
+      
       if (userData && userData.premium) {
-        const premiumCard = document.querySelector('.premium-card');
-        premiumCard.innerHTML = `
-          <div class="premium-badge">АКТИВИРОВАН</div>
-          <div class="premium-title">Двойной Хамбургер</div>
-          <div style="opacity: 0.9; margin-bottom: 1rem;">Ваш премиум аккаунт активен</div>
-          <ul class="premium-features">
-            <li><i class="fas fa-crown"></i> Премиум статус активен</li>
-            <li><i class="fas fa-check"></i> Создание собственных ботов</li>
-            <li><i class="fas fa-check"></i> Персональные стикерпаки</li>
-            <li><i class="fas fa-check"></i> Увеличенный размер файлов</li>
-            <li><i class="fas fa-check"></i> Приоритетная поддержка</li>
-          </ul>
-          <div style="margin-top: 1rem; font-size: 0.9rem; opacity: 0.8;">
-            Спасибо за использование Двойного Хамбургера!
-          </div>
-        `;
+        premiumBadge.textContent = 'АКТИВИРОВАН';
+        premiumBadge.style.background = 'linear-gradient(135deg, #10b981, #34d399)';
+        premiumCard.querySelector('.card-desc').textContent = 'Премиум статус активен';
       }
     }
 
@@ -593,15 +860,15 @@
           // Обновляем отображение
           updatePremiumDisplay();
           
-          showNotification('Промокод успешно активирован! Двойной Хамбургер активирован.', true);
+          showNotification('🎉 Промокод успешно активирован! Двойной Хамбургер активирован.', true);
           return true;
         } else {
-          showNotification('Неверный промокод', false);
+          showNotification('❌ Неверный промокод', false);
           return false;
         }
       } catch (error) {
         console.error('Ошибка активации промокода:', error);
-        showNotification('Ошибка активации промокода', false);
+        showNotification('❌ Ошибка активации промокода', false);
         return false;
       }
     }
@@ -613,10 +880,141 @@
       localStorage.setItem('hamburger_theme', theme);
       
       // Обновляем выбор темы
-      document.querySelectorAll('.theme-option').forEach(option => {
-        option.classList.remove('selected');
+      document.querySelectorAll('.theme-btn').forEach(btn => {
+        btn.classList.remove('active');
       });
-      document.querySelector(`[data-theme="${theme}"]`).classList.add('selected');
+      document.querySelector(`[data-theme="${theme}"]`).classList.add('active');
+    }
+
+    // Показать модальное окно премиума
+    function showPremiumModal() {
+      const overlay = document.getElementById('premiumModalOverlay');
+      const content = document.getElementById('premiumContent');
+      
+      if (userData && userData.premium) {
+        // Показываем информацию об активном премиуме
+        content.innerHTML = `
+          <div class="active-premium">
+            <i class="fas fa-crown"></i>
+            <div class="active-title">Премиум активен!</div>
+            <div class="active-subtitle">Вы наслаждаетесь всеми преимуществами Двойного Хамбургера</div>
+          </div>
+          <div class="premium-features">
+            <div class="premium-feature">
+              <div class="feature-icon">
+                <i class="fas fa-robot"></i>
+              </div>
+              <div class="feature-text">
+                <div class="feature-title">Создание ботов</div>
+                <div class="feature-desc">Неограниченное создание и настройка ботов</div>
+              </div>
+            </div>
+            <div class="premium-feature">
+              <div class="feature-icon">
+                <i class="fas fa-sticker"></i>
+              </div>
+              <div class="feature-text">
+                <div class="feature-title">Персональные стикеры</div>
+                <div class="feature-desc">Создавайте собственные стикерпаки</div>
+              </div>
+            </div>
+            <div class="premium-feature">
+              <div class="feature-icon">
+                <i class="fas fa-file-upload"></i>
+              </div>
+              <div class="feature-text">
+                <div class="feature-title">Увеличенные лимиты</div>
+                <div class="feature-desc">Загружайте файлы до 100MB</div>
+              </div>
+            </div>
+            <div class="premium-feature">
+              <div class="feature-icon">
+                <i class="fas fa-star"></i>
+              </div>
+              <div class="feature-text">
+                <div class="feature-title">Приоритетная поддержка</div>
+                <div class="feature-desc">Быстрые ответы от службы поддержки</div>
+              </div>
+            </div>
+          </div>
+        `;
+      } else {
+        // Показываем форму активации премиума
+        content.innerHTML = `
+          <div class="premium-features">
+            <div class="premium-feature">
+              <div class="feature-icon">
+                <i class="fas fa-robot"></i>
+              </div>
+              <div class="feature-text">
+                <div class="feature-title">Создание ботов</div>
+                <div class="feature-desc">Неограниченное создание и настройка ботов</div>
+              </div>
+            </div>
+            <div class="premium-feature">
+              <div class="feature-icon">
+                <i class="fas fa-sticker"></i>
+              </div>
+              <div class="feature-text">
+                <div class="feature-title">Персональные стикеры</div>
+                <div class="feature-desc">Создавайте собственные стикерпаки</div>
+              </div>
+            </div>
+            <div class="premium-feature">
+              <div class="feature-icon">
+                <i class="fas fa-file-upload"></i>
+              </div>
+              <div class="feature-text">
+                <div class="feature-title">Увеличенные лимиты</div>
+                <div class="feature-desc">Загружайте файлы до 100MB</div>
+              </div>
+            </div>
+            <div class="premium-feature">
+              <div class="feature-icon">
+                <i class="fas fa-star"></i>
+              </div>
+              <div class="feature-text">
+                <div class="feature-title">Приоритетная поддержка</div>
+                <div class="feature-desc">Быстрые ответы от службы поддержки</div>
+              </div>
+            </div>
+          </div>
+          <div class="promo-section">
+            <div class="promo-title">Активируйте премиум с промокодом</div>
+            <div class="promo-input">
+              <input type="text" id="promoCodeInput" placeholder="Введите промокод">
+              <button class="apply-promo" id="applyPromoBtn">Активировать</button>
+            </div>
+          </div>
+        `;
+        
+        // Добавляем обработчики для новой формы
+        document.getElementById('applyPromoBtn').addEventListener('click', async () => {
+          const promoCode = document.getElementById('promoCodeInput').value.trim();
+          if (promoCode) {
+            await activatePromoCode(promoCode);
+            document.getElementById('promoCodeInput').value = '';
+            if (userData.premium) {
+              showPremiumModal(); // Перезагружаем модалку
+            }
+          } else {
+            showNotification('Введите промокод', false);
+          }
+        });
+        
+        document.getElementById('promoCodeInput').addEventListener('keypress', (e) => {
+          if (e.key === 'Enter') {
+            document.getElementById('applyPromoBtn').click();
+          }
+        });
+      }
+      
+      overlay.style.display = 'block';
+    }
+
+    // Закрыть модальное окно
+    function closeModal(modalId) {
+      document.getElementById(modalId).style.display = 'none';
     }
 
     // Инициализация страницы
@@ -648,47 +1046,44 @@
       });
       
       // Выбор темы
-      document.querySelectorAll('.theme-option').forEach(option => {
-        option.addEventListener('click', () => {
-          const theme = option.dataset.theme;
+      document.querySelectorAll('.theme-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const theme = btn.dataset.theme;
           applyTheme(theme);
         });
       });
       
-      // Активация промокода
-      document.getElementById('applyPromoBtn').addEventListener('click', async () => {
-        const promoCode = document.getElementById('promoCodeInput').value.trim();
-        if (promoCode) {
-          await activatePromoCode(promoCode);
-          document.getElementById('promoCodeInput').value = '';
-        } else {
-          showNotification('Введите промокод', false);
-        }
-      });
+      // Карточка премиума
+      document.getElementById('premiumCard').addEventListener('click', showPremiumModal);
       
-      // Enter для промокода
-      document.getElementById('promoCodeInput').addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-          document.getElementById('applyPromoBtn').click();
-        }
-      });
-      
-      // Переход к ботам
-      document.getElementById('botsItem').addEventListener('click', () => {
+      // Карточка ботов
+      document.getElementById('botsCard').addEventListener('click', () => {
         window.location.href = 'https://hamburgerchat.github.io/bots.html';
       });
       
-      // Переход к стикерам
-      document.getElementById('stickersItem').addEventListener('click', () => {
+      // Карточка стикеров
+      document.getElementById('stickersCard').addEventListener('click', () => {
         window.location.href = 'https://hamburgerchat.github.io/stickers.html';
       });
       
       // Выход из аккаунта
-      document.getElementById('logoutItem').addEventListener('click', () => {
+      document.getElementById('logoutCard').addEventListener('click', () => {
         if (confirm('Вы уверены, что хотите выйти из аккаунта?')) {
           localStorage.removeItem('hamburger_user');
           localStorage.removeItem('hamburger_user_id');
           window.location.href = 'https://hamburgerchat.github.io/';
+        }
+      });
+      
+      // Закрытие модальных окон
+      document.getElementById('closePremiumModal').addEventListener('click', () => {
+        closeModal('premiumModalOverlay');
+      });
+      
+      // Закрытие по клику на оверлей
+      document.getElementById('premiumModalOverlay').addEventListener('click', (e) => {
+        if (e.target === document.getElementById('premiumModalOverlay')) {
+          closeModal('premiumModalOverlay');
         }
       });
     }
