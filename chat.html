@@ -376,6 +376,32 @@
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
         
+        .message-images-grid {
+            display: grid;
+            gap: 0.3rem;
+            margin-top: 0.3rem;
+        }
+        
+        .message-images-grid.single {
+            grid-template-columns: 1fr;
+        }
+        
+        .message-images-grid.double {
+            grid-template-columns: 1fr 1fr;
+        }
+        
+        .message-images-grid.multiple {
+            grid-template-columns: 1fr 1fr;
+        }
+        
+        .message-images-grid .message-image {
+            max-width: 100%;
+            max-height: 150px;
+            width: 100%;
+            height: auto;
+            object-fit: cover;
+        }
+        
         .message-sticker {
             font-size: 2rem;
             text-align: center;
@@ -424,6 +450,11 @@
         .reaction.user-reaction {
             background: rgba(255, 127, 80, 0.1);
             border-color: var(--accent-color);
+        }
+        
+        .reaction.premium-reaction {
+            background: rgba(245, 158, 11, 0.1);
+            border-color: #f59e0b;
         }
         
         .reaction-count {
@@ -654,6 +685,63 @@
         
         .message-input:focus {
             border-color: var(--accent-color);
+        }
+        
+        .attachments-preview {
+            display: none;
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 0.7rem;
+            margin-bottom: 0.7rem;
+            border: 1px solid var(--border-color);
+        }
+        
+        .attachments-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            gap: 0.5rem;
+            margin-bottom: 0.7rem;
+        }
+        
+        .attachment-preview {
+            position: relative;
+            border-radius: 8px;
+            overflow: hidden;
+            aspect-ratio: 1;
+        }
+        
+        .attachment-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .remove-attachment {
+            position: absolute;
+            top: 0.2rem;
+            right: 0.2rem;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--danger-color);
+            color: white;
+            border: none;
+            font-size: 0.7rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .clear-attachments {
+            background: var(--danger-color);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 0.4rem 0.8rem;
+            font-size: 0.75rem;
+            cursor: pointer;
+            align-self: flex-start;
         }
         
         .send-button {
@@ -1325,6 +1413,85 @@
             transform: translateY(0);
         }
 
+        /* Стили для просмотра изображений */
+        .image-viewer {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+        
+        .image-viewer-header {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.7), transparent);
+            z-index: 10;
+        }
+        
+        .image-viewer-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s ease;
+        }
+        
+        .image-viewer-close:hover {
+            background: rgba(255,255,255,0.1);
+        }
+        
+        .image-viewer-download {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: background 0.2s ease;
+        }
+        
+        .image-viewer-download:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        
+        .image-viewer-content {
+            max-width: 90%;
+            max-height: 80%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .image-viewer-img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            border-radius: 0.5rem;
+        }
+
         /* ИСПРАВЛЕНИЯ ДЛЯ ТЕЛЕФОНОВ */
         @media (max-width: 480px) {
             .messages-container {
@@ -1347,6 +1514,10 @@
             .message-image {
                 max-width: 180px;
                 max-height: 180px;
+            }
+
+            .message-images-grid .message-image {
+                max-height: 120px;
             }
 
             .message-sticker {
@@ -1417,6 +1588,10 @@
                 padding: 0.5rem 0.8rem;
                 font-size: 0.75rem;
                 max-width: 150px;
+            }
+            
+            .attachments-grid {
+                grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
             }
         }
     </style>
@@ -1492,13 +1667,17 @@
             <button class="attachment-btn" id="attachmentBtn">
                 <i class="fas fa-image"></i>
             </button>
-            <input type="file" id="imageUpload" accept="image/*" style="display: none;">
+            <input type="file" id="imageUpload" accept="image/*" multiple style="display: none;">
             
             <button class="sticker-btn" id="stickerBtn">
                 <i class="fas fa-smile"></i>
             </button>
             
             <div class="message-input-wrapper">
+                <div class="attachments-preview" id="attachmentsPreview">
+                    <div class="attachments-grid" id="attachmentsGrid"></div>
+                    <button class="clear-attachments" id="clearAttachments">Очистить все</button>
+                </div>
                 <textarea class="message-input" id="messageInput" placeholder="Введите сообщение..." rows="1"></textarea>
             </div>
             
@@ -1549,6 +1728,22 @@
                 <button class="close-sticker-view" id="closeStickerView">Закрыть</button>
                 <button class="add-sticker-pack" id="addStickerPack">Добавить в коллекцию</button>
             </div>
+        </div>
+    </div>
+    
+    <!-- Просмотрщик изображений -->
+    <div class="image-viewer" id="imageViewer">
+        <div class="image-viewer-header">
+            <button class="image-viewer-close" id="imageViewerClose">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+            <button class="image-viewer-download" id="imageViewerDownload">
+                <i class="fas fa-download"></i>
+                Скачать
+            </button>
+        </div>
+        <div class="image-viewer-content">
+            <img class="image-viewer-img" id="imageViewerImg" src="" alt="">
         </div>
     </div>
     
@@ -1637,6 +1832,9 @@
         let spamCount = 0;
         let spamResetTime = 0;
         let userProfilesCache = new Map();
+        let userHasPremium = false;
+        let attachedImages = [];
+        let isFeed = false;
 
         // Переменные для ботов
         let currentBotData = null;
@@ -1644,7 +1842,7 @@
         let botScriptUrl = null;
 
         // Реакции
-        const allReactions = ['👍', '❤️', '😂', '😮', '😢', '😡', '👏', '🔥'];
+        const allReactions = ['👍', '❤️', '😂', '😮', '😢', '😡', '👏', '🔥', '🍔'];
 
         document.addEventListener('DOMContentLoaded', function() {
             const savedTheme = localStorage.getItem('hamburger_theme') || 'light';
@@ -1696,6 +1894,22 @@
             } catch (error) {
                 console.error('Ошибка загрузки профиля пользователя:', error);
                 return null;
+            }
+        }
+
+        // Проверка премиум статуса
+        async function checkPremiumStatus() {
+            try {
+                const userRef = database.ref(`users/${currentUserId}`);
+                const snapshot = await userRef.once('value');
+                
+                if (snapshot.exists()) {
+                    const userData = snapshot.val();
+                    const decryptedData = decryptData(userData.encryptedData);
+                    userHasPremium = decryptedData && decryptedData.premium === true;
+                }
+            } catch (error) {
+                console.error('Ошибка проверки премиум статуса:', error);
             }
         }
 
@@ -1774,6 +1988,10 @@
                 return;
             }
             
+            // Проверяем, является ли это лентой
+            isFeed = currentChatId === 'L';
+            
+            await checkPremiumStatus();
             await loadChatData();
             setupEventListeners();
             loadAllStickerPacks();
@@ -1791,6 +2009,14 @@
             container.innerHTML = '';
             
             allReactions.forEach(reaction => {
+                // Проверяем, является ли реакция премиум (бургер)
+                const isPremiumReaction = reaction === '🍔';
+                
+                // Если реакция премиум и у пользователя нет премиума, не показываем
+                if (isPremiumReaction && !userHasPremium) {
+                    return;
+                }
+                
                 const btn = document.createElement('button');
                 btn.className = 'reaction-btn';
                 btn.dataset.reaction = reaction;
@@ -1832,6 +2058,12 @@
         async function loadChatData() {
             try {
                 console.log('Загружаю чат с ID:', currentChatId);
+                
+                // Если это лента, загружаем специальные данные
+                if (isFeed) {
+                    await loadFeedData();
+                    return;
+                }
                 
                 const chatRef = database.ref(`chats/${currentChatId}`);
                 const snapshot = await chatRef.once('value');
@@ -1920,6 +2152,124 @@
             }
         }
 
+        // Загрузка данных ленты
+        async function loadFeedData() {
+            try {
+                // Устанавливаем данные для ленты
+                currentChatData = {
+                    name: "Лента",
+                    description: "Случайные посты из публичных каналов",
+                    type: "feed"
+                };
+                
+                updateChatHeader();
+                
+                // Скрываем поле ввода для ленты
+                document.getElementById('inputContainer').style.display = 'none';
+                document.getElementById('channelInputContainer').style.display = 'none';
+                
+                // Загружаем сообщения для ленты
+                await loadFeedMessages();
+                document.getElementById('loadingContainer').style.display = 'none';
+                
+            } catch (error) {
+                console.error('Ошибка загрузки ленты:', error);
+                alert('Ошибка загрузки ленты: ' + error.message);
+            }
+        }
+
+        // Загрузка сообщений для ленты
+        async function loadFeedMessages() {
+            try {
+                // Получаем все каналы
+                const chatsRef = database.ref('chats');
+                const snapshot = await chatsRef.once('value');
+                
+                if (!snapshot.exists()) {
+                    throw new Error('Нет доступных каналов');
+                }
+                
+                const allChats = snapshot.val();
+                const publicChannels = [];
+                
+                // Фильтруем публичные каналы
+                for (const chatId in allChats) {
+                    const chatData = allChats[chatId];
+                    let decryptedData = null;
+                    
+                    if (chatData.encryptedData) {
+                        decryptedData = decryptData(chatData.encryptedData);
+                    } else if (chatData.name) {
+                        decryptedData = chatData;
+                    }
+                    
+                    if (decryptedData && decryptedData.type === 'channel' && decryptedData.isPublic !== false) {
+                        publicChannels.push({
+                            id: chatId,
+                            data: decryptedData
+                        });
+                    }
+                }
+                
+                if (publicChannels.length === 0) {
+                    throw new Error('Нет публичных каналов');
+                }
+                
+                // Получаем случайные сообщения из публичных каналов
+                const allMessages = [];
+                
+                for (const channel of publicChannels) {
+                    try {
+                        const messagesRef = database.ref(`messages/${channel.id}`);
+                        const messagesSnapshot = await messagesRef.once('value');
+                        
+                        if (messagesSnapshot.exists()) {
+                            const messages = messagesSnapshot.val();
+                            
+                            // Берем до 5 случайных сообщений из каждого канала
+                            const messageIds = Object.keys(messages);
+                            const randomMessageIds = messageIds.sort(() => 0.5 - Math.random()).slice(0, 5);
+                            
+                            for (const messageId of randomMessageIds) {
+                                const messageData = messages[messageId];
+                                let decryptedMessage = null;
+                                
+                                if (messageData.encryptedData) {
+                                    decryptedMessage = decryptData(messageData.encryptedData);
+                                } else if (messageData.text || messageData.type === 'service' || messageData.type === 'call') {
+                                    decryptedMessage = messageData;
+                                }
+                                
+                                if (decryptedMessage && decryptedMessage.type !== 'service' && decryptedMessage.type !== 'call') {
+                                    // Добавляем информацию о канале к сообщению
+                                    decryptedMessage.channelId = channel.id;
+                                    decryptedMessage.channelName = channel.data.name;
+                                    decryptedMessage.channelAvatar = channel.data.avatar;
+                                    allMessages.push({
+                                        id: messageId,
+                                        ...decryptedMessage
+                                    });
+                                }
+                            }
+                        }
+                    } catch (error) {
+                        console.error(`Ошибка загрузки сообщений из канала ${channel.id}:`, error);
+                    }
+                }
+                
+                // Сортируем сообщения по времени и отображаем
+                allMessages.sort((a, b) => b.timestamp - a.timestamp);
+                
+                for (const message of allMessages) {
+                    displayMessage(message);
+                }
+                
+            } catch (error) {
+                console.error('Ошибка загрузки сообщений ленты:', error);
+                throw error;
+            }
+        }
+
         function updateChatHeader() {
             const chatName = document.getElementById('chatName');
             const chatAvatar = document.getElementById('chatAvatar');
@@ -1940,7 +2290,7 @@
             }
             
             // ИСПРАВЛЕНИЕ: Убираем специальные цвета для каналов и ботов
-            if (isChannel || isBotChat) {
+            if (isChannel || isBotChat || isFeed) {
                 // Оставляем обычный цвет аватарки
                 if (!currentChatData.avatar) {
                     const initial = currentChatData.name ? currentChatData.name.charAt(0).toUpperCase() : '?';
@@ -1948,10 +2298,12 @@
                 }
             }
             
-            if (isGroupChat || isChannel || isBotChat) {
+            if (isGroupChat || isChannel || isBotChat || isFeed) {
                 // ИСПРАВЛЕНИЕ: Для ботов показываем "бот", а не количество участников
                 if (isBotChat) {
                     chatStatus.innerHTML = `<span class="online-indicator"></span> бот`;
+                } else if (isFeed) {
+                    chatStatus.innerHTML = `<span class="online-indicator"></span> лента публичных постов`;
                 } else {
                     const participants = currentChatData.participants || [];
                     const count = Array.isArray(participants) ? participants.length : Object.keys(participants).length;
@@ -2083,13 +2435,14 @@
                 return;
             }
 
-            const isOwn = message.sender === currentUserId;
+            // Для каналов отображаем сообщения от имени канала
+            const isOwn = isChannel ? false : message.sender === currentUserId;
             const isBotMessage = message.isBotMessage || message.sender === currentChatId;
             
             // ИСПРАВЛЕНИЕ: Для ботов и каналов показываем обычные сообщения
-            const showHeader = (isGroupChat && !isOwn) || (isChannel && !isOwn);
+            const showHeader = (isGroupChat && !isOwn) || (isChannel && !isOwn) || isFeed;
             
-            messageEl.className = `message ${isOwn ? 'own' : ''} ${isGroupChat ? 'group' : ''} ${message.pinned ? 'pinned-message' : ''}`;
+            messageEl.className = `message ${isOwn ? 'own' : ''} ${isGroupChat || isChannel || isFeed ? 'group' : ''} ${message.pinned ? 'pinned-message' : ''}`;
             messageEl.dataset.messageId = message.id;
             messageEl.dataset.timestamp = message.timestamp;
             
@@ -2100,9 +2453,20 @@
             
             if (showHeader) {
                 try {
+                    // Для ленты используем данные канала
+                    if (isFeed && message.channelId) {
+                        senderName = message.channelName || 'Канал';
+                        senderAvatar = `<div class="message-avatar" onclick="openChannel('${message.channelId}')" style="${message.channelAvatar ? `background-image: url(${message.channelAvatar})` : ''}">${message.channelAvatar ? '' : (message.channelName ? message.channelName.charAt(0).toUpperCase() : 'C')}</div>`;
+                    }
+                    // Для каналов всегда показываем от имени канала
+                    else if (isChannel) {
+                        senderName = currentChatData.name || 'Канал';
+                        senderAvatar = `<div class="message-avatar" onclick="openChannel('${currentChatId}')" style="${currentChatData.avatar ? `background-image: url(${currentChatData.avatar})` : ''}">${currentChatData.avatar ? '' : (currentChatData.name ? currentChatData.name.charAt(0).toUpperCase() : 'C')}</div>`;
+                    }
                     // Для ботов используем данные из currentChatData
-                    if (isBotMessage) {
+                    else if (isBotMessage) {
                         senderName = currentChatData.name || 'Бот';
+                        senderAvatar = `<div class="message-avatar" onclick="openBotProfile()" style="${currentChatData.avatar ? `background-image: url(${currentChatData.avatar})` : ''}">${currentChatData.avatar ? '' : (currentChatData.name ? currentChatData.name.charAt(0).toUpperCase() : 'B')}</div>`;
                     } else {
                         const userProfile = await getUserProfile(message.sender);
                         if (userProfile) {
@@ -2116,6 +2480,11 @@
                                     senderRole = '<div class="message-role role-admin">Админ</div>';
                                 }
                             }
+                            
+                            // Создаем аватар для обычного пользователя
+                            const avatarUrl = userProfile.avatar;
+                            const avatarInitial = userProfile.username ? userProfile.username.charAt(0).toUpperCase() : 'U';
+                            senderAvatar = `<div class="message-avatar" onclick="openUserProfile('${message.sender}')" style="${avatarUrl ? `background-image: url(${avatarUrl})` : ''}">${avatarUrl ? '' : avatarInitial}</div>`;
                         }
                     }
                 } catch (error) {
@@ -2124,18 +2493,19 @@
             }
             
             let avatar = '';
-            if (showHeader && !isBotMessage) {
+            if (showHeader && !isBotMessage && !isChannel && !isFeed) {
+                // Для обычных групп показываем аватар отправителя
                 const userProfile = await getUserProfile(message.sender);
                 const avatarUrl = userProfile ? userProfile.avatar : null;
                 const avatarInitial = userProfile && userProfile.username ? userProfile.username.charAt(0).toUpperCase() : 'U';
                 
                 avatar = `<div class="message-avatar" onclick="openUserProfile('${message.sender}')" style="${avatarUrl ? `background-image: url(${avatarUrl})` : ''}">${avatarUrl ? '' : avatarInitial}</div>`;
+            } else if (showHeader && (isChannel || isFeed)) {
+                // Для каналов и ленты используем заранее созданный аватар
+                avatar = senderAvatar;
             } else if (isBotMessage) {
                 // Аватарка для бота
-                const avatarUrl = currentChatData.avatar;
-                const avatarInitial = currentChatData.name ? currentChatData.name.charAt(0).toUpperCase() : 'B';
-                
-                avatar = `<div class="message-avatar" onclick="openBotProfile()" style="${avatarUrl ? `background-image: url(${avatarUrl})` : ''}">${avatarUrl ? '' : avatarInitial}</div>`;
+                avatar = senderAvatar;
             }
             
             let replyContent = '';
@@ -2157,7 +2527,8 @@
                     Object.entries(message.reactions).map(([emoji, users]) => {
                         const userList = Array.isArray(users) ? users.join(', ') : 'Пользователи';
                         const hasUserReaction = Array.isArray(users) ? users.includes(currentUserId) : false;
-                        const reactionClass = hasUserReaction ? ' user-reaction' : '';
+                        const isPremiumReaction = emoji === '🍔';
+                        const reactionClass = hasUserReaction ? (isPremiumReaction ? ' premium-reaction' : ' user-reaction') : '';
                         return `
                             <div class="reaction${reactionClass}" onclick="toggleReaction('${message.id}', '${emoji}')">
                                 ${emoji} <span class="reaction-count">${Array.isArray(users) ? users.length : 1}</span>
@@ -2191,14 +2562,44 @@
             }
             
             let content = '';
-            if (message.image) {
+            
+            // Обработка нескольких изображений
+            if (message.images && message.images.length > 0) {
+                const imagesCount = message.images.length;
+                let imagesGridClass = 'single';
+                if (imagesCount === 2) {
+                    imagesGridClass = 'double';
+                } else if (imagesCount > 2) {
+                    imagesGridClass = 'multiple';
+                }
+                
+                const imagesHTML = message.images.map((img, index) => 
+                    `<img src="${img}" class="message-image" onclick="openImageViewer('${img}')" data-index="${index}">`
+                ).join('');
+                
                 content = `
                     ${replyContent}
                     ${showHeader ? `<div class="message-header">
-                        <div class="sender-name" onclick="${isBotMessage ? 'openBotProfile()' : `openUserProfile('${message.sender}')`}">${senderName}</div>
+                        <div class="sender-name" onclick="${isFeed ? `openChannel('${message.channelId}')` : (isBotMessage ? 'openBotProfile()' : (isChannel ? `openChannel('${currentChatId}')` : `openUserProfile('${message.sender}')`))}">${senderName}</div>
                         ${senderRole}
                     </div>` : ''}
-                    <img src="${message.image}" class="message-image" onclick="openImage('${message.image}')">
+                    <div class="message-images-grid ${imagesGridClass}">
+                        ${imagesHTML}
+                    </div>
+                    ${messageText ? `<div class="message-text">${messageText}</div>` : ''}
+                    ${botButtons}
+                    ${reactions}
+                    <div class="message-time">${formatTime(message.timestamp)}</div>
+                `;
+            }
+            else if (message.image) {
+                content = `
+                    ${replyContent}
+                    ${showHeader ? `<div class="message-header">
+                        <div class="sender-name" onclick="${isFeed ? `openChannel('${message.channelId}')` : (isBotMessage ? 'openBotProfile()' : (isChannel ? `openChannel('${currentChatId}')` : `openUserProfile('${message.sender}')`))}">${senderName}</div>
+                        ${senderRole}
+                    </div>` : ''}
+                    <img src="${message.image}" class="message-image" onclick="openImageViewer('${message.image}')">
                     ${messageText ? `<div class="message-text">${messageText}</div>` : ''}
                     ${botButtons}
                     ${reactions}
@@ -2208,7 +2609,7 @@
                 content = `
                     ${replyContent}
                     ${showHeader ? `<div class="message-header">
-                        <div class="sender-name" onclick="${isBotMessage ? 'openBotProfile()' : `openUserProfile('${message.sender}')`}">${senderName}</div>
+                        <div class="sender-name" onclick="${isFeed ? `openChannel('${message.channelId}')` : (isBotMessage ? 'openBotProfile()' : (isChannel ? `openChannel('${currentChatId}')` : `openUserProfile('${message.sender}')`))}">${senderName}</div>
                         ${senderRole}
                     </div>` : ''}
                     <div class="message-sticker">${message.sticker}</div>
@@ -2220,7 +2621,7 @@
                 content = `
                     ${replyContent}
                     ${showHeader ? `<div class="message-header">
-                        <div class="sender-name" onclick="${isBotMessage ? 'openBotProfile()' : `openUserProfile('${message.sender}')`}">${senderName}</div>
+                        <div class="sender-name" onclick="${isFeed ? `openChannel('${message.channelId}')` : (isBotMessage ? 'openBotProfile()' : (isChannel ? `openChannel('${currentChatId}')` : `openUserProfile('${message.sender}')`))}">${senderName}</div>
                         ${senderRole}
                     </div>` : ''}
                     <div class="message-text">${messageText}</div>
@@ -2247,12 +2648,8 @@
             
             container.appendChild(messageEl);
             
-            // ИСПРАВЛЕНИЕ: Добавляем задержку для сообщений бота
-            if (isBotMessage && !message.delivered && !isUpdate) {
-                setTimeout(() => {
-                    scrollToBottom();
-                }, 1500);
-            } else if (!message.delivered && !isUpdate) {
+            // Автоскролл только для новых сообщений (не при обновлении реакций)
+            if (!isUpdate) {
                 scrollToBottom();
             }
         }
@@ -2386,15 +2783,12 @@
                 // Сохраняем позицию скролла
                 const container = document.getElementById('messagesContainer');
                 const scrollBefore = container.scrollTop;
-                const scrollHeightBefore = container.scrollHeight;
                 
                 existingMessage.remove();
                 displayMessage(message);
                 
-                // Восстанавливаем позицию скролла
-                const scrollHeightAfter = container.scrollHeight;
-                const scrollDiff = scrollHeightAfter - scrollHeightBefore;
-                container.scrollTop = scrollBefore + scrollDiff;
+                // Восстанавливаем позицию скролла (не скроллим вниз)
+                container.scrollTop = scrollBefore;
             }
         }
 
@@ -2450,6 +2844,35 @@
             window.open(`https://hamburgerchat.github.io/profile.html?id=${currentChatId}`, '_blank');
         }
 
+        function openChannel(channelId) {
+            window.open(`https://hamburgerchat.github.io/profile.html?id=${channelId}`, '_blank');
+        }
+
+        // Просмотр изображения
+        function openImageViewer(imageUrl) {
+            const imageViewer = document.getElementById('imageViewer');
+            const imageViewerImg = document.getElementById('imageViewerImg');
+            
+            imageViewerImg.src = imageUrl;
+            imageViewer.style.display = 'flex';
+            
+            // Сохраняем URL для скачивания
+            imageViewerImg.dataset.downloadUrl = imageUrl;
+        }
+
+        // Скачивание изображения
+        function downloadImage() {
+            const imageUrl = document.getElementById('imageViewerImg').dataset.downloadUrl;
+            if (imageUrl) {
+                const link = document.createElement('a');
+                link.href = imageUrl;
+                link.download = 'image_' + Date.now() + '.jpg';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+        }
+
         function showMessageContextMenu(event, message) {
             clearLongPressTimer();
             selectedMessage = message;
@@ -2464,7 +2887,12 @@
             const deleteContextItem = document.getElementById('deleteContextItem');
             
             // В каналах обычные пользователи могут только ставить реакции
-            if (isChannel && !isAdmin && !isCreator) {
+            // В ленте нельзя взаимодействовать с сообщениями
+            if (isFeed) {
+                replyContextItem.style.display = 'none';
+                pinContextItem.style.display = 'none';
+                deleteContextItem.style.display = 'none';
+            } else if (isChannel && !isAdmin && !isCreator) {
                 replyContextItem.style.display = 'none';
                 pinContextItem.style.display = 'none';
                 deleteContextItem.style.display = 'none';
@@ -2773,7 +3201,9 @@
             const sendBtn = document.getElementById('sendButton');
             
             input.addEventListener('input', function() {
-                sendBtn.disabled = !this.value.trim();
+                const hasText = this.value.trim().length > 0;
+                const hasAttachments = attachedImages.length > 0;
+                sendBtn.disabled = !(hasText || hasAttachments);
                 this.style.height = 'auto';
                 this.style.height = Math.min(this.scrollHeight, 100) + 'px';
             });
@@ -2838,7 +3268,7 @@
             document.getElementById('overlay').addEventListener('click', closeAllModals);
             
             document.getElementById('chatInfo').addEventListener('click', () => {
-                if (isGroupChat || isChannel || isBotChat) {
+                if (isGroupChat || isChannel || isBotChat || isFeed) {
                     window.open(`https://hamburgerchat.github.io/profile.html?id=${currentChatId}`, '_blank');
                 } else {
                     const otherUserId = Object.keys(currentChatData.participants).find(id => id !== currentUserId);
@@ -2874,6 +3304,113 @@
             });
             
             document.getElementById('subscribeBtn').addEventListener('click', toggleSubscription);
+            
+            // Обработчики для прикрепленных изображений
+            document.getElementById('clearAttachments').addEventListener('click', clearAllAttachments);
+            
+            // Обработчики для просмотра изображений
+            document.getElementById('imageViewerClose').addEventListener('click', () => {
+                document.getElementById('imageViewer').style.display = 'none';
+            });
+            
+            document.getElementById('imageViewerDownload').addEventListener('click', downloadImage);
+        }
+        
+        // Обработка загрузки изображений
+        function handleImageUpload(event) {
+            const files = Array.from(event.target.files);
+            if (files.length === 0) return;
+            
+            // Ограничение на количество изображений
+            if (attachedImages.length + files.length > 10) {
+                alert('Можно прикрепить не более 10 изображений');
+                return;
+            }
+            
+            files.forEach(file => {
+                // Проверяем тип файла
+                if (!file.type.match('image.*')) {
+                    alert('Пожалуйста, выберите только изображения');
+                    return;
+                }
+                
+                // Проверяем размер файла (максимум 5MB)
+                if (file.size > 5 * 1024 * 1024) {
+                    alert('Размер изображения не должен превышать 5MB');
+                    return;
+                }
+                
+                const reader = new FileReader();
+                
+                reader.onload = (e) => {
+                    const imageUrl = e.target.result;
+                    attachedImages.push({
+                        url: imageUrl,
+                        file: file
+                    });
+                    
+                    updateAttachmentsPreview();
+                };
+                
+                reader.readAsDataURL(file);
+            });
+            
+            // Сбрасываем значение input, чтобы можно было выбрать те же файлы снова
+            event.target.value = '';
+        }
+        
+        // Обновление превью прикрепленных изображений
+        function updateAttachmentsPreview() {
+            const attachmentsGrid = document.getElementById('attachmentsGrid');
+            const attachmentsPreview = document.getElementById('attachmentsPreview');
+            
+            attachmentsGrid.innerHTML = '';
+            
+            attachedImages.forEach((image, index) => {
+                const attachmentElement = document.createElement('div');
+                attachmentElement.className = 'attachment-preview';
+                attachmentElement.innerHTML = `
+                    <img src="${image.url}" alt="Прикрепленное изображение">
+                    <button class="remove-attachment" data-index="${index}">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
+                
+                attachmentsGrid.appendChild(attachmentElement);
+            });
+            
+            // Показываем или скрываем превью в зависимости от наличия изображений
+            if (attachedImages.length > 0) {
+                attachmentsPreview.style.display = 'block';
+            } else {
+                attachmentsPreview.style.display = 'none';
+            }
+            
+            // Обновляем состояние кнопки отправки
+            const hasText = document.getElementById('messageInput').value.trim().length > 0;
+            const hasAttachments = attachedImages.length > 0;
+            document.getElementById('sendButton').disabled = !(hasText || hasAttachments);
+            
+            // Добавляем обработчики для кнопок удаления
+            attachmentsGrid.querySelectorAll('.remove-attachment').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const index = parseInt(btn.dataset.index);
+                    removeAttachment(index);
+                });
+            });
+        }
+        
+        // Удаление одного прикрепленного изображения
+        function removeAttachment(index) {
+            attachedImages.splice(index, 1);
+            updateAttachmentsPreview();
+        }
+        
+        // Очистка всех прикрепленных изображений
+        function clearAllAttachments() {
+            attachedImages = [];
+            updateAttachmentsPreview();
         }
         
         // Быстрые реакции для каналов
@@ -2884,11 +3421,20 @@
             reactionMenu.style.bottom = '100px';
             reactionMenu.style.left = '50%';
             reactionMenu.style.transform = 'translateX(-50%)';
+            
+            // Создаем кнопки реакций с учетом премиума
+            let reactionsHTML = '';
+            allReactions.forEach(reaction => {
+                const isPremiumReaction = reaction === '🍔';
+                if (isPremiumReaction && !userHasPremium) {
+                    return;
+                }
+                reactionsHTML += `<button class="reaction-btn" data-reaction="${reaction}">${reaction}</button>`;
+            });
+            
             reactionMenu.innerHTML = `
                 <div class="reaction-buttons">
-                    ${allReactions.map(reaction => `
-                        <button class="reaction-btn" data-reaction="${reaction}">${reaction}</button>
-                    `).join('')}
+                    ${reactionsHTML}
                 </div>
             `;
             
@@ -2938,7 +3484,7 @@
         }
         
         async function startCall() {
-            if (isGroupChat || isChannel || isBotChat) {
+            if (isGroupChat || isChannel || isBotChat || isFeed) {
                 alert('Звонки доступны только в личных чатах');
                 return;
             }
@@ -3072,6 +3618,12 @@
                 return;
             }
             
+            // В ленте нельзя отправлять сообщения
+            if (isFeed) {
+                alert('В ленте нельзя отправлять сообщения');
+                return;
+            }
+            
             if (!isGroupMember && (isGroupChat || isChannel || isBotChat)) {
                 alert('Вы не являетесь участником этого чата');
                 return;
@@ -3079,10 +3631,12 @@
             
             const input = document.getElementById('messageInput');
             const text = input.value.trim();
-            if (!text) return;
+            const hasAttachments = attachedImages.length > 0;
+            
+            if (!text && !hasAttachments) return;
             
             try {
-                const messageData = {
+                let messageData = {
                     text: text,
                     sender: currentUserId,
                     timestamp: Date.now(),
@@ -3090,6 +3644,23 @@
                     replyTo: replyingTo,
                     delivered: true // ИСПРАВЛЕНИЕ: Убираем механику галочек
                 };
+                
+                // Если есть прикрепленные изображения, загружаем их
+                if (hasAttachments) {
+                    const uploadedImages = [];
+                    
+                    for (const attachedImage of attachedImages) {
+                        const imageUrl = await uploadImageToServer(attachedImage.file);
+                        if (imageUrl) {
+                            uploadedImages.push(imageUrl);
+                        }
+                    }
+                    
+                    if (uploadedImages.length > 0) {
+                        messageData.images = uploadedImages;
+                        messageData.type = 'image';
+                    }
+                }
                 
                 const encrypted = encryptData(messageData);
                 const messageId = Date.now().toString();
@@ -3099,10 +3670,11 @@
                     timestamp: Date.now()
                 });
                 
-                await updateLastMessage(text);
+                await updateLastMessage(text || 'Изображение');
                 
                 input.value = '';
                 input.style.height = 'auto';
+                clearAllAttachments();
                 document.getElementById('sendButton').disabled = true;
                 cancelReply();
                 
@@ -3115,6 +3687,37 @@
                 
             } catch (error) {
                 alert('Ошибка отправки: ' + error.message);
+            }
+        }
+
+        // Загрузка изображения на сервер
+        async function uploadImageToServer(file) {
+            try {
+                const apiKey = "02cf7a0dc37b8a8adaedc9784752a3db";
+                const formData = new FormData();
+                
+                const reader = new FileReader();
+                const dataUrl = await new Promise((resolve, reject) => {
+                    reader.onload = e => resolve(e.target.result);
+                    reader.onerror = reject;
+                    reader.readAsDataURL(file);
+                });
+                
+                const base64 = dataUrl.split(",")[1];
+                formData.append("image", base64);
+                formData.append("key", apiKey);
+
+                const response = await fetch("https://api.imgbb.com/1/upload", {
+                    method: "POST",
+                    body: formData,
+                });
+                
+                const data = await response.json();
+                return data.data?.url;
+                
+            } catch (error) {
+                console.error('Ошибка загрузки изображения:', error);
+                return null;
             }
         }
 
@@ -3137,81 +3740,6 @@
             } catch (error) {
                 console.error('Ошибка обработки сообщения ботом:', error);
                 await sendBotErrorMessage(`Ошибка выполнения: ${error.message}`);
-            }
-        }
-
-        async function handleImageUpload(event) {
-            // В каналах могут отправлять только админы и создатель
-            if (isChannel && !isAdmin && !isCreator) {
-                alert('В каналах могут отправлять сообщения только администраторы');
-                return;
-            }
-            
-            if (!isGroupMember && (isGroupChat || isChannel || isBotChat)) {
-                alert('Вы не являетесь участником этого чата');
-                return;
-            }
-            
-            const file = event.target.files[0];
-            if (!file) return;
-            
-            try {
-                const sendBtn = document.getElementById('sendButton');
-                const originalHTML = sendBtn.innerHTML;
-                sendBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-                sendBtn.disabled = true;
-                
-                const dataUrl = await new Promise((resolve, reject) => {
-                    const reader = new FileReader();
-                    reader.onload = e => resolve(e.target.result);
-                    reader.onerror = reject;
-                    reader.readAsDataURL(file);
-                });
-                
-                const apiKey = "02cf7a0dc37b8a8adaedc9784752a3db";
-                const formData = new FormData();
-                formData.append("image", dataUrl.split(",")[1]);
-                formData.append("key", apiKey);
-
-                const response = await fetch("https://api.imgbb.com/1/upload", {
-                    method: "POST",
-                    body: formData,
-                });
-                
-                const data = await response.json();
-                const imageUrl = data.data?.url;
-                
-                if (!imageUrl) throw new Error('Загрузка не удалась');
-                
-                const messageData = {
-                    text: document.getElementById('messageInput').value.trim(),
-                    image: imageUrl,
-                    sender: currentUserId,
-                    timestamp: Date.now(),
-                    type: 'image',
-                    delivered: true // ИСПРАВЛЕНИЕ: Убираем механику галочек
-                };
-                
-                const encrypted = encryptData(messageData);
-                const messageId = Date.now().toString();
-                
-                await database.ref(`messages/${currentChatId}/${messageId}`).set({
-                    encryptedData: encrypted,
-                    timestamp: Date.now()
-                });
-                
-                await updateLastMessage('Изображение');
-                
-                document.getElementById('messageInput').value = '';
-                document.getElementById('imageUpload').value = '';
-                cancelReply();
-                
-            } catch (error) {
-                alert('Ошибка загрузки: ' + error.message);
-            } finally {
-                const sendBtn = document.getElementById('sendButton');
-                sendBtn.innerHTML = '<i class="fas fa-paper-plane"></i>';
-                sendBtn.disabled = !document.getElementById('messageInput').value.trim();
             }
         }
 
@@ -3248,6 +3776,12 @@
         async function toggleReaction(messageId, reaction) {
             if (!isGroupMember && (isGroupChat || isChannel || isBotChat)) {
                 alert('Вы не являетесь участником этого чата');
+                return;
+            }
+            
+            // Проверка премиума для реакции бургера
+            if (reaction === '🍔' && !userHasPremium) {
+                alert('Реакция 🍔 доступна только с премиум подпиской');
                 return;
             }
             
@@ -3420,10 +3954,6 @@
             } catch (error) {
                 alert('Ошибка при удалении сообщения');
             }
-        }
-
-        function openImage(url) {
-            window.open(url, '_blank');
         }
 
         function scrollToMessage(messageId) {
