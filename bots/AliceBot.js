@@ -2,110 +2,69 @@
 class AliceBot {
     constructor() {
         this.name = "Алиса";
-        this.version = "1.0";
-        this.sessionData = new Map();
+        this.sessionData = {};
     }
 
-    // Основной метод обработки сообщений для Hamburger Chat
+    async onStart(context) {
+        await context.reply({
+            text: "Здравствуйте! Я ваш персональный помощник."
+        });
+    }
+
     async onMessage(message, context) {
-        const { userId, userName, chatId, reply, messageId } = context;
+        const text = message.text.toLowerCase().trim();
+        const userId = context.userId;
         
         // Получаем или создаем сессию пользователя
-        let session = this.sessionData.get(userId);
+        let session = this.sessionData[userId];
         if (!session) {
             session = {
                 userId: userId,
-                userName: userName,
-                chatId: chatId,
+                userName: context.userName,
                 messageCount: 0,
                 lastActivity: Date.now()
             };
-            this.sessionData.set(userId, session);
+            this.sessionData[userId] = session;
         }
         
         session.messageCount++;
         session.lastActivity = Date.now();
-        
-        const text = message.text.toLowerCase().trim();
-        
+
         // Обработка команд как в оригинальном боте
         if (text.includes('привет')) {
-            await this.greetUser(userId, userName, reply);
+            await this.greetUser(session, context);
         } 
         else if (text.includes('помощь')) {
-            await this.helpUser(userId, reply);
+            await this.helpUser(session, context);
         }
         else {
-            await this.defaultResponse(userId, reply);
+            await this.defaultResponse(session, context);
         }
-        
-        // Очистка старых сессий
-        if (session.messageCount % 10 === 0) {
-            this.cleanupSessions();
-        }
-    }
-
-    // Метод вызывается при старте бота
-    async onStart(context) {
-        const { userId, userName, chatId, reply } = context;
-        
-        console.log(`Бот Алиса запущен в чате ${chatId}`);
-        
-        // Приветственное сообщение при первом запуске
-        await this.greetUser(userId, userName, reply);
     }
 
     // Приветствие пользователя
-    async greetUser(userId, userName, reply) {
-        await reply({
-            text: `Здравствуйте${userName ? ', ' + userName : ''}! Я ваш персональный помощник.`,
-            buttons: [
-                [
-                    { type: "text", label: "Помощь", payload: "help" }
-                ]
-            ]
+    async greetUser(session, context) {
+        await context.reply({
+            text: `Здравствуйте${session.userName ? ', ' + session.userName : ''}! Я ваш персональный помощник.`
         });
     }
 
     // Помощь пользователю
-    async helpUser(userId, reply) {
-        await reply({
-            text: 'Я могу помочь с различными задачами. Просто спросите меня.',
-            buttons: [
-                [
-                    { type: "text", label: "Привет", payload: "hello" }
-                ]
-            ]
+    async helpUser(session, context) {
+        await context.reply({
+            text: 'Я могу помочь с различными задачами. Просто спросите меня.'
         });
     }
 
     // Ответ по умолчанию
-    async defaultResponse(userId, reply) {
-        await reply({
-            text: 'Не совсем поняла вас. Попробуйте спросить по-другому.',
-            buttons: [
-                [
-                    { type: "text", label: "Помощь", payload: "help" },
-                    { type: "text", label: "Привет", payload: "hello" }
-                ]
-            ]
+    async defaultResponse(session, context) {
+        await context.reply({
+            text: 'Не совсем поняла вас. Попробуйте спросить по-другому.'
         });
-    }
-
-    // Очистка старых сессий (старше 1 часа)
-    cleanupSessions() {
-        const now = Date.now();
-        const oneHour = 60 * 60 * 1000;
-        
-        for (let [userId, session] of this.sessionData.entries()) {
-            if (now - session.lastActivity > oneHour) {
-                this.sessionData.delete(userId);
-            }
-        }
     }
 }
 
 // Экспорт для системы Hamburger Chat
-if (typeof module !== 'undefined' && module.exports) {
+if (typeof module !== 'undefined') {
     module.exports = AliceBot;
 }
