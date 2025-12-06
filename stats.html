@@ -12,6 +12,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://unpkg.com/gsap@3.12.0/dist/gsap.min.js"></script>
     <style>
+        /* Стили остаются теми же, что и в предыдущей версии */
         :root {
             --bg-primary: #0f172a;
             --bg-secondary: #1e293b;
@@ -1211,14 +1212,22 @@
 
         // Инициализация при загрузке
         document.addEventListener('DOMContentLoaded', async () => {
+            console.log('DOM загружен, проверяем авторизацию...');
+            
             // Проверка авторизации
             currentUser = localStorage.getItem('hamburger_user');
             currentUserId = localStorage.getItem('hamburger_user_id');
             
+            console.log('Текущий пользователь:', currentUser);
+            console.log('ID пользователя:', currentUserId);
+            
             if (!currentUser || !currentUserId) {
+                console.log('Пользователь не авторизован, перенаправляем...');
                 window.location.href = 'https://hamburgerchat.github.io/';
                 return;
             }
+            
+            console.log('Пользователь авторизован, настраиваем события...');
             
             // Настройка событий
             setupEventListeners();
@@ -1233,6 +1242,12 @@
             setTimeout(() => {
                 showAnimations(1);
             }, 500);
+            
+            // Автоматически загружаем статистику
+            setTimeout(() => {
+                console.log('Автоматически загружаем статистику...');
+                loadStatistics();
+            }, 1000);
         });
 
         function setupEventListeners() {
@@ -1379,7 +1394,13 @@
         }
 
         async function loadStatistics() {
-            if (isGenerating) return;
+            console.log('Загрузка статистики...');
+            
+            if (isGenerating) {
+                console.log('Статистика уже загружается');
+                return;
+            }
+            
             isGenerating = true;
             
             const startBtn = document.getElementById('startBtn');
@@ -1387,7 +1408,10 @@
             startBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Загружаем...';
             
             try {
+                console.log('Собираем реальную статистику...');
                 userStats = await collectRealStatistics();
+                console.log('Статистика собрана:', userStats);
+                
                 displayStatistics();
                 
                 // Скрываем загрузку
@@ -1412,6 +1436,8 @@
         }
 
         async function collectRealStatistics() {
+            console.log('Начинаем сбор статистики для пользователя:', currentUserId);
+            
             const stats = {
                 totalMessages: 0,
                 totalChats: 0,
@@ -1425,59 +1451,78 @@
                 achievements: []
             };
             
-            // Получаем все чаты пользователя
-            const userChatsRef = database.ref(`userChats/${currentUserId}`);
-            const userChatsSnapshot = await userChatsRef.once('value');
-            
-            if (!userChatsSnapshot.exists()) {
-                return stats;
-            }
-            
-            const userChats = userChatsSnapshot.val();
-            const chatIds = Object.keys(userChats).filter(id => id !== 'L');
-            
-            stats.totalChats = chatIds.length;
-            
-            // Собираем данные по каждому чату
-            const activeDaysSet = new Set();
-            
-            for (const chatId of chatIds) {
-                try {
-                    const chatStats = await analyzeChat(chatId, activeDaysSet);
-                    
-                    stats.totalMessages += chatStats.messages;
-                    stats.totalReactions += chatStats.reactions;
-                    stats.monthlyData = stats.monthlyData.map((val, idx) => val + chatStats.monthlyData[idx]);
-                    
-                    if (chatStats.messages > 0) {
-                        stats.topChats.push({
-                            id: chatId,
-                            name: chatStats.name,
-                            type: chatStats.type,
-                            messageCount: chatStats.messages,
-                            avatar: chatStats.avatar
-                        });
-                    }
-                    
-                } catch (error) {
-                    console.error(`Ошибка анализа чата ${chatId}:`, error);
+            try {
+                // Получаем все чаты пользователя
+                const userChatsRef = database.ref(`userChats/${currentUserId}`);
+                const userChatsSnapshot = await userChatsRef.once('value');
+                
+                if (!userChatsSnapshot.exists()) {
+                    console.log('У пользователя нет чатов');
+                    return stats;
                 }
+                
+                const userChats = userChatsSnapshot.val();
+                const chatIds = Object.keys(userChats).filter(id => id !== 'L');
+                
+                console.log('Найдено чатов:', chatIds.length);
+                stats.totalChats = chatIds.length;
+                
+                // Собираем данные по каждому чату
+                const activeDaysSet = new Set();
+                
+                for (const chatId of chatIds) {
+                    try {
+                        console.log('Анализируем чат:', chatId);
+                        const chatStats = await analyzeChat(chatId, activeDaysSet);
+                        
+                        stats.totalMessages += chatStats.messages;
+                        stats.totalReactions += chatStats.reactions;
+                        stats.monthlyData = stats.monthlyData.map((val, idx) => val + chatStats.monthlyData[idx]);
+                        
+                        if (chatStats.messages > 0) {
+                            stats.topChats.push({
+                                id: chatId,
+                                name: chatStats.name,
+                                type: chatStats.type,
+                                messageCount: chatStats.messages,
+                                avatar: chatStats.avatar
+                            });
+                        }
+                        
+                    } catch (error) {
+                        console.error(`Ошибка анализа чата ${chatId}:`, error);
+                    }
+                }
+                
+                // Рассчитываем дополнительные показатели
+                stats.activeDays = activeDaysSet.size;
+                stats.totalHours = Math.round(stats.totalMessages * 0.5 / 60); // 30 секунд на сообщение
+                
+                console.log('Итоги:', {
+                    messages: stats.totalMessages,
+                    chats: stats.totalChats,
+                    hours: stats.totalHours,
+                    reactions: stats.totalReactions,
+                    activeDays: stats.activeDays
+                });
+                
+                // Сортируем топ чатов
+                stats.topChats.sort((a, b) => b.messageCount - a.messageCount);
+                
+                // Определяем достижения
+                determineAchievements(stats);
+                
+                return stats;
+                
+            } catch (error) {
+                console.error('Ошибка сбора статистики:', error);
+                throw error;
             }
-            
-            // Рассчитываем дополнительные показатели
-            stats.activeDays = activeDaysSet.size;
-            stats.totalHours = Math.round(stats.totalMessages * 0.5 / 60); // 30 секунд на сообщение
-            
-            // Сортируем топ чатов
-            stats.topChats.sort((a, b) => b.messageCount - a.messageCount);
-            
-            // Определяем достижения
-            determineAchievements(stats);
-            
-            return stats;
         }
 
         async function analyzeChat(chatId, activeDaysSet) {
+            console.log('Анализ чата:', chatId);
+            
             const result = {
                 name: 'Без названия',
                 type: 'private',
@@ -1509,6 +1554,7 @@
                 
                 if (messagesSnapshot.exists()) {
                     const messages = messagesSnapshot.val();
+                    console.log(`Найдено сообщений в чате ${chatId}:`, Object.keys(messages).length);
                     
                     for (const messageId in messages) {
                         const messageData = messages[messageId];
@@ -1546,6 +1592,7 @@
                 console.error(`Ошибка анализа чата ${chatId}:`, error);
             }
             
+            console.log(`Результат анализа чата ${chatId}:`, result);
             return result;
         }
 
@@ -1661,7 +1708,12 @@
         }
 
         function displayStatistics() {
-            if (!userStats) return;
+            if (!userStats) {
+                console.log('Нет статистики для отображения');
+                return;
+            }
+            
+            console.log('Отображение статистики:', userStats);
             
             // Основные показатели
             animateNumber('totalMessages', userStats.totalMessages);
@@ -1897,6 +1949,8 @@
         }
 
         function shareToTelegram() {
+            if (!userStats) return;
+            
             const text = `📊 Моя статистика в Hamburger за 2025 год:
             
 💬 Сообщений: ${userStats.totalMessages.toLocaleString()}
@@ -1912,6 +1966,8 @@
         }
 
         function shareToWhatsApp() {
+            if (!userStats) return;
+            
             const text = `📊 Моя статистика в Hamburger за 2025 год:
             
 💬 Сообщений: ${userStats.totalMessages.toLocaleString()}
