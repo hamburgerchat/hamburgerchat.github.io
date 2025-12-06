@@ -11,7 +11,6 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://unpkg.com/gsap@3.12.0/dist/gsap.min.js"></script>
-    <script src="https://unpkg.com/gsap@3.12.0/dist/ScrollTrigger.min.js"></script>
     <style>
         :root {
             --bg-primary: #0f172a;
@@ -46,53 +45,63 @@
             width: 100%;
             height: 100%;
             overflow: hidden;
-            position: fixed;
             background: var(--bg-primary);
             color: var(--text-primary);
-            touch-action: none;
-            -webkit-overflow-scrolling: auto;
         }
         
         body {
             margin: 0;
             padding: 0;
-            overscroll-behavior: none;
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+        
+        .slides-wrapper {
+            width: 100%;
+            height: 100vh;
+            position: relative;
+            overflow: hidden;
         }
         
         .slides-container {
             width: 100%;
-            height: 100vh;
-            overflow-y: scroll;
-            scroll-snap-type: y mandatory;
-            scroll-behavior: smooth;
-            position: relative;
-            -webkit-overflow-scrolling: touch;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            position: absolute;
+            top: 0;
+            left: 0;
+            transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
         }
         
         .slide {
-            width: 100%;
+            width: 100vw;
             height: 100vh;
-            scroll-snap-align: start;
-            scroll-snap-stop: always;
+            flex-shrink: 0;
             position: relative;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             padding: 20px;
-            overflow: hidden;
+            overflow-x: hidden;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
         }
         
         .slide-content {
             max-width: 1200px;
             width: 100%;
-            height: 100%;
+            height: auto;
             display: flex;
             flex-direction: column;
             justify-content: center;
             position: relative;
             z-index: 2;
-            padding-top: 60px;
+            padding: 20px 0;
+            margin: 0 auto;
         }
         
         /* Навигация */
@@ -111,21 +120,11 @@
             width: 14px;
             height: 14px;
             border-radius: 50%;
-            background: rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.2);
             cursor: pointer;
             transition: all 0.3s ease;
             border: 2px solid transparent;
             position: relative;
-        }
-        
-        .nav-dot::after {
-            content: '';
-            position: absolute;
-            top: -6px;
-            left: -6px;
-            right: -6px;
-            bottom: -6px;
-            border-radius: 50%;
         }
         
         .nav-dot.active {
@@ -134,29 +133,29 @@
             box-shadow: 0 0 20px rgba(255, 127, 80, 0.5);
         }
         
-        .nav-dot:hover:not(.active) {
+        .nav-dot:hover {
             background: var(--text-secondary);
             transform: scale(1.2);
         }
         
         /* Заголовок слайда */
         .slide-title {
-            font-size: clamp(2.2rem, 5vw, 3.5rem);
+            font-size: clamp(2.5rem, 5vw, 3.5rem);
             font-weight: 800;
-            margin-bottom: 1.2rem;
+            margin-bottom: 1.5rem;
             line-height: 1.1;
-            opacity: 0;
-            transform: translateY(30px);
+            text-align: center;
         }
         
         .slide-subtitle {
-            font-size: clamp(1rem, 3vw, 1.2rem);
+            font-size: clamp(1.1rem, 3vw, 1.3rem);
             color: var(--text-secondary);
-            margin-bottom: 2rem;
-            max-width: 600px;
-            line-height: 1.5;
-            opacity: 0;
-            transform: translateY(30px);
+            margin-bottom: 3rem;
+            max-width: 800px;
+            line-height: 1.6;
+            text-align: center;
+            margin-left: auto;
+            margin-right: auto;
         }
         
         /* Слайд 1: Приветствие */
@@ -164,64 +163,57 @@
             background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
         }
         
-        .hero-graphic {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 1;
-            opacity: 0.1;
-        }
-        
         .burger-icon {
             position: absolute;
-            font-size: clamp(8rem, 20vw, 15rem);
+            font-size: clamp(10rem, 25vw, 20rem);
             color: var(--accent-color);
             opacity: 0.1;
             z-index: 1;
             pointer-events: none;
+            animation: pulse 4s ease-in-out infinite;
         }
         
         .burger-1 {
             top: 10%;
             right: 10%;
-            animation: float 20s infinite ease-in-out;
         }
         
         .burger-2 {
             bottom: 10%;
             left: 10%;
-            animation: float 25s infinite ease-in-out reverse;
+            animation-delay: 2s;
         }
         
-        @keyframes float {
-            0%, 100% { transform: translateY(0) rotate(0deg); }
-            50% { transform: translateY(-20px) rotate(5deg); }
+        @keyframes pulse {
+            0%, 100% { 
+                transform: scale(1) rotate(0deg);
+                opacity: 0.1;
+            }
+            50% { 
+                transform: scale(1.1) rotate(10deg);
+                opacity: 0.2;
+            }
         }
         
         .start-btn {
-            padding: 16px 32px;
+            padding: 18px 36px;
             background: var(--accent-gradient);
             color: white;
             border: none;
             border-radius: 16px;
             font-weight: 600;
-            font-size: 1.1rem;
+            font-size: 1.2rem;
             cursor: pointer;
             transition: all 0.3s ease;
             display: flex;
             align-items: center;
             gap: 12px;
-            margin-top: 2rem;
-            opacity: 0;
-            transform: translateY(30px);
+            margin: 2rem auto 0;
             box-shadow: 0 8px 25px rgba(255, 127, 80, 0.3);
             width: fit-content;
-            touch-action: manipulation;
         }
         
-        .start-btn:hover, .start-btn:active {
+        .start-btn:hover {
             transform: translateY(-5px);
             box-shadow: 0 15px 35px rgba(255, 127, 80, 0.4);
         }
@@ -239,48 +231,58 @@
         
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
             margin-top: 2rem;
             width: 100%;
         }
         
         .stat-card {
             background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
+            backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 20px;
-            padding: 24px;
-            transition: all 0.3s ease;
-            opacity: 0;
-            transform: translateY(50px);
-            min-height: 220px;
+            border-radius: 24px;
+            padding: 28px;
+            transition: all 0.4s ease;
+            min-height: 240px;
             display: flex;
             flex-direction: column;
             justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--accent-gradient);
         }
         
         .stat-card:hover {
             transform: translateY(-10px);
             border-color: rgba(255, 127, 80, 0.3);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
         }
         
         .stat-icon {
-            width: 60px;
-            height: 60px;
+            width: 64px;
+            height: 64px;
             border-radius: 16px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.5rem;
+            font-size: 1.6rem;
             color: white;
             margin-bottom: 1.5rem;
             background: var(--accent-gradient);
         }
         
         .stat-value {
-            font-size: clamp(2.2rem, 5vw, 3rem);
+            font-size: clamp(2.5rem, 5vw, 3.2rem);
             font-weight: 800;
             margin-bottom: 0.5rem;
             background: linear-gradient(135deg, #ff7f50, #ffcc70);
@@ -288,16 +290,14 @@
             -webkit-text-fill-color: transparent;
             background-clip: text;
             line-height: 1;
-            min-height: 3.5rem;
-            display: flex;
-            align-items: center;
         }
         
         .stat-label {
-            font-size: 0.9rem;
+            font-size: 1rem;
             color: var(--text-secondary);
             text-transform: uppercase;
             letter-spacing: 1px;
+            font-weight: 500;
         }
         
         /* Слайд 3: График активности */
@@ -307,14 +307,12 @@
         
         .chart-container {
             background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
+            backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 20px;
-            padding: 24px;
+            border-radius: 24px;
+            padding: 28px;
             margin-top: 2rem;
-            height: 400px;
-            opacity: 0;
-            transform: translateX(100px);
+            height: 450px;
             width: 100%;
             position: relative;
         }
@@ -329,56 +327,63 @@
             flex-direction: column;
             gap: 16px;
             margin-top: 2rem;
-            max-width: 800px;
+            max-width: 900px;
             width: 100%;
+            margin-left: auto;
+            margin-right: auto;
         }
         
         .top-chat-item {
             background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
+            backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 16px;
-            padding: 20px;
+            border-radius: 20px;
+            padding: 24px;
             display: flex;
             align-items: center;
-            gap: 20px;
+            gap: 24px;
             transition: all 0.3s ease;
-            opacity: 0;
-            transform: translateX(-50px);
             cursor: pointer;
-            touch-action: manipulation;
-        }
-        
-        .top-chat-item:active {
-            transform: translateX(-45px) scale(0.98);
         }
         
         .top-chat-item:hover {
             transform: translateX(10px);
             border-color: rgba(255, 127, 80, 0.3);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
         }
         
         .chat-rank {
-            width: 50px;
-            height: 50px;
+            width: 56px;
+            height: 56px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: 700;
-            font-size: 1.2rem;
+            font-size: 1.4rem;
             color: white;
             flex-shrink: 0;
         }
         
-        .rank-1 { background: linear-gradient(135deg, #f59e0b, #fbbf24); }
-        .rank-2 { background: linear-gradient(135deg, #94a3b8, #cbd5e1); }
-        .rank-3 { background: linear-gradient(135deg, #92400e, #b45309); }
-        .rank-other { background: linear-gradient(135deg, var(--purple-color), #a78bfa); }
+        .rank-1 { 
+            background: linear-gradient(135deg, #f59e0b, #fbbf24);
+            box-shadow: 0 0 30px rgba(245, 158, 11, 0.3);
+        }
+        .rank-2 { 
+            background: linear-gradient(135deg, #94a3b8, #cbd5e1);
+            box-shadow: 0 0 20px rgba(148, 163, 184, 0.3);
+        }
+        .rank-3 { 
+            background: linear-gradient(135deg, #92400e, #b45309);
+            box-shadow: 0 0 20px rgba(146, 64, 14, 0.3);
+        }
+        .rank-other { 
+            background: linear-gradient(135deg, var(--purple-color), #a78bfa);
+        }
         
         .chat-avatar {
-            width: 50px;
-            height: 50px;
+            width: 56px;
+            height: 56px;
             border-radius: 50%;
             background: var(--accent-gradient);
             display: flex;
@@ -389,6 +394,7 @@
             flex-shrink: 0;
             background-size: cover;
             background-position: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
         }
         
         .chat-info {
@@ -398,8 +404,8 @@
         
         .chat-name {
             font-weight: 600;
-            font-size: 1.1rem;
-            margin-bottom: 0.3rem;
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -407,8 +413,8 @@
         
         .chat-stats {
             display: flex;
-            gap: 20px;
-            font-size: 0.9rem;
+            gap: 24px;
+            font-size: 0.95rem;
             color: var(--text-secondary);
             flex-wrap: wrap;
         }
@@ -420,54 +426,78 @@
         
         .achievements-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
             margin-top: 2rem;
             width: 100%;
         }
         
         .achievement-card {
             background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
+            backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 20px;
-            padding: 24px;
-            transition: all 0.3s ease;
-            opacity: 0;
-            transform: scale(0.8);
-            min-height: 240px;
+            border-radius: 24px;
+            padding: 28px;
+            transition: all 0.4s ease;
+            min-height: 260px;
+            position: relative;
+            overflow: hidden;
         }
         
-        .achievement-card:hover {
-            transform: scale(1.05);
-            border-color: rgba(255, 127, 80, 0.3);
-        }
-        
-        .achievement-icon {
-            width: 70px;
-            height: 70px;
-            border-radius: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.8rem;
-            color: white;
-            margin-bottom: 1.2rem;
+        .achievement-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
             background: var(--accent-gradient);
         }
         
+        .achievement-card:hover {
+            transform: translateY(-8px);
+            border-color: rgba(255, 127, 80, 0.3);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+        }
+        
+        .achievement-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: white;
+            margin-bottom: 1.5rem;
+            background: var(--accent-gradient);
+            box-shadow: 0 8px 25px rgba(255, 127, 80, 0.2);
+        }
+        
         .achievement-name {
-            font-weight: 600;
-            font-size: 1.2rem;
-            margin-bottom: 0.5rem;
+            font-weight: 700;
+            font-size: 1.3rem;
+            margin-bottom: 0.8rem;
         }
         
         .achievement-desc {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+            line-height: 1.5;
+            min-height: 3rem;
+        }
+        
+        .progress-container {
+            margin-top: 1rem;
+        }
+        
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
             font-size: 0.9rem;
             color: var(--text-secondary);
-            margin-bottom: 1rem;
-            line-height: 1.4;
-            min-height: 2.8rem;
         }
         
         .progress-bar {
@@ -475,7 +505,6 @@
             background: rgba(255, 255, 255, 0.1);
             border-radius: 4px;
             overflow: hidden;
-            margin-top: 1rem;
         }
         
         .progress-fill {
@@ -495,7 +524,7 @@
         .final-stats {
             display: flex;
             justify-content: center;
-            gap: 40px;
+            gap: 48px;
             flex-wrap: wrap;
             margin: 3rem 0;
             width: 100%;
@@ -503,40 +532,39 @@
         
         .final-stat {
             text-align: center;
-            opacity: 0;
-            transform: translateY(30px);
-            min-width: 120px;
+            min-width: 160px;
         }
         
         .final-value {
-            font-size: clamp(2.5rem, 6vw, 4rem);
+            font-size: clamp(3rem, 7vw, 4.5rem);
             font-weight: 800;
             background: linear-gradient(135deg, #ff7f50, #ffcc70);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
             line-height: 1;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.8rem;
         }
         
         .final-label {
-            font-size: 1rem;
+            font-size: 1.1rem;
             color: var(--text-secondary);
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 1.5px;
+            font-weight: 500;
         }
         
         .share-buttons {
             display: flex;
-            gap: 16px;
+            gap: 20px;
             justify-content: center;
-            margin-top: 2rem;
+            margin-top: 3rem;
             flex-wrap: wrap;
             width: 100%;
         }
         
         .share-btn {
-            padding: 16px 32px;
+            padding: 18px 36px;
             border-radius: 16px;
             border: none;
             font-weight: 600;
@@ -545,23 +573,17 @@
             display: flex;
             align-items: center;
             gap: 12px;
-            font-size: 1rem;
-            opacity: 0;
-            transform: translateY(30px);
-            touch-action: manipulation;
-        }
-        
-        .share-btn:active {
-            transform: translateY(-3px);
+            font-size: 1.1rem;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
         }
         
         .share-btn.telegram {
-            background: #0088cc;
+            background: linear-gradient(135deg, #0088cc, #24a1e1);
             color: white;
         }
         
         .share-btn.whatsapp {
-            background: #25D366;
+            background: linear-gradient(135deg, #25D366, #5af78a);
             color: white;
         }
         
@@ -569,11 +591,12 @@
             background: rgba(255, 255, 255, 0.1);
             color: var(--text-primary);
             border: 1px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
         }
         
         .share-btn:hover {
             transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
         }
         
         /* Загрузка */
@@ -593,13 +616,13 @@
         }
         
         .loading-spinner {
-            width: 60px;
-            height: 60px;
+            width: 80px;
+            height: 80px;
             border: 4px solid rgba(255, 255, 255, 0.1);
             border-top: 4px solid var(--accent-color);
             border-radius: 50%;
             animation: spin 1s linear infinite;
-            margin-bottom: 1.5rem;
+            margin-bottom: 2rem;
         }
         
         @keyframes spin {
@@ -610,15 +633,15 @@
         /* Индикатор прокрутки */
         .scroll-hint {
             position: fixed;
-            bottom: 30px;
+            bottom: 40px;
             left: 50%;
             transform: translateX(-50%);
             color: var(--text-secondary);
-            font-size: 0.9rem;
+            font-size: 1rem;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 8px;
+            gap: 12px;
             z-index: 1000;
             animation: bounce 2s infinite;
             pointer-events: none;
@@ -626,7 +649,7 @@
         
         @keyframes bounce {
             0%, 100% { transform: translateX(-50%) translateY(0); }
-            50% { transform: translateX(-50%) translateY(-10px); }
+            50% { transform: translateX(-50%) translateY(-15px); }
         }
         
         /* Прогресс бар */
@@ -647,90 +670,105 @@
             transition: width 0.3s ease;
         }
         
+        /* Навигационные стрелки */
+        .nav-arrows {
+            position: fixed;
+            bottom: 40px;
+            right: 40px;
+            display: flex;
+            gap: 20px;
+            z-index: 1000;
+        }
+        
+        .nav-arrow {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-arrow:hover {
+            background: var(--accent-color);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(255, 127, 80, 0.3);
+        }
+        
+        .nav-arrow:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+        
         /* Анимации появления */
-        .slide-visible .slide-title,
-        .slide-visible .slide-subtitle,
-        .slide-visible .start-btn {
-            opacity: 1;
-            transform: translateY(0);
+        .animate-in {
+            opacity: 0;
+            transform: translateY(40px);
             transition: opacity 0.8s ease, transform 0.8s ease;
         }
         
-        .slide-visible .stat-card {
+        .animate-in.visible {
             opacity: 1;
             transform: translateY(0);
-            transition: opacity 0.8s ease 0.2s, transform 0.8s ease 0.2s;
         }
         
-        .slide-visible .chart-container {
-            opacity: 1;
-            transform: translateX(0);
-            transition: opacity 0.8s ease 0.3s, transform 0.8s ease 0.3s;
-        }
-        
-        .slide-visible .top-chat-item {
-            opacity: 1;
-            transform: translateX(0);
+        .animate-left {
+            opacity: 0;
+            transform: translateX(-40px);
             transition: opacity 0.8s ease, transform 0.8s ease;
         }
         
-        .slide-visible .achievement-card {
+        .animate-left.visible {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        
+        .animate-right {
+            opacity: 0;
+            transform: translateX(40px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+        
+        .animate-right.visible {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        
+        .animate-scale {
+            opacity: 0;
+            transform: scale(0.8);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+        
+        .animate-scale.visible {
             opacity: 1;
             transform: scale(1);
-            transition: opacity 0.8s ease, transform 0.8s ease;
         }
-        
-        .slide-visible .final-stat,
-        .slide-visible .share-btn {
-            opacity: 1;
-            transform: translateY(0);
-            transition: opacity 0.8s ease, transform 0.8s ease;
-        }
-        
-        /* Плавное появление для каждой карточки с задержкой */
-        .slide-visible .stat-card:nth-child(1) { transition-delay: 0.1s; }
-        .slide-visible .stat-card:nth-child(2) { transition-delay: 0.2s; }
-        .slide-visible .stat-card:nth-child(3) { transition-delay: 0.3s; }
-        .slide-visible .stat-card:nth-child(4) { transition-delay: 0.4s; }
-        
-        .slide-visible .top-chat-item:nth-child(1) { transition-delay: 0.1s; }
-        .slide-visible .top-chat-item:nth-child(2) { transition-delay: 0.2s; }
-        .slide-visible .top-chat-item:nth-child(3) { transition-delay: 0.3s; }
-        .slide-visible .top-chat-item:nth-child(4) { transition-delay: 0.4s; }
-        .slide-visible .top-chat-item:nth-child(5) { transition-delay: 0.5s; }
-        
-        .slide-visible .achievement-card:nth-child(1) { transition-delay: 0.1s; }
-        .slide-visible .achievement-card:nth-child(2) { transition-delay: 0.2s; }
-        .slide-visible .achievement-card:nth-child(3) { transition-delay: 0.3s; }
-        .slide-visible .achievement-card:nth-child(4) { transition-delay: 0.4s; }
-        .slide-visible .achievement-card:nth-child(5) { transition-delay: 0.5s; }
-        
-        .slide-visible .final-stat:nth-child(1) { transition-delay: 0.1s; }
-        .slide-visible .final-stat:nth-child(2) { transition-delay: 0.2s; }
-        .slide-visible .final-stat:nth-child(3) { transition-delay: 0.3s; }
-        
-        .slide-visible .share-btn:nth-child(1) { transition-delay: 0.4s; }
-        .slide-visible .share-btn:nth-child(2) { transition-delay: 0.5s; }
-        .slide-visible .share-btn:nth-child(3) { transition-delay: 0.6s; }
         
         /* Адаптация для телефонов */
         @media (max-width: 768px) {
             .slide {
                 padding: 16px;
-                height: 100vh;
                 justify-content: flex-start;
-                padding-top: 80px;
+                padding-top: 100px;
             }
             
             .slide-content {
-                padding-top: 40px;
+                padding-top: 20px;
                 overflow-y: auto;
-                -webkit-overflow-scrolling: touch;
-                padding-bottom: 100px;
+                padding-bottom: 120px;
             }
             
             .nav-dots {
-                right: 12px;
+                right: 16px;
                 gap: 12px;
             }
             
@@ -739,73 +777,80 @@
                 height: 10px;
             }
             
-            .nav-dot.active {
-                transform: scale(1.3);
+            .nav-arrows {
+                bottom: 20px;
+                right: 20px;
+                gap: 12px;
+            }
+            
+            .nav-arrow {
+                width: 48px;
+                height: 48px;
+                font-size: 1rem;
             }
             
             .stats-grid {
                 grid-template-columns: 1fr;
-                gap: 16px;
+                gap: 20px;
             }
             
             .stat-card {
-                padding: 20px;
-                min-height: 180px;
+                padding: 24px;
+                min-height: 200px;
             }
             
             .stat-icon {
-                width: 50px;
-                height: 50px;
-                font-size: 1.2rem;
+                width: 56px;
+                height: 56px;
+                font-size: 1.4rem;
                 margin-bottom: 1rem;
             }
             
             .stat-value {
-                font-size: 2.2rem;
-                min-height: 2.8rem;
+                font-size: 2.5rem;
             }
             
             .chart-container {
-                height: 300px;
-                padding: 16px;
+                height: 350px;
+                padding: 20px;
                 margin-top: 1rem;
             }
             
             .top-chat-item {
-                padding: 16px;
-                gap: 16px;
+                padding: 20px;
+                gap: 20px;
             }
             
             .chat-rank {
-                width: 40px;
-                height: 40px;
-                font-size: 1rem;
+                width: 48px;
+                height: 48px;
+                font-size: 1.2rem;
             }
             
             .chat-avatar {
-                width: 40px;
-                height: 40px;
+                width: 48px;
+                height: 48px;
             }
             
             .chat-stats {
-                gap: 12px;
-                font-size: 0.85rem;
+                gap: 16px;
+                font-size: 0.9rem;
             }
             
             .achievements-grid {
                 grid-template-columns: 1fr;
-                gap: 16px;
+                gap: 20px;
             }
             
             .achievement-card {
-                padding: 20px;
-                min-height: 200px;
+                padding: 24px;
+                min-height: 220px;
             }
             
             .achievement-icon {
-                width: 60px;
-                height: 60px;
-                font-size: 1.5rem;
+                width: 64px;
+                height: 64px;
+                font-size: 1.6rem;
             }
             
             .achievement-desc {
@@ -813,38 +858,39 @@
             }
             
             .final-stats {
-                gap: 20px;
+                gap: 32px;
             }
             
             .final-value {
-                font-size: 2.5rem;
+                font-size: 3rem;
             }
             
             .share-buttons {
                 flex-direction: column;
                 align-items: center;
-                gap: 12px;
+                gap: 16px;
             }
             
             .share-btn {
                 width: 100%;
-                max-width: 300px;
+                max-width: 320px;
                 justify-content: center;
-                padding: 14px 20px;
+                padding: 16px 24px;
             }
             
             .burger-icon {
-                font-size: 8rem;
+                font-size: 12rem;
             }
             
             .scroll-hint {
-                bottom: 20px;
-                font-size: 0.8rem;
+                bottom: 100px;
+                font-size: 0.9rem;
             }
             
             .start-btn {
                 width: 100%;
                 justify-content: center;
+                padding: 16px 24px;
             }
             
             .progress-container {
@@ -853,156 +899,96 @@
         }
         
         @media (max-width: 480px) {
-            .slide {
-                padding: 12px;
-            }
-            
             .slide-title {
-                font-size: 2rem;
+                font-size: 2.2rem;
                 margin-bottom: 1rem;
             }
             
             .slide-subtitle {
-                font-size: 1rem;
-                margin-bottom: 1.5rem;
+                font-size: 1.1rem;
+                margin-bottom: 2rem;
             }
             
             .stat-value {
-                font-size: 2rem;
+                font-size: 2.2rem;
             }
             
             .chart-container {
-                height: 250px;
-                padding: 12px;
+                height: 300px;
+                padding: 16px;
             }
             
             .chat-stats {
                 flex-direction: column;
-                gap: 4px;
-            }
-            
-            .final-value {
-                font-size: 2rem;
-            }
-            
-            .burger-icon {
-                font-size: 6rem;
-            }
-            
-            .nav-dots {
-                right: 8px;
-                gap: 10px;
-            }
-            
-            .nav-dot {
-                width: 8px;
-                height: 8px;
-            }
-        }
-        
-        /* Портретная ориентация на телефонах */
-        @media (max-height: 700px) and (orientation: portrait) {
-            .slide-content {
-                justify-content: flex-start;
-                padding-top: 60px;
-            }
-            
-            .stat-card {
-                min-height: 160px;
-                padding: 16px;
-            }
-            
-            .stat-icon {
-                width: 40px;
-                height: 40px;
-                font-size: 1rem;
-                margin-bottom: 0.8rem;
-            }
-            
-            .stat-value {
-                font-size: 1.8rem;
-                min-height: 2.2rem;
-            }
-            
-            .chart-container {
-                height: 220px;
-            }
-            
-            .achievement-card {
-                min-height: 180px;
-                padding: 16px;
-            }
-            
-            .achievement-icon {
-                width: 50px;
-                height: 50px;
-                font-size: 1.3rem;
-                margin-bottom: 0.8rem;
-            }
-        }
-        
-        /* Ландшафтная ориентация на телефонах */
-        @media (max-height: 500px) and (orientation: landscape) {
-            .slide-content {
-                padding-top: 40px;
-                padding-bottom: 40px;
-            }
-            
-            .stats-grid {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 12px;
-            }
-            
-            .stat-card {
-                min-height: 140px;
-                padding: 12px;
-            }
-            
-            .stat-icon {
-                width: 35px;
-                height: 35px;
-                font-size: 0.9rem;
-                margin-bottom: 0.5rem;
-            }
-            
-            .stat-value {
-                font-size: 1.6rem;
-                min-height: 2rem;
-            }
-            
-            .chart-container {
-                height: 180px;
-                margin-top: 1rem;
-            }
-            
-            .nav-dots {
                 gap: 8px;
             }
             
-            .scroll-hint {
-                display: none;
+            .final-value {
+                font-size: 2.5rem;
+            }
+            
+            .burger-icon {
+                font-size: 10rem;
+            }
+            
+            .nav-dots {
+                right: 12px;
+                gap: 10px;
+            }
+            
+            .nav-arrows {
+                bottom: 16px;
+                right: 16px;
+            }
+            
+            .nav-arrow {
+                width: 44px;
+                height: 44px;
+            }
+        }
+        
+        @media (max-height: 700px) and (orientation: portrait) {
+            .slide-content {
+                justify-content: flex-start;
+                padding-top: 80px;
+            }
+            
+            .stat-card {
+                min-height: 180px;
+                padding: 20px;
+            }
+            
+            .stat-icon {
+                width: 48px;
+                height: 48px;
+                font-size: 1.2rem;
+                margin-bottom: 0.8rem;
+            }
+            
+            .stat-value {
+                font-size: 2rem;
+            }
+            
+            .chart-container {
+                height: 280px;
+            }
+            
+            .achievement-card {
+                min-height: 200px;
+                padding: 20px;
+            }
+            
+            .achievement-icon {
+                width: 56px;
+                height: 56px;
+                font-size: 1.4rem;
+                margin-bottom: 1rem;
             }
         }
         
         /* Анимации чисел */
-        .number-animate {
+        .number-count {
             display: inline-block;
-        }
-        
-        /* Фикс для Safari */
-        @supports (-webkit-touch-callout: none) {
-            .slides-container {
-                height: -webkit-fill-available;
-            }
-            
-            .slide {
-                height: -webkit-fill-available;
-            }
-        }
-        
-        /* Предотвращение масштабирования на iOS */
-        input, textarea, select {
-            font-size: 16px; /* Предотвращает автоматическое увеличение в iOS */
         }
     </style>
 </head>
@@ -1015,151 +1001,153 @@
     <!-- Загрузка -->
     <div class="loading-overlay" id="loadingOverlay">
         <div class="loading-spinner"></div>
-        <div>Загружаем вашу статистику 2025...</div>
+        <div style="font-size: 1.2rem; margin-bottom: 0.5rem;">Загружаем вашу статистику 2025...</div>
+        <div style="color: var(--text-tertiary); font-size: 0.9rem;">Это может занять несколько секунд</div>
     </div>
     
-    <!-- Контейнер слайдов -->
-    <div class="slides-container" id="slidesContainer">
-        <!-- Слайд 1: Приветствие -->
-        <section class="slide" id="slide1">
-            <div class="hero-graphic"></div>
-            <div class="burger-icon burger-1">🍔</div>
-            <div class="burger-icon burger-2">🍔</div>
+    <!-- Обертка слайдов -->
+    <div class="slides-wrapper">
+        <div class="slides-container" id="slidesContainer">
+            <!-- Слайд 1: Приветствие -->
+            <section class="slide" id="slide1">
+                <div class="burger-icon burger-1">🍔</div>
+                <div class="burger-icon burger-2">🍔</div>
+                
+                <div class="slide-content">
+                    <h1 class="slide-title animate-in">Ваш 2025 год в <span style="color: #ff7f50">Hamburger</span></h1>
+                    <p class="slide-subtitle animate-in" style="transition-delay: 0.2s">
+                        Откройте удивительную статистику вашего общения за год. 
+                        Узнайте, сколько сообщений вы отправили, какие чаты были самыми активными 
+                        и какие достижения получили.
+                    </p>
+                    <button class="start-btn animate-in" id="startBtn" style="transition-delay: 0.4s">
+                        <i class="fas fa-rocket"></i>
+                        Показать мою статистику
+                    </button>
+                </div>
+                
+                <div class="scroll-hint animate-in" style="transition-delay: 0.6s">
+                    <span>Прокрутите вниз</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+            </section>
             
-            <div class="slide-content">
-                <h1 class="slide-title">Ваш 2025 год в <span style="color: #ff7f50">Hamburger</span></h1>
-                <p class="slide-subtitle">
-                    Откройте удивительную статистику вашего общения за год. 
-                    Узнайте, сколько сообщений вы отправили, какие чаты были самыми активными 
-                    и какие достижения получили.
-                </p>
-                <button class="start-btn" id="startBtn">
-                    <i class="fas fa-rocket"></i>
-                    Показать мою статистику
-                </button>
-            </div>
+            <!-- Слайд 2: Основная статистика -->
+            <section class="slide" id="slide2">
+                <div class="slide-content">
+                    <h2 class="slide-title animate-in">Цифры говорят сами за себя</h2>
+                    <p class="slide-subtitle animate-in" style="transition-delay: 0.2s">Ваша активность в цифрах за 2025 год</p>
+                    
+                    <div class="stats-grid">
+                        <div class="stat-card animate-in" style="transition-delay: 0.3s">
+                            <div class="stat-icon">
+                                <i class="fas fa-comment"></i>
+                            </div>
+                            <div class="stat-value" id="totalMessages">0</div>
+                            <div class="stat-label">Сообщений отправлено</div>
+                        </div>
+                        
+                        <div class="stat-card animate-in" style="transition-delay: 0.4s">
+                            <div class="stat-icon">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div class="stat-value" id="totalChats">0</div>
+                            <div class="stat-label">Активных чатов</div>
+                        </div>
+                        
+                        <div class="stat-card animate-in" style="transition-delay: 0.5s">
+                            <div class="stat-icon">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div class="stat-value" id="totalHours">0 ч</div>
+                            <div class="stat-label">Время в сети</div>
+                        </div>
+                        
+                        <div class="stat-card animate-in" style="transition-delay: 0.6s">
+                            <div class="stat-icon">
+                                <i class="fas fa-heart"></i>
+                            </div>
+                            <div class="stat-value" id="totalReactions">0</div>
+                            <div class="stat-label">Реакций получено</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
             
-            <div class="scroll-hint">
-                <span>Прокрутите вниз</span>
-                <i class="fas fa-chevron-down"></i>
-            </div>
-        </section>
-        
-        <!-- Слайд 2: Основная статистика -->
-        <section class="slide" id="slide2">
-            <div class="slide-content">
-                <h2 class="slide-title">Цифры говорят сами за себя</h2>
-                <p class="slide-subtitle">Ваша активность в цифрах за 2025 год</p>
-                
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-icon">
-                            <i class="fas fa-comment"></i>
+            <!-- Слайд 3: График активности -->
+            <section class="slide" id="slide3">
+                <div class="slide-content">
+                    <h2 class="slide-title animate-in">Ваша активность по месяцам</h2>
+                    <p class="slide-subtitle animate-in" style="transition-delay: 0.2s">Когда вы были наиболее активны в 2025 году</p>
+                    
+                    <div class="chart-container animate-right" style="transition-delay: 0.3s">
+                        <canvas id="monthlyChart"></canvas>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Слайд 4: Топ чатов -->
+            <section class="slide" id="slide4">
+                <div class="slide-content">
+                    <h2 class="slide-title animate-in">Топ-5 самых активных чатов</h2>
+                    <p class="slide-subtitle animate-in" style="transition-delay: 0.2s">Чаты, в которых вы общались больше всего</p>
+                    
+                    <div class="top-chats-container" id="topChatsContainer">
+                        <!-- Чаты будут добавлены динамически -->
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Слайд 5: Достижения -->
+            <section class="slide" id="slide5">
+                <div class="slide-content">
+                    <h2 class="slide-title animate-in">Ваши достижения</h2>
+                    <p class="slide-subtitle animate-in" style="transition-delay: 0.2s">Награды за вашу активность в 2025 году</p>
+                    
+                    <div class="achievements-grid" id="achievementsGrid">
+                        <!-- Достижения будут добавлены динамически -->
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Слайд 6: Финальный слайд -->
+            <section class="slide" id="slide6">
+                <div class="slide-content">
+                    <h2 class="slide-title animate-in">Отличный год!</h2>
+                    <p class="slide-subtitle animate-in" style="transition-delay: 0.2s">Спасибо, что делаете Hamburger лучше с каждым сообщением</p>
+                    
+                    <div class="final-stats">
+                        <div class="final-stat animate-in" style="transition-delay: 0.3s">
+                            <div class="final-value" id="finalMessages">0</div>
+                            <div class="final-label">Сообщений</div>
                         </div>
-                        <div class="stat-value" id="totalMessages">0</div>
-                        <div class="stat-label">Сообщений отправлено</div>
+                        <div class="final-stat animate-in" style="transition-delay: 0.4s">
+                            <div class="final-value" id="finalChats">0</div>
+                            <div class="final-label">Чатов</div>
+                        </div>
+                        <div class="final-stat animate-in" style="transition-delay: 0.5s">
+                            <div class="final-value" id="finalDays">0</div>
+                            <div class="final-label">Дней активности</div>
+                        </div>
                     </div>
                     
-                    <div class="stat-card">
-                        <div class="stat-icon">
-                            <i class="fas fa-users"></i>
-                        </div>
-                        <div class="stat-value" id="totalChats">0</div>
-                        <div class="stat-label">Активных чатов</div>
-                    </div>
-                    
-                    <div class="stat-card">
-                        <div class="stat-icon">
-                            <i class="fas fa-clock"></i>
-                        </div>
-                        <div class="stat-value" id="totalHours">0 ч</div>
-                        <div class="stat-label">Время в сети</div>
-                    </div>
-                    
-                    <div class="stat-card">
-                        <div class="stat-icon">
-                            <i class="fas fa-heart"></i>
-                        </div>
-                        <div class="stat-value" id="totalReactions">0</div>
-                        <div class="stat-label">Реакций получено</div>
+                    <div class="share-buttons">
+                        <button class="share-btn telegram animate-in" id="shareTelegram" style="transition-delay: 0.6s">
+                            <i class="fab fa-telegram"></i>
+                            Поделиться в Telegram
+                        </button>
+                        <button class="share-btn whatsapp animate-in" id="shareWhatsApp" style="transition-delay: 0.7s">
+                            <i class="fab fa-whatsapp"></i>
+                            Поделиться в WhatsApp
+                        </button>
+                        <button class="share-btn restart animate-in" id="restartBtn" style="transition-delay: 0.8s">
+                            <i class="fas fa-redo"></i>
+                            Начать сначала
+                        </button>
                     </div>
                 </div>
-            </div>
-        </section>
-        
-        <!-- Слайд 3: График активности -->
-        <section class="slide" id="slide3">
-            <div class="slide-content">
-                <h2 class="slide-title">Ваша активность по месяцам</h2>
-                <p class="slide-subtitle">Когда вы были наиболее активны в 2025 году</p>
-                
-                <div class="chart-container">
-                    <canvas id="monthlyChart"></canvas>
-                </div>
-            </div>
-        </section>
-        
-        <!-- Слайд 4: Топ чатов -->
-        <section class="slide" id="slide4">
-            <div class="slide-content">
-                <h2 class="slide-title">Топ-5 самых активных чатов</h2>
-                <p class="slide-subtitle">Чаты, в которых вы общались больше всего</p>
-                
-                <div class="top-chats-container" id="topChatsContainer">
-                    <!-- Чаты будут добавлены динамически -->
-                </div>
-            </div>
-        </section>
-        
-        <!-- Слайд 5: Достижения -->
-        <section class="slide" id="slide5">
-            <div class="slide-content">
-                <h2 class="slide-title">Ваши достижения</h2>
-                <p class="slide-subtitle">Награды за вашу активность в 2025 году</p>
-                
-                <div class="achievements-grid" id="achievementsGrid">
-                    <!-- Достижения будут добавлены динамически -->
-                </div>
-            </div>
-        </section>
-        
-        <!-- Слайд 6: Финальный слайд -->
-        <section class="slide" id="slide6">
-            <div class="slide-content">
-                <h2 class="slide-title">Отличный год!</h2>
-                <p class="slide-subtitle">Спасибо, что делаете Hamburger лучше с каждым сообщением</p>
-                
-                <div class="final-stats">
-                    <div class="final-stat">
-                        <div class="final-value" id="finalMessages">0</div>
-                        <div class="final-label">Сообщений</div>
-                    </div>
-                    <div class="final-stat">
-                        <div class="final-value" id="finalChats">0</div>
-                        <div class="final-label">Чатов</div>
-                    </div>
-                    <div class="final-stat">
-                        <div class="final-value" id="finalDays">0</div>
-                        <div class="final-label">Дней активности</div>
-                    </div>
-                </div>
-                
-                <div class="share-buttons">
-                    <button class="share-btn telegram" id="shareTelegram">
-                        <i class="fab fa-telegram"></i>
-                        Поделиться в Telegram
-                    </button>
-                    <button class="share-btn whatsapp" id="shareWhatsApp">
-                        <i class="fab fa-whatsapp"></i>
-                        Поделиться в WhatsApp
-                    </button>
-                    <button class="share-btn restart" id="restartBtn">
-                        <i class="fas fa-redo"></i>
-                        Начать сначала
-                    </button>
-                </div>
-            </div>
-        </section>
+            </section>
+        </div>
     </div>
     
     <!-- Навигационные точки -->
@@ -1170,6 +1158,16 @@
         <div class="nav-dot" data-slide="4"></div>
         <div class="nav-dot" data-slide="5"></div>
         <div class="nav-dot" data-slide="6"></div>
+    </div>
+    
+    <!-- Навигационные стрелки -->
+    <div class="nav-arrows">
+        <button class="nav-arrow" id="prevSlide" disabled>
+            <i class="fas fa-chevron-up"></i>
+        </button>
+        <button class="nav-arrow" id="nextSlide">
+            <i class="fas fa-chevron-down"></i>
+        </button>
     </div>
     
     <script>
@@ -1194,7 +1192,6 @@
         let totalSlides = 6;
         let isGenerating = false;
         let isAnimating = false;
-        let slideTimeout = null;
 
         // Функции шифрования/дешифрования
         function encryptData(data) {
@@ -1229,14 +1226,13 @@
             // Настройка навигации
             setupNavigation();
             
-            // Настройка скролла
-            setupScroll();
+            // Настройка слайдов
+            setupSlides();
             
-            // Инициализация GSAP
-            gsap.registerPlugin(ScrollTrigger);
-            
-            // Автоматически загружаем статистику
-            setTimeout(loadStatistics, 1000);
+            // Показать анимации первого слайда
+            setTimeout(() => {
+                showAnimations(1);
+            }, 500);
         });
 
         function setupEventListeners() {
@@ -1252,192 +1248,100 @@
             document.getElementById('shareTelegram').addEventListener('click', shareToTelegram);
             document.getElementById('shareWhatsApp').addEventListener('click', shareToWhatsApp);
             
-            // Предотвращение двойного тапа для масштабирования на iOS
-            let lastTouchEnd = 0;
-            document.addEventListener('touchend', function(event) {
-                const now = (new Date()).getTime();
-                if (now - lastTouchEnd <= 300) {
-                    event.preventDefault();
-                }
-                lastTouchEnd = now;
-            }, false);
-            
-            // Предотвращение скролла страницы при скролле внутри элементов
-            document.querySelectorAll('.slide-content').forEach(element => {
-                element.addEventListener('touchmove', function(e) {
-                    if (this.scrollHeight > this.clientHeight) {
-                        e.stopPropagation();
-                    }
-                }, { passive: false });
+            // Навигационные стрелки
+            document.getElementById('prevSlide').addEventListener('click', () => {
+                if (currentSlide > 1) goToSlide(currentSlide - 1);
             });
             
-            // Обработка кликов по точкам навигации
-            document.querySelectorAll('.nav-dot').forEach(dot => {
-                dot.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    const slideNum = parseInt(this.dataset.slide);
-                    goToSlide(slideNum);
-                });
-                
-                // Для touch устройств
-                dot.addEventListener('touchstart', function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    const slideNum = parseInt(this.dataset.slide);
-                    goToSlide(slideNum);
-                }, { passive: false });
+            document.getElementById('nextSlide').addEventListener('click', () => {
+                if (currentSlide < totalSlides) goToSlide(currentSlide + 1);
+            });
+            
+            // Обработка клавиатуры
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+                    if (currentSlide > 1) goToSlide(currentSlide - 1);
+                } else if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
+                    if (currentSlide < totalSlides) goToSlide(currentSlide + 1);
+                }
             });
         }
 
         function setupNavigation() {
             const dots = document.querySelectorAll('.nav-dot');
             
-            // Добавляем обработчики для лучшей поддержки touch
             dots.forEach(dot => {
-                dot.addEventListener('touchstart', function(e) {
-                    this.style.transform = 'scale(1.1)';
-                });
-                
-                dot.addEventListener('touchend', function() {
-                    this.style.transform = '';
+                dot.addEventListener('click', function() {
+                    const slideNum = parseInt(this.dataset.slide);
+                    goToSlide(slideNum);
                 });
             });
         }
 
-        function setupScroll() {
-            const slidesContainer = document.getElementById('slidesContainer');
-            const slides = document.querySelectorAll('.slide');
+        function setupSlides() {
+            // Настройка перетаскивания для мобильных устройств
+            let startY = 0;
+            let isDragging = false;
             
-            // Отключаем нативный скролл колесиком мыши
-            slidesContainer.addEventListener('wheel', function(e) {
-                e.preventDefault();
+            document.addEventListener('touchstart', (e) => {
+                startY = e.touches[0].clientY;
+                isDragging = true;
+            }, { passive: true });
+            
+            document.addEventListener('touchmove', (e) => {
+                if (!isDragging || isAnimating) return;
                 
+                const currentY = e.touches[0].clientY;
+                const diff = startY - currentY;
+                
+                // Если свайп достаточно большой
+                if (Math.abs(diff) > 50) {
+                    if (diff > 0 && currentSlide < totalSlides) {
+                        // Свайп вверх
+                        goToSlide(currentSlide + 1);
+                        isDragging = false;
+                    } else if (diff < 0 && currentSlide > 1) {
+                        // Свайп вниз
+                        goToSlide(currentSlide - 1);
+                        isDragging = false;
+                    }
+                }
+            }, { passive: false });
+            
+            document.addEventListener('touchend', () => {
+                isDragging = false;
+            }, { passive: true });
+            
+            // Настройка колесика мыши
+            document.addEventListener('wheel', (e) => {
                 if (isAnimating) return;
                 
-                const delta = e.deltaY || e.detail || e.wheelDelta;
-                
-                if (delta > 0 && currentSlide < totalSlides) {
-                    // Скролл вниз
+                if (e.deltaY > 0 && currentSlide < totalSlides) {
                     goToSlide(currentSlide + 1);
-                } else if (delta < 0 && currentSlide > 1) {
-                    // Скролл вверх
+                } else if (e.deltaY < 0 && currentSlide > 1) {
                     goToSlide(currentSlide - 1);
                 }
             }, { passive: false });
-            
-            // Обработка touch событий для мобильных устройств
-            let touchStartY = 0;
-            let touchStartX = 0;
-            let isSwiping = false;
-            
-            slidesContainer.addEventListener('touchstart', function(e) {
-                touchStartY = e.touches[0].clientY;
-                touchStartX = e.touches[0].clientX;
-                isSwiping = true;
-            }, { passive: true });
-            
-            slidesContainer.addEventListener('touchmove', function(e) {
-                if (!isSwiping || isAnimating) return;
-                
-                const touchY = e.touches[0].clientY;
-                const touchX = e.touches[0].clientX;
-                const deltaY = touchStartY - touchY;
-                const deltaX = touchStartX - touchX;
-                
-                // Определяем, это вертикальный или горизонтальный свайп
-                if (Math.abs(deltaY) > Math.abs(deltaX)) {
-                    e.preventDefault(); // Предотвращаем скролл страницы только для вертикальных свайпов
-                    
-                    if (deltaY > 50 && currentSlide < totalSlides) {
-                        // Свайп вверх
-                        goToSlide(currentSlide + 1);
-                        isSwiping = false;
-                    } else if (deltaY < -50 && currentSlide > 1) {
-                        // Свайп вниз
-                        goToSlide(currentSlide - 1);
-                        isSwiping = false;
-                    }
-                }
-            }, { passive: false });
-            
-            slidesContainer.addEventListener('touchend', function() {
-                isSwiping = false;
-            }, { passive: true });
-            
-            // Обновляем прогресс бар при скролле
-            slidesContainer.addEventListener('scroll', updateProgressBar);
-            
-            // Инициализируем прогресс бар
-            updateProgressBar();
-            
-            // Настройка Intersection Observer для определения видимого слайда
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        const slideId = entry.target.id;
-                        const slideNum = parseInt(slideId.replace('slide', ''));
-                        
-                        if (slideNum !== currentSlide) {
-                            currentSlide = slideNum;
-                            updateActiveDot();
-                            animateSlideElements(currentSlide);
-                        }
-                    }
-                });
-            }, {
-                threshold: 0.5
-            });
-            
-            // Наблюдаем за всеми слайдами
-            slides.forEach(slide => {
-                observer.observe(slide);
-            });
-            
-            // Инициализация ScrollTrigger для анимаций
-            gsap.utils.toArray('.slide').forEach((slide, i) => {
-                gsap.from(slide, {
-                    scrollTrigger: {
-                        trigger: slide,
-                        start: "top top",
-                        end: "bottom top",
-                        onEnter: () => {
-                            if (!isAnimating) {
-                                currentSlide = i + 1;
-                                updateActiveDot();
-                                animateSlideElements(currentSlide);
-                            }
-                        },
-                        onEnterBack: () => {
-                            if (!isAnimating) {
-                                currentSlide = i + 1;
-                                updateActiveDot();
-                                animateSlideElements(currentSlide);
-                            }
-                        }
-                    }
-                });
-            });
         }
 
         function updateProgressBar() {
-            const slidesContainer = document.getElementById('slidesContainer');
-            const progress = (currentSlide - 1) / (totalSlides - 1) * 100;
-            
-            gsap.to('#progressBar', {
-                width: `${progress}%`,
-                duration: 0.3,
-                ease: "power2.out"
-            });
+            const progress = ((currentSlide - 1) / (totalSlides - 1)) * 100;
+            document.getElementById('progressBar').style.width = `${progress}%`;
         }
 
-        function updateActiveDot() {
+        function updateNavigation() {
+            // Обновляем точки навигации
             const dots = document.querySelectorAll('.nav-dot');
             dots.forEach(dot => {
                 const slideNum = parseInt(dot.dataset.slide);
                 dot.classList.toggle('active', slideNum === currentSlide);
             });
             
+            // Обновляем стрелки навигации
+            document.getElementById('prevSlide').disabled = currentSlide === 1;
+            document.getElementById('nextSlide').disabled = currentSlide === totalSlides;
+            
+            // Обновляем прогресс бар
             updateProgressBar();
         }
 
@@ -1447,144 +1351,31 @@
             isAnimating = true;
             currentSlide = slideNum;
             
-            const targetSlide = document.getElementById(`slide${slideNum}`);
+            // Перемещаем слайды
             const slidesContainer = document.getElementById('slidesContainer');
+            const offset = -(slideNum - 1) * 100;
+            slidesContainer.style.transform = `translateY(${offset}vh)`;
             
-            // Плавная прокрутка к слайду
-            gsap.to(slidesContainer, {
-                scrollTop: (slideNum - 1) * window.innerHeight,
-                duration: 0.8,
-                ease: "power2.inOut",
-                onComplete: () => {
-                    isAnimating = false;
-                    updateActiveDot();
-                    animateSlideElements(slideNum);
-                }
-            });
+            // Обновляем навигацию
+            updateNavigation();
             
-            // Обновляем активную точку сразу
-            updateActiveDot();
+            // Показываем анимации для нового слайда
+            setTimeout(() => {
+                showAnimations(slideNum);
+                isAnimating = false;
+            }, 300);
         }
 
-        function animateSlideElements(slideNum) {
+        function showAnimations(slideNum) {
             const slide = document.getElementById(`slide${slideNum}`);
-            if (!slide || slide.classList.contains('animated-done')) return;
             
-            slide.classList.add('slide-visible');
-            
-            // Анимация для заголовка и подзаголовка
-            const title = slide.querySelector('.slide-title');
-            const subtitle = slide.querySelector('.slide-subtitle');
-            
-            if (title && !title.classList.contains('animated')) {
-                gsap.fromTo(title,
-                    { opacity: 0, y: 30 },
-                    { opacity: 1, y: 0, duration: 0.8, delay: 0.2, ease: "back.out(1.7)" }
-                );
-                title.classList.add('animated');
-            }
-            
-            if (subtitle && !subtitle.classList.contains('animated')) {
-                gsap.fromTo(subtitle,
-                    { opacity: 0, y: 30 },
-                    { opacity: 1, y: 0, duration: 0.8, delay: 0.4, ease: "back.out(1.7)" }
-                );
-                subtitle.classList.add('animated');
-            }
-            
-            // Анимация для других элементов в зависимости от слайда
-            switch(slideNum) {
-                case 1:
-                    const startBtn = slide.querySelector('.start-btn');
-                    if (startBtn && !startBtn.classList.contains('animated')) {
-                        gsap.fromTo(startBtn,
-                            { opacity: 0, y: 30 },
-                            { opacity: 1, y: 0, duration: 0.8, delay: 0.6, ease: "back.out(1.7)" }
-                        );
-                        startBtn.classList.add('animated');
-                    }
-                    break;
-                    
-                case 2:
-                    const statCards = slide.querySelectorAll('.stat-card');
-                    statCards.forEach((card, index) => {
-                        if (!card.classList.contains('animated')) {
-                            gsap.fromTo(card,
-                                { opacity: 0, y: 50 },
-                                { opacity: 1, y: 0, duration: 0.8, delay: 0.3 + (index * 0.1), ease: "back.out(1.7)" }
-                            );
-                            card.classList.add('animated');
-                        }
-                    });
-                    break;
-                    
-                case 3:
-                    const chartContainer = slide.querySelector('.chart-container');
-                    if (chartContainer && !chartContainer.classList.contains('animated')) {
-                        gsap.fromTo(chartContainer,
-                            { opacity: 0, x: 100 },
-                            { opacity: 1, x: 0, duration: 0.8, delay: 0.3, ease: "back.out(1.7)" }
-                        );
-                        chartContainer.classList.add('animated');
-                    }
-                    break;
-                    
-                case 4:
-                    const chatItems = slide.querySelectorAll('.top-chat-item');
-                    chatItems.forEach((item, index) => {
-                        if (!item.classList.contains('animated')) {
-                            gsap.fromTo(item,
-                                { opacity: 0, x: -50 },
-                                { opacity: 1, x: 0, duration: 0.8, delay: 0.2 + (index * 0.1), ease: "back.out(1.7)" }
-                            );
-                            item.classList.add('animated');
-                        }
-                    });
-                    break;
-                    
-                case 5:
-                    const achievementCards = slide.querySelectorAll('.achievement-card');
-                    achievementCards.forEach((card, index) => {
-                        if (!card.classList.contains('animated')) {
-                            gsap.fromTo(card,
-                                { opacity: 0, scale: 0.8 },
-                                { opacity: 1, scale: 1, duration: 0.8, delay: 0.2 + (index * 0.15), ease: "back.out(1.7)" }
-                            );
-                            card.classList.add('animated');
-                        }
-                    });
-                    break;
-                    
-                case 6:
-                    const finalStats = slide.querySelectorAll('.final-stat');
-                    const shareButtons = slide.querySelectorAll('.share-btn');
-                    
-                    finalStats.forEach((stat, index) => {
-                        if (!stat.classList.contains('animated')) {
-                            gsap.fromTo(stat,
-                                { opacity: 0, y: 30 },
-                                { opacity: 1, y: 0, duration: 0.8, delay: 0.2 + (index * 0.1), ease: "back.out(1.7)" }
-                            );
-                            stat.classList.add('animated');
-                        }
-                    });
-                    
-                    shareButtons.forEach((button, index) => {
-                        if (!button.classList.contains('animated')) {
-                            gsap.fromTo(button,
-                                { opacity: 0, y: 30 },
-                                { opacity: 1, y: 0, duration: 0.8, delay: 0.5 + (index * 0.1), ease: "back.out(1.7)" }
-                            );
-                            button.classList.add('animated');
-                        }
-                    });
-                    break;
-            }
-            
-            // Помечаем слайд как анимированный
-            setTimeout(() => {
-                slide.classList.add('animated-done');
-            }, 1000);
+            // Показываем все анимированные элементы на слайде
+            const animatedElements = slide.querySelectorAll('.animate-in, .animate-left, .animate-right, .animate-scale');
+            animatedElements.forEach((element, index) => {
+                setTimeout(() => {
+                    element.classList.add('visible');
+                }, index * 100);
+            });
         }
 
         async function loadStatistics() {
@@ -1596,25 +1387,19 @@
             startBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Загружаем...';
             
             try {
-                userStats = await collectStatistics();
+                userStats = await collectRealStatistics();
                 displayStatistics();
                 
                 // Скрываем загрузку
-                gsap.to('#loadingOverlay', {
-                    opacity: 0,
-                    duration: 0.5,
-                    onComplete: () => {
-                        document.getElementById('loadingOverlay').style.display = 'none';
-                    }
-                });
+                document.getElementById('loadingOverlay').style.opacity = '0';
+                setTimeout(() => {
+                    document.getElementById('loadingOverlay').style.display = 'none';
+                }, 500);
                 
-                // Анимируем первый слайд
-                animateSlideElements(1);
-                
-                // Прокручиваем ко второму слайду через 1.5 секунды
+                // Прокручиваем ко второму слайду
                 setTimeout(() => {
                     goToSlide(2);
-                }, 1500);
+                }, 1000);
                 
             } catch (error) {
                 console.error('Ошибка загрузки статистики:', error);
@@ -1626,39 +1411,142 @@
             }
         }
 
-        async function collectStatistics() {
+        async function collectRealStatistics() {
             const stats = {
-                totalMessages: Math.floor(Math.random() * 5000) + 1000, // Для демо
-                totalChats: Math.floor(Math.random() * 20) + 5,
-                totalHours: Math.floor(Math.random() * 500) + 100,
-                totalReactions: Math.floor(Math.random() * 1000) + 200,
-                activeDays: Math.floor(Math.random() * 200) + 100,
-                monthlyData: Array.from({length: 12}, () => Math.floor(Math.random() * 200) + 50),
+                totalMessages: 0,
+                totalChats: 0,
+                totalHours: 0,
+                totalReactions: 0,
+                receivedReactions: 0,
+                sentReactions: 0,
+                activeDays: 0,
+                monthlyData: Array(12).fill(0),
                 topChats: [],
                 achievements: []
             };
             
-            // Для демо создаем тестовые чаты
-            const chatNames = ['Работа', 'Друзья', 'Семья', 'Хобби', 'Игры', 'Учеба', 'Проекты', 'Отдых'];
-            const chatTypes = ['private', 'group', 'channel'];
+            // Получаем все чаты пользователя
+            const userChatsRef = database.ref(`userChats/${currentUserId}`);
+            const userChatsSnapshot = await userChatsRef.once('value');
             
-            for (let i = 0; i < 5; i++) {
-                stats.topChats.push({
-                    id: `chat${i}`,
-                    name: chatNames[i] || `Чат ${i+1}`,
-                    type: chatTypes[Math.floor(Math.random() * chatTypes.length)],
-                    messageCount: Math.floor(Math.random() * 1000) + 200,
-                    avatar: null
-                });
+            if (!userChatsSnapshot.exists()) {
+                return stats;
             }
             
-            // Сортируем по количеству сообщений
+            const userChats = userChatsSnapshot.val();
+            const chatIds = Object.keys(userChats).filter(id => id !== 'L');
+            
+            stats.totalChats = chatIds.length;
+            
+            // Собираем данные по каждому чату
+            const activeDaysSet = new Set();
+            
+            for (const chatId of chatIds) {
+                try {
+                    const chatStats = await analyzeChat(chatId, activeDaysSet);
+                    
+                    stats.totalMessages += chatStats.messages;
+                    stats.totalReactions += chatStats.reactions;
+                    stats.monthlyData = stats.monthlyData.map((val, idx) => val + chatStats.monthlyData[idx]);
+                    
+                    if (chatStats.messages > 0) {
+                        stats.topChats.push({
+                            id: chatId,
+                            name: chatStats.name,
+                            type: chatStats.type,
+                            messageCount: chatStats.messages,
+                            avatar: chatStats.avatar
+                        });
+                    }
+                    
+                } catch (error) {
+                    console.error(`Ошибка анализа чата ${chatId}:`, error);
+                }
+            }
+            
+            // Рассчитываем дополнительные показатели
+            stats.activeDays = activeDaysSet.size;
+            stats.totalHours = Math.round(stats.totalMessages * 0.5 / 60); // 30 секунд на сообщение
+            
+            // Сортируем топ чатов
             stats.topChats.sort((a, b) => b.messageCount - a.messageCount);
             
             // Определяем достижения
             determineAchievements(stats);
             
             return stats;
+        }
+
+        async function analyzeChat(chatId, activeDaysSet) {
+            const result = {
+                name: 'Без названия',
+                type: 'private',
+                messages: 0,
+                reactions: 0,
+                monthlyData: Array(12).fill(0),
+                avatar: null
+            };
+            
+            try {
+                // Получаем данные чата
+                const chatRef = database.ref(`chats/${chatId}`);
+                const chatSnapshot = await chatRef.once('value');
+                
+                if (chatSnapshot.exists()) {
+                    const chatData = chatSnapshot.val();
+                    const decryptedData = decryptData(chatData.encryptedData);
+                    
+                    if (decryptedData) {
+                        result.name = decryptedData.name || result.name;
+                        result.type = decryptedData.type || result.type;
+                        result.avatar = decryptedData.avatar;
+                    }
+                }
+                
+                // Анализируем сообщения за 2025 год
+                const messagesRef = database.ref(`messages/${chatId}`);
+                const messagesSnapshot = await messagesRef.once('value');
+                
+                if (messagesSnapshot.exists()) {
+                    const messages = messagesSnapshot.val();
+                    
+                    for (const messageId in messages) {
+                        const messageData = messages[messageId];
+                        const decryptedMessage = decryptData(messageData.encryptedData) || messageData;
+                        
+                        if (!decryptedMessage || !decryptedMessage.timestamp) continue;
+                        
+                        const messageDate = new Date(decryptedMessage.timestamp);
+                        if (messageDate.getFullYear() !== 2025) continue;
+                        
+                        // Сообщения пользователя
+                        if (decryptedMessage.sender === currentUserId) {
+                            result.messages++;
+                            
+                            // Месячная статистика
+                            const month = messageDate.getMonth();
+                            result.monthlyData[month]++;
+                            
+                            // Активные дни
+                            const dateStr = messageDate.toDateString();
+                            activeDaysSet.add(dateStr);
+                        }
+                        
+                        // Реакции на сообщения пользователя
+                        if (decryptedMessage.sender === currentUserId && decryptedMessage.reactions) {
+                            for (const users of Object.values(decryptedMessage.reactions)) {
+                                const userList = Array.isArray(users) ? users : [];
+                                result.reactions += userList.length;
+                            }
+                        }
+                    }
+                }
+                
+            } catch (error) {
+                console.error(`Ошибка анализа чата ${chatId}:`, error);
+            }
+            
+            return result;
         }
 
         function determineAchievements(stats) {
@@ -1776,15 +1664,15 @@
             if (!userStats) return;
             
             // Основные показатели
-            document.getElementById('totalMessages').textContent = userStats.totalMessages.toLocaleString();
-            document.getElementById('totalChats').textContent = userStats.totalChats;
-            document.getElementById('totalHours').textContent = userStats.totalHours + ' ч';
-            document.getElementById('totalReactions').textContent = userStats.totalReactions;
+            animateNumber('totalMessages', userStats.totalMessages);
+            animateNumber('totalChats', userStats.totalChats);
+            animateNumber('totalHours', userStats.totalHours, true);
+            animateNumber('totalReactions', userStats.totalReactions);
             
             // Финальные показатели
-            document.getElementById('finalMessages').textContent = userStats.totalMessages.toLocaleString();
-            document.getElementById('finalChats').textContent = userStats.totalChats;
-            document.getElementById('finalDays').textContent = userStats.activeDays;
+            animateNumber('finalMessages', userStats.totalMessages);
+            animateNumber('finalChats', userStats.totalChats);
+            animateNumber('finalDays', userStats.activeDays);
             
             // График
             createMonthlyChart();
@@ -1794,9 +1682,22 @@
             
             // Достижения
             displayAchievements();
+        }
+
+        function animateNumber(elementId, finalValue, isHours = false) {
+            const element = document.getElementById(elementId);
+            const suffix = isHours ? ' ч' : '';
             
-            // Анимируем числа
-            animateNumbers();
+            gsap.to(element, {
+                textContent: finalValue,
+                duration: 2,
+                ease: "power2.out",
+                snap: { textContent: 1 },
+                onUpdate: function() {
+                    const value = Math.floor(this.targets()[0].textContent);
+                    element.textContent = value.toLocaleString() + suffix;
+                }
+            });
         }
 
         function createMonthlyChart() {
@@ -1834,12 +1735,13 @@
                             display: false
                         },
                         tooltip: {
-                            backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
                             titleColor: '#ffffff',
                             bodyColor: '#ffffff',
                             borderColor: '#ff7f50',
                             borderWidth: 1,
-                            cornerRadius: 8
+                            cornerRadius: 8,
+                            padding: 12
                         }
                     },
                     scales: {
@@ -1848,7 +1750,10 @@
                                 color: 'rgba(255, 255, 255, 0.1)'
                             },
                             ticks: {
-                                color: '#cbd5e1'
+                                color: '#cbd5e1',
+                                font: {
+                                    size: 12
+                                }
                             }
                         },
                         y: {
@@ -1858,7 +1763,10 @@
                             },
                             ticks: {
                                 color: '#cbd5e1',
-                                precision: 0
+                                precision: 0,
+                                font: {
+                                    size: 12
+                                }
                             }
                         }
                     }
@@ -1874,9 +1782,10 @@
             
             if (topChats.length === 0) {
                 container.innerHTML = `
-                    <div style="text-align: center; padding: 2rem; color: var(--text-secondary);">
-                        <i class="fas fa-comments" style="font-size: 2rem; margin-bottom: 1rem; opacity: 0.5;"></i>
-                        <div>Нет активных чатов за 2025 год</div>
+                    <div style="text-align: center; padding: 3rem; color: var(--text-secondary);">
+                        <i class="fas fa-comments" style="font-size: 3rem; margin-bottom: 1.5rem; opacity: 0.5;"></i>
+                        <div style="font-size: 1.2rem; margin-bottom: 0.5rem;">Нет активных чатов за 2025 год</div>
+                        <div style="font-size: 0.9rem; opacity: 0.7;">Начните общаться, чтобы увидеть статистику!</div>
                     </div>
                 `;
                 return;
@@ -1884,10 +1793,11 @@
             
             topChats.forEach((chat, index) => {
                 const rankClass = index === 0 ? 'rank-1' : index === 1 ? 'rank-2' : index === 2 ? 'rank-3' : 'rank-other';
+                const delay = 0.3 + (index * 0.1);
                 
                 const chatElement = document.createElement('div');
-                chatElement.className = 'top-chat-item';
-                chatElement.dataset.delay = index * 0.1;
+                chatElement.className = 'top-chat-item animate-left';
+                chatElement.style.transitionDelay = `${delay}s`;
                 
                 chatElement.innerHTML = `
                     <div class="chat-rank ${rankClass}">${index + 1}</div>
@@ -1897,24 +1807,28 @@
                     <div class="chat-info">
                         <div class="chat-name">${chat.name}</div>
                         <div class="chat-stats">
-                            <span>${chat.messageCount} сообщений</span>
+                            <span><i class="fas fa-comment"></i> ${chat.messageCount} сообщений</span>
                             <span>•</span>
-                            <span>${getChatTypeName(chat.type)}</span>
+                            <span><i class="fas fa-tag"></i> ${getChatTypeName(chat.type)}</span>
                         </div>
                     </div>
                 `;
                 
                 chatElement.addEventListener('click', () => {
-                    if (chat.id.startsWith('chat')) {
-                        // Для демо просто показываем сообщение
-                        alert(`Чат: ${chat.name}\nСообщений: ${chat.messageCount}`);
-                    } else {
-                        window.open(`https://hamburgerchat.github.io/chat.html?id=${chat.id}`, '_blank');
-                    }
+                    window.open(`https://hamburgerchat.github.io/chat.html?id=${chat.id}`, '_blank');
                 });
                 
                 container.appendChild(chatElement);
             });
+            
+            // Показываем анимации
+            setTimeout(() => {
+                container.querySelectorAll('.animate-left').forEach((el, i) => {
+                    setTimeout(() => {
+                        el.classList.add('visible');
+                    }, i * 100);
+                });
+            }, 100);
         }
 
         function getChatTypeName(type) {
@@ -1932,9 +1846,11 @@
             container.innerHTML = '';
             
             userStats.achievements.forEach((achievement, index) => {
+                const delay = 0.3 + (index * 0.15);
+                
                 const achievementElement = document.createElement('div');
-                achievementElement.className = 'achievement-card';
-                achievementElement.dataset.delay = index * 0.15;
+                achievementElement.className = 'achievement-card animate-scale';
+                achievementElement.style.transitionDelay = `${delay}s`;
                 
                 achievementElement.innerHTML = `
                     <div class="achievement-icon">
@@ -1942,73 +1858,42 @@
                     </div>
                     <div class="achievement-name">${achievement.name}</div>
                     <div class="achievement-desc">${achievement.description}</div>
-                    <div class="progress-bar">
-                        <div class="progress-fill" style="width: ${achievement.progress}%"></div>
+                    <div class="progress-container">
+                        <div class="progress-label">
+                            <span>Прогресс</span>
+                            <span>${Math.round(achievement.progress)}%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${achievement.progress}%"></div>
+                        </div>
                     </div>
                     ${achievement.unlocked ? 
-                        '<div style="margin-top: 1rem; color: #ffcc70; font-size: 0.9rem;"><i class="fas fa-check"></i> Получено</div>' : 
-                        '<div style="margin-top: 1rem; color: #94a3b8; font-size: 0.9rem;"><i class="fas fa-lock"></i> В процессе</div>'
+                        '<div style="margin-top: 1rem; color: #ffcc70; font-size: 0.9rem; display: flex; align-items: center; gap: 8px;"><i class="fas fa-check-circle"></i> Получено</div>' : 
+                        '<div style="margin-top: 1rem; color: #94a3b8; font-size: 0.9rem; display: flex; align-items: center; gap: 8px;"><i class="fas fa-lock"></i> В процессе</div>'
                     }
                 `;
                 
-                // Анимация прогресс-бара
-                setTimeout(() => {
-                    const progressFill = achievementElement.querySelector('.progress-fill');
-                    gsap.from(progressFill, {
-                        width: 0,
-                        duration: 1.5,
-                        delay: 0.5,
-                        ease: "power2.out"
-                    });
-                }, index * 200);
-                
                 container.appendChild(achievementElement);
             });
-        }
-
-        function animateNumbers() {
-            // Анимация чисел на втором слайде
-            const statElements = [
-                { element: document.getElementById('totalMessages'), value: userStats.totalMessages },
-                { element: document.getElementById('totalChats'), value: userStats.totalChats },
-                { element: document.getElementById('totalHours'), value: userStats.totalHours },
-                { element: document.getElementById('totalReactions'), value: userStats.totalReactions }
-            ];
             
-            statElements.forEach((stat, index) => {
-                gsap.from(stat.element, {
-                    textContent: 0,
-                    duration: 2,
-                    delay: 0.5 + (index * 0.2),
-                    ease: "power2.out",
-                    snap: { textContent: 1 },
-                    onUpdate: function() {
-                        const value = Math.floor(this.targets()[0].textContent);
-                        stat.element.textContent = value.toLocaleString() + (stat.element.id === 'totalHours' ? ' ч' : '');
-                    }
+            // Показываем анимации и анимируем прогресс-бары
+            setTimeout(() => {
+                container.querySelectorAll('.animate-scale').forEach((el, i) => {
+                    setTimeout(() => {
+                        el.classList.add('visible');
+                        
+                        // Анимация прогресс-бара
+                        const progressFill = el.querySelector('.progress-fill');
+                        const progressWidth = progressFill.style.width;
+                        progressFill.style.width = '0%';
+                        
+                        setTimeout(() => {
+                            progressFill.style.transition = 'width 1.5s ease-out';
+                            progressFill.style.width = progressWidth;
+                        }, 300);
+                    }, i * 150);
                 });
-            });
-            
-            // Анимация чисел на финальном слайде
-            const finalElements = [
-                { element: document.getElementById('finalMessages'), value: userStats.totalMessages },
-                { element: document.getElementById('finalChats'), value: userStats.totalChats },
-                { element: document.getElementById('finalDays'), value: userStats.activeDays }
-            ];
-            
-            finalElements.forEach((stat, index) => {
-                gsap.from(stat.element, {
-                    textContent: 0,
-                    duration: 2,
-                    delay: 0.8 + (index * 0.3),
-                    ease: "power2.out",
-                    snap: { textContent: 1 },
-                    onUpdate: function() {
-                        const value = Math.floor(this.targets()[0].textContent);
-                        stat.element.textContent = value.toLocaleString();
-                    }
-                });
-            });
+            }, 100);
         }
 
         function shareToTelegram() {
@@ -2043,68 +1928,12 @@
 
         // Инициализация анимаций при загрузке
         setTimeout(() => {
-            // Анимация бургеров
-            gsap.to('.burger-1', {
-                rotation: 360,
-                duration: 40,
-                repeat: -1,
-                ease: "none"
-            });
-
-            gsap.to('.burger-2', {
-                rotation: -360,
-                duration: 50,
-                repeat: -1,
-                ease: "none"
-            });
-
-            // Анимация появления первого слайда
-            gsap.from('.slide-title', {
-                opacity: 0,
-                y: 50,
-                duration: 1,
-                delay: 0.5,
-                ease: "power3.out"
-            });
-
-            gsap.from('.slide-subtitle', {
-                opacity: 0,
-                y: 30,
-                duration: 1,
-                delay: 0.7,
-                ease: "power3.out"
-            });
-
-            gsap.from('.start-btn', {
-                opacity: 0,
-                y: 30,
-                duration: 1,
-                delay: 0.9,
-                ease: "power3.out"
-            });
-
-            gsap.from('.scroll-hint', {
-                opacity: 0,
-                duration: 1,
-                delay: 1.5,
-                ease: "power2.inOut"
+            document.querySelectorAll('.animate-in').forEach((el, i) => {
+                setTimeout(() => {
+                    el.classList.add('visible');
+                }, i * 100);
             });
         }, 500);
-
-        // Обработка изменения размера окна
-        let resizeTimeout;
-        window.addEventListener('resize', () => {
-            clearTimeout(resizeTimeout);
-            resizeTimeout = setTimeout(() => {
-                // Переходим на текущий слайд после изменения размера
-                goToSlide(currentSlide);
-            }, 250);
-        });
-
-        // Предотвращение масштабирования на мобильных устройствах
-        document.addEventListener('gesturestart', function(e) {
-            e.preventDefault();
-        });
     </script>
 </body>
 </html>
