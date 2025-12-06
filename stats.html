@@ -3,48 +3,37 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Hamburger — Итоги года</title>
+    <title>Hamburger — Итоги 2025</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/gsap@3.12.0/dist/gsap.min.js"></script>
+    <script src="https://unpkg.com/gsap@3.12.0/dist/ScrollTrigger.min.js"></script>
     <style>
         :root {
-            --bg-primary: #ffffff;
-            --bg-secondary: #f8f9fa;
-            --bg-tertiary: #f1f3f4;
-            --text-primary: #1f2937;
-            --text-secondary: #6b7280;
-            --text-tertiary: #9ca3af;
-            --border-color: #e5e7eb;
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-tertiary: #334155;
+            --text-primary: #f1f5f9;
+            --text-secondary: #cbd5e1;
+            --text-tertiary: #94a3b8;
+            --border-color: #334155;
             --accent-color: #ff7f50;
             --accent-gradient: linear-gradient(135deg, #ff7f50, #ffcc70);
-            --shadow: 0 1px 3px rgba(0,0,0,0.1);
-            --card-bg: #ffffff;
-            --hover-bg: #f3f4f6;
+            --card-bg: #1e293b;
+            --hover-bg: #334155;
             --danger-color: #ef4444;
             --success-color: #10b981;
-            --bot-color: #10b981;
+            --bot-color: #34d399;
             --info-color: #3b82f6;
             --warning-color: #f59e0b;
             --purple-color: #8b5cf6;
             --pink-color: #ec4899;
-        }
-
-        [data-theme="dark"] {
-            --bg-primary: #111827;
-            --bg-secondary: #1f2937;
-            --bg-tertiary: #374151;
-            --text-primary: #f9fafb;
-            --text-secondary: #d1d5db;
-            --text-tertiary: #9ca3af;
-            --border-color: #374151;
-            --card-bg: #1f2937;
-            --hover-bg: #374151;
-            --shadow: 0 1px 3px rgba(0,0,0,0.3);
-            --bot-color: #34d399;
+            --slide-width: 100vw;
+            --slide-height: 100vh;
         }
 
         * { 
@@ -54,495 +43,295 @@
             font-family: 'Inter', sans-serif; 
         }
         
+        html {
+            scroll-snap-type: y mandatory;
+            scroll-behavior: smooth;
+            overflow-y: scroll;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+        
+        html::-webkit-scrollbar {
+            display: none;
+        }
+        
         body {
             background: var(--bg-primary);
             color: var(--text-primary);
             min-height: 100vh;
-            display: flex;
-            flex-direction: column;
             overflow-x: hidden;
             transition: all 0.3s ease;
         }
         
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 1rem;
-            width: 100%;
-        }
-        
-        .header {
-            background: var(--bg-primary);
-            padding: 1rem 0;
+        .slide {
+            height: 100vh;
+            width: 100vw;
+            scroll-snap-align: start;
             display: flex;
-            align-items: center;
-            justify-content: space-between;
-            border-bottom: 1px solid var(--border-color);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-        
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        
-        .logo-icon {
-            width: 32px;
-            height: 32px;
-            background: var(--accent-gradient);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
+            flex-direction: column;
             justify-content: center;
-        }
-        
-        .logo-icon i {
-            color: white;
-            font-size: 0.9rem;
-        }
-        
-        .logo-text {
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: var(--text-primary);
-        }
-        
-        .header-actions {
-            display: flex;
             align-items: center;
-            gap: 0.5rem;
-        }
-        
-        .back-button {
-            padding: 0.6rem 1.2rem;
-            background: var(--bg-secondary);
-            color: var(--text-primary);
-            border: 1px solid var(--border-color);
-            border-radius: 0.7rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-size: 0.9rem;
-        }
-        
-        .back-button:hover {
-            background: var(--hover-bg);
-            transform: translateX(-2px);
-        }
-        
-        .theme-toggle {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            border: none;
-            background: transparent;
-            color: var(--text-secondary);
-            font-size: 1rem;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s ease;
-        }
-        
-        .theme-toggle:hover {
-            background: var(--hover-bg);
-        }
-        
-        .hero-section {
-            padding: 3rem 0;
-            text-align: center;
-            background: linear-gradient(135deg, rgba(255, 127, 80, 0.1) 0%, rgba(255, 204, 112, 0.1) 100%);
-            border-radius: 1rem;
-            margin: 1rem 0 2rem;
+            padding: 2rem;
             position: relative;
             overflow: hidden;
         }
         
-        .hero-content {
+        .slide-content {
+            max-width: 1200px;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
             position: relative;
             z-index: 2;
         }
         
-        .hero-title {
-            font-size: 2.5rem;
+        /* Навигация */
+        .nav-dots {
+            position: fixed;
+            right: 2rem;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            z-index: 1000;
+        }
+        
+        .nav-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--text-tertiary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        
+        .nav-dot.active {
+            background: var(--accent-color);
+            transform: scale(1.3);
+            box-shadow: 0 0 15px rgba(255, 127, 80, 0.5);
+        }
+        
+        .nav-dot:hover:not(.active) {
+            background: var(--text-secondary);
+            transform: scale(1.1);
+        }
+        
+        /* Заголовок слайда */
+        .slide-title {
+            font-size: 3.5rem;
             font-weight: 800;
-            margin-bottom: 1rem;
+            margin-bottom: 1.5rem;
+            line-height: 1.1;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        
+        .slide-subtitle {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            max-width: 600px;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        
+        /* Слайд 1: Приветствие */
+        #slide1 {
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+        }
+        
+        .hero-graphic {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            opacity: 0.1;
+        }
+        
+        .burger-icon {
+            position: absolute;
+            font-size: 15rem;
+            color: var(--accent-color);
+            opacity: 0.1;
+            z-index: 1;
+        }
+        
+        .burger-1 {
+            top: 10%;
+            right: 10%;
+            animation: float 20s infinite ease-in-out;
+        }
+        
+        .burger-2 {
+            bottom: 10%;
+            left: 10%;
+            animation: float 25s infinite ease-in-out reverse;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(5deg); }
+        }
+        
+        .start-btn {
+            padding: 1.2rem 2.5rem;
             background: var(--accent-gradient);
+            color: white;
+            border: none;
+            border-radius: 1rem;
+            font-weight: 600;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            margin-top: 2rem;
+            opacity: 0;
+            transform: translateY(30px);
+            box-shadow: 0 8px 25px rgba(255, 127, 80, 0.3);
+        }
+        
+        .start-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(255, 127, 80, 0.4);
+        }
+        
+        /* Слайд 2: Основная статистика */
+        #slide2 {
+            background: linear-gradient(135deg, #1e293b 0%, #312e81 100%);
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+        
+        .stat-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1.5rem;
+            padding: 2rem;
+            transition: all 0.3s ease;
+            opacity: 0;
+            transform: translateY(50px);
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-10px);
+            border-color: rgba(255, 127, 80, 0.3);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        }
+        
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+            margin-bottom: 1.5rem;
+            background: var(--accent-gradient);
+        }
+        
+        .stat-value {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #ff7f50, #ffcc70);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
         
-        .hero-subtitle {
-            font-size: 1.1rem;
-            color: var(--text-secondary);
-            max-width: 600px;
-            margin: 0 auto 1.5rem;
-            line-height: 1.6;
-        }
-        
-        .year-selector {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 1rem;
-            margin-bottom: 1rem;
-        }
-        
-        .year-btn {
-            padding: 0.5rem 1rem;
-            background: transparent;
-            border: 1px solid var(--border-color);
-            border-radius: 0.7rem;
-            color: var(--text-secondary);
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-        
-        .year-btn.active {
-            background: var(--accent-color);
-            color: white;
-            border-color: var(--accent-color);
-        }
-        
-        .year-btn:hover:not(.active) {
-            background: var(--hover-bg);
-        }
-        
-        .generate-btn {
-            padding: 0.8rem 2rem;
-            background: var(--accent-gradient);
-            color: white;
-            border: none;
-            border-radius: 0.8rem;
-            font-weight: 600;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            margin: 0 auto;
-        }
-        
-        .generate-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(255, 127, 80, 0.3);
-        }
-        
-        .generate-btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-        }
-        
-        .loading-container {
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 3rem;
-            color: var(--text-secondary);
-        }
-        
-        .loading-spinner {
-            width: 48px;
-            height: 48px;
-            border: 4px solid var(--border-color);
-            border-top: 4px solid var(--accent-color);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-bottom: 1rem;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-        }
-        
-        .stat-card {
-            background: var(--card-bg);
-            border-radius: 1rem;
-            padding: 1.5rem;
-            box-shadow: var(--shadow);
-            border: 1px solid var(--border-color);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        
-        .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-        }
-        
-        .stat-card.large {
-            grid-column: span 2;
-        }
-        
-        .stat-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 1.2rem;
-        }
-        
-        .stat-title {
-            font-weight: 600;
-            font-size: 1rem;
-            color: var(--text-primary);
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        
-        .stat-icon {
-            width: 36px;
-            height: 36px;
-            border-radius: 0.7rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1rem;
-            color: white;
-        }
-        
-        .icon-messages {
-            background: linear-gradient(135deg, var(--info-color), #60a5fa);
-        }
-        
-        .icon-chats {
-            background: linear-gradient(135deg, var(--success-color), #34d399);
-        }
-        
-        .icon-time {
-            background: linear-gradient(135deg, var(--warning-color), #fbbf24);
-        }
-        
-        .icon-reactions {
-            background: linear-gradient(135deg, var(--pink-color), #f472b6);
-        }
-        
-        .icon-popular {
-            background: linear-gradient(135deg, var(--purple-color), #a78bfa);
-        }
-        
-        .stat-value {
-            font-size: 2.2rem;
-            font-weight: 800;
-            margin-bottom: 0.3rem;
-            color: var(--text-primary);
-        }
-        
-        .stat-change {
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-            display: flex;
-            align-items: center;
-            gap: 0.3rem;
-        }
-        
-        .stat-change.positive {
-            color: var(--success-color);
-        }
-        
-        .stat-change.negative {
-            color: var(--danger-color);
-        }
-        
-        .stat-details {
-            margin-top: 1rem;
-            padding-top: 1rem;
-            border-top: 1px solid var(--border-color);
-        }
-        
-        .detail-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 0.5rem 0;
+        .stat-label {
             font-size: 0.9rem;
-        }
-        
-        .detail-label {
             color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
         
-        .detail-value {
-            font-weight: 500;
-            color: var(--text-primary);
+        /* Слайд 3: График активности */
+        #slide3 {
+            background: linear-gradient(135deg, #1e293b 0%, #1e3a8a 100%);
         }
         
         .chart-container {
-            height: 200px;
-            margin-top: 1rem;
-            position: relative;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1.5rem;
+            padding: 2rem;
+            margin-top: 2rem;
+            height: 400px;
+            opacity: 0;
+            transform: translateX(100px);
         }
         
-        .achievements-section {
-            margin-bottom: 2rem;
+        /* Слайд 4: Топ чатов */
+        #slide4 {
+            background: linear-gradient(135deg, #1e293b 0%, #4c1d95 100%);
         }
         
-        .section-title {
-            font-size: 1.5rem;
-            font-weight: 700;
-            margin-bottom: 1.5rem;
-            color: var(--text-primary);
+        .top-chats-container {
             display: flex;
-            align-items: center;
-            gap: 0.7rem;
+            flex-direction: column;
+            gap: 1rem;
+            margin-top: 2rem;
+            max-width: 800px;
         }
         
-        .achievements-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1.2rem;
-        }
-        
-        .achievement-card {
-            background: var(--card-bg);
+        .top-chat-item {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 1rem;
             padding: 1.5rem;
             display: flex;
             align-items: center;
-            gap: 1rem;
-            border: 1px solid var(--border-color);
+            gap: 1.5rem;
             transition: all 0.3s ease;
-        }
-        
-        .achievement-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 20px rgba(0,0,0,0.08);
-        }
-        
-        .achievement-card.locked {
-            opacity: 0.6;
-            filter: grayscale(0.3);
-        }
-        
-        .achievement-icon {
-            width: 60px;
-            height: 60px;
-            border-radius: 0.9rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.8rem;
-            color: white;
-            flex-shrink: 0;
-        }
-        
-        .achievement-badge {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.8rem;
-            color: white;
-            flex-shrink: 0;
-            background: linear-gradient(135deg, #f59e0b, #fbbf24);
-        }
-        
-        .achievement-info {
-            flex: 1;
-        }
-        
-        .achievement-name {
-            font-weight: 600;
-            font-size: 1rem;
-            margin-bottom: 0.3rem;
-            color: var(--text-primary);
-        }
-        
-        .achievement-desc {
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-            line-height: 1.4;
-        }
-        
-        .achievement-progress {
-            height: 6px;
-            background: var(--bg-secondary);
-            border-radius: 3px;
-            margin-top: 0.8rem;
-            overflow: hidden;
-        }
-        
-        .progress-bar {
-            height: 100%;
-            background: var(--accent-gradient);
-            border-radius: 3px;
-            transition: width 0.5s ease;
-        }
-        
-        .top-chats-section {
-            margin-bottom: 2rem;
-        }
-        
-        .top-chats-list {
-            display: flex;
-            flex-direction: column;
-            gap: 0.8rem;
-        }
-        
-        .top-chat-item {
-            display: flex;
-            align-items: center;
-            padding: 1rem;
-            background: var(--card-bg);
-            border-radius: 0.9rem;
-            border: 1px solid var(--border-color);
-            transition: all 0.2s ease;
+            opacity: 0;
+            transform: translateX(-50px);
         }
         
         .top-chat-item:hover {
-            background: var(--hover-bg);
-            transform: translateX(5px);
+            transform: translateX(10px);
+            border-color: rgba(255, 127, 80, 0.3);
         }
         
         .chat-rank {
-            width: 36px;
-            height: 36px;
+            width: 50px;
+            height: 50px;
             border-radius: 50%;
-            background: var(--accent-gradient);
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
             font-weight: 700;
-            font-size: 0.9rem;
-            margin-right: 1rem;
+            font-size: 1.2rem;
+            color: white;
             flex-shrink: 0;
         }
         
-        .chat-rank.gold {
-            background: linear-gradient(135deg, #f59e0b, #fbbf24);
-        }
-        
-        .chat-rank.silver {
-            background: linear-gradient(135deg, #94a3b8, #cbd5e1);
-        }
-        
-        .chat-rank.bronze {
-            background: linear-gradient(135deg, #92400e, #b45309);
-        }
+        .rank-1 { background: linear-gradient(135deg, #f59e0b, #fbbf24); }
+        .rank-2 { background: linear-gradient(135deg, #94a3b8, #cbd5e1); }
+        .rank-3 { background: linear-gradient(135deg, #92400e, #b45309); }
+        .rank-other { background: linear-gradient(135deg, var(--purple-color), #a78bfa); }
         
         .chat-avatar {
-            width: 44px;
-            height: 44px;
+            width: 50px;
+            height: 50px;
             border-radius: 50%;
             background: var(--accent-gradient);
             display: flex;
@@ -550,7 +339,6 @@
             justify-content: center;
             font-weight: 600;
             color: white;
-            margin-right: 0.8rem;
             flex-shrink: 0;
             background-size: cover;
             background-position: center;
@@ -562,56 +350,145 @@
         
         .chat-name {
             font-weight: 600;
-            font-size: 0.95rem;
-            margin-bottom: 0.2rem;
+            font-size: 1.1rem;
+            margin-bottom: 0.3rem;
         }
         
         .chat-stats {
-            font-size: 0.8rem;
-            color: var(--text-secondary);
             display: flex;
-            gap: 0.8rem;
+            gap: 1.5rem;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
         }
         
-        .chat-stat {
+        /* Слайд 5: Достижения */
+        #slide5 {
+            background: linear-gradient(135deg, #1e293b 0%, #0c4a6e 100%);
+        }
+        
+        .achievements-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+        
+        .achievement-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1.5rem;
+            padding: 1.8rem;
+            transition: all 0.3s ease;
+            opacity: 0;
+            transform: scale(0.8);
+        }
+        
+        .achievement-card:hover {
+            transform: scale(1.05);
+            border-color: rgba(255, 127, 80, 0.3);
+        }
+        
+        .achievement-icon {
+            width: 70px;
+            height: 70px;
+            border-radius: 1rem;
             display: flex;
             align-items: center;
-            gap: 0.3rem;
+            justify-content: center;
+            font-size: 1.8rem;
+            color: white;
+            margin-bottom: 1.2rem;
+            background: var(--accent-gradient);
         }
         
-        .share-section {
-            text-align: center;
-            padding: 2rem;
-            background: var(--bg-secondary);
-            border-radius: 1rem;
-            margin: 2rem 0;
-        }
-        
-        .share-title {
-            font-size: 1.3rem;
+        .achievement-name {
             font-weight: 600;
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .achievement-desc {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
             margin-bottom: 1rem;
-            color: var(--text-primary);
+            line-height: 1.4;
+        }
+        
+        .progress-bar {
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 1rem;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: var(--accent-gradient);
+            border-radius: 4px;
+            transition: width 1.5s ease-out;
+        }
+        
+        /* Слайд 6: Финальный слайд */
+        #slide6 {
+            background: linear-gradient(135deg, #1e293b 0%, #064e3b 100%);
+            text-align: center;
+        }
+        
+        .final-stats {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            flex-wrap: wrap;
+            margin: 3rem 0;
+        }
+        
+        .final-stat {
+            text-align: center;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        
+        .final-value {
+            font-size: 4rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #ff7f50, #ffcc70);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1;
+        }
+        
+        .final-label {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            margin-top: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
         
         .share-buttons {
             display: flex;
-            justify-content: center;
             gap: 1rem;
+            justify-content: center;
+            margin-top: 2rem;
             flex-wrap: wrap;
         }
         
         .share-btn {
-            padding: 0.8rem 1.5rem;
-            border-radius: 0.8rem;
+            padding: 1rem 2rem;
+            border-radius: 1rem;
             border: none;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: all 0.3s ease;
             display: flex;
             align-items: center;
-            gap: 0.5rem;
-            font-size: 0.9rem;
+            gap: 0.8rem;
+            font-size: 1rem;
+            opacity: 0;
+            transform: translateY(30px);
         }
         
         .share-btn.telegram {
@@ -624,83 +501,145 @@
             color: white;
         }
         
-        .share-btn.copy {
-            background: var(--bg-primary);
+        .share-btn.restart {
+            background: rgba(255, 255, 255, 0.1);
             color: var(--text-primary);
-            border: 1px solid var(--border-color);
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
         
         .share-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
         }
         
-        .footer {
-            text-align: center;
-            padding: 2rem 0;
+        /* Анимации появления */
+        .animated {
+            opacity: 0;
+        }
+        
+        .slide-visible .animated {
+            opacity: 1;
+        }
+        
+        /* Индикатор прокрутки */
+        .scroll-hint {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
             color: var(--text-secondary);
             font-size: 0.9rem;
-            border-top: 1px solid var(--border-color);
-            margin-top: 2rem;
-        }
-        
-        .no-data {
-            text-align: center;
-            padding: 3rem;
-            color: var(--text-secondary);
-            display: none;
-        }
-        
-        .no-data-icon {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-            opacity: 0.5;
-        }
-        
-        .stats-section {
-            display: none;
-        }
-        
-        .stats-visible {
-            display: block;
-        }
-        
-        .confetti {
-            position: fixed;
-            width: 15px;
-            height: 15px;
-            background-color: var(--accent-color);
-            opacity: 0;
-            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
             z-index: 1000;
+            animation: bounce 2s infinite;
         }
         
-        @keyframes confetti-fall {
-            0% {
-                transform: translateY(-100px) rotate(0deg);
-                opacity: 1;
-            }
-            100% {
-                transform: translateY(100vh) rotate(720deg);
-                opacity: 0;
-            }
+        @keyframes bounce {
+            0%, 100% { transform: translateX(-50%) translateY(0); }
+            50% { transform: translateX(-50%) translateY(-10px); }
         }
         
+        /* Загрузка */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg-primary);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            transition: opacity 0.5s ease;
+        }
+        
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-top: 4px solid var(--accent-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 1.5rem;
+        }
+        
+        /* Адаптация для телефонов */
         @media (max-width: 768px) {
-            .hero-title {
-                font-size: 2rem;
+            .slide {
+                padding: 1rem;
+                height: 100vh;
+                scroll-snap-align: start;
+            }
+            
+            .slide-title {
+                font-size: 2.2rem;
+                text-align: center;
+            }
+            
+            .slide-subtitle {
+                font-size: 1rem;
+                text-align: center;
+            }
+            
+            .nav-dots {
+                right: 1rem;
+                gap: 0.7rem;
+            }
+            
+            .nav-dot {
+                width: 10px;
+                height: 10px;
             }
             
             .stats-grid {
                 grid-template-columns: 1fr;
+                gap: 1rem;
             }
             
-            .stat-card.large {
-                grid-column: span 1;
+            .stat-card {
+                padding: 1.5rem;
+            }
+            
+            .stat-value {
+                font-size: 2.5rem;
+            }
+            
+            .chart-container {
+                height: 300px;
+                padding: 1rem;
+            }
+            
+            .top-chat-item {
+                padding: 1rem;
+                gap: 1rem;
+            }
+            
+            .chat-rank {
+                width: 40px;
+                height: 40px;
+                font-size: 1rem;
+            }
+            
+            .chat-avatar {
+                width: 40px;
+                height: 40px;
             }
             
             .achievements-grid {
                 grid-template-columns: 1fr;
+            }
+            
+            .final-stats {
+                gap: 1.5rem;
+            }
+            
+            .final-value {
+                font-size: 3rem;
             }
             
             .share-buttons {
@@ -714,258 +653,251 @@
                 justify-content: center;
             }
             
-            .container {
-                padding: 0.8rem;
+            .burger-icon {
+                font-size: 8rem;
+            }
+            
+            .scroll-hint {
+                font-size: 0.8rem;
+                bottom: 1rem;
             }
         }
         
         @media (max-width: 480px) {
-            .hero-title {
-                font-size: 1.7rem;
-            }
-            
-            .stat-value {
+            .slide-title {
                 font-size: 1.8rem;
             }
             
-            .year-selector {
-                flex-wrap: wrap;
+            .stat-value {
+                font-size: 2rem;
+            }
+            
+            .stat-icon {
+                width: 50px;
+                height: 50px;
+                font-size: 1.2rem;
+            }
+            
+            .chart-container {
+                height: 250px;
+            }
+            
+            .chat-stats {
+                flex-direction: column;
+                gap: 0.3rem;
+            }
+            
+            .final-value {
+                font-size: 2.5rem;
+            }
+            
+            .burger-icon {
+                font-size: 6rem;
+            }
+        }
+        
+        /* Анимации для появления элементов */
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        @keyframes scaleIn {
+            from {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
             }
         }
     </style>
 </head>
 <body>
-    <div class="header">
-        <div class="container">
-            <div class="logo">
-                <div class="logo-icon">
-                    <i class="fas fa-hamburger"></i>
-                </div>
-                <div class="logo-text">Hamburger — Итоги года</div>
-            </div>
-            <div class="header-actions">
-                <button class="back-button" id="backButton">
-                    <i class="fas fa-arrow-left"></i>
-                    На главную
-                </button>
-                <button class="theme-toggle" id="themeToggle">
-                    <i class="fas fa-moon"></i>
-                </button>
-            </div>
-        </div>
+    <!-- Загрузка -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+        <div>Загружаем вашу статистику 2025...</div>
     </div>
     
-    <div class="container">
-        <div class="hero-section">
-            <div class="hero-content">
-                <h1 class="hero-title">Ваша годовая статистика</h1>
-                <p class="hero-subtitle">Узнайте, как много вы общались, какие чаты были самыми активными и какие достижения получили за этот год</p>
-                
-                <div class="year-selector">
-                    <button class="year-btn" data-year="2023">2023</button>
-                    <button class="year-btn active" data-year="2024">2024</button>
-                    <button class="year-btn" data-year="2025">2025</button>
-                </div>
-                
-                <button class="generate-btn" id="generateBtn">
-                    <i class="fas fa-chart-bar"></i>
-                    Сгенерировать статистику
-                </button>
-            </div>
+    <!-- Слайд 1: Приветствие -->
+    <section class="slide" id="slide1">
+        <div class="hero-graphic"></div>
+        <div class="burger-icon burger-1">🍔</div>
+        <div class="burger-icon burger-2">🍔</div>
+        
+        <div class="slide-content">
+            <h1 class="slide-title animated">Ваш 2025 год в <span style="color: #ff7f50">Hamburger</span></h1>
+            <p class="slide-subtitle animated">
+                Откройте удивительную статистику вашего общения за год. 
+                Узнайте, сколько сообщений вы отправили, какие чаты были самыми активными 
+                и какие достижения получили.
+            </p>
+            <button class="start-btn animated" id="startBtn">
+                <i class="fas fa-rocket"></i>
+                Показать мою статистику
+            </button>
         </div>
         
-        <div class="loading-container" id="loadingContainer">
-            <div class="loading-spinner"></div>
-            <div>Анализируем вашу активность...</div>
-            <div style="font-size: 0.9rem; margin-top: 0.5rem; color: var(--text-tertiary)">Это может занять несколько секунд</div>
+        <div class="scroll-hint animated">
+            <span>Прокрутите вниз</span>
+            <i class="fas fa-chevron-down"></i>
         </div>
-        
-        <div class="no-data" id="noData">
-            <div class="no-data-icon">
-                <i class="fas fa-chart-line"></i>
-            </div>
-            <h3>Статистика не найдена</h3>
-            <p>Не удалось загрузить данные за выбранный год. Возможно, у вас не было активности в этот период.</p>
-        </div>
-        
-        <div class="stats-section" id="statsSection">
-            <!-- Общая статистика -->
+    </section>
+    
+    <!-- Слайд 2: Основная статистика -->
+    <section class="slide" id="slide2">
+        <div class="slide-content">
+            <h2 class="slide-title animated">Цифры говорят сами за себя</h2>
+            <p class="slide-subtitle animated">Ваша активность в цифрах за 2025 год</p>
+            
             <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-header">
-                        <div class="stat-title">
-                            <div class="stat-icon icon-messages">
-                                <i class="fas fa-comment"></i>
-                            </div>
-                            Сообщения
-                        </div>
+                <div class="stat-card animated" data-delay="0">
+                    <div class="stat-icon">
+                        <i class="fas fa-comment"></i>
                     </div>
                     <div class="stat-value" id="totalMessages">0</div>
-                    <div class="stat-change" id="messagesChange">
-                        <i class="fas fa-arrow-up"></i>
-                        <span>0%</span>
-                    </div>
-                    <div class="stat-details">
-                        <div class="detail-item">
-                            <span class="detail-label">В день</span>
-                            <span class="detail-value" id="messagesPerDay">0</span>
-                        </div>
-                        <div class="detail-item">
-                            <span class="detail-label">Самое активное время</span>
-                            <span class="detail-value" id="mostActiveTime">-</span>
-                        </div>
-                    </div>
+                    <div class="stat-label">Сообщений отправлено</div>
                 </div>
                 
-                <div class="stat-card">
-                    <div class="stat-header">
-                        <div class="stat-title">
-                            <div class="stat-icon icon-chats">
-                                <i class="fas fa-users"></i>
-                            </div>
-                            Чаты
-                        </div>
+                <div class="stat-card animated" data-delay="0.1">
+                    <div class="stat-icon">
+                        <i class="fas fa-users"></i>
                     </div>
                     <div class="stat-value" id="totalChats">0</div>
-                    <div class="stat-change" id="chatsChange">
-                        <i class="fas fa-arrow-up"></i>
-                        <span>0%</span>
-                    </div>
-                    <div class="stat-details">
-                        <div class="detail-item">
-                            <span class="detail-label">Личные</span>
-                            <span class="detail-value" id="privateChats">0</span>
-                        </div>
-                        <div class="detail-item">
-                            <span class="detail-label">Группы</span>
-                            <span class="detail-value" id="groupChats">0</span>
-                        </div>
-                        <div class="detail-item">
-                            <span class="detail-label">Каналы</span>
-                            <span class="detail-value" id="channelChats">0</span>
-                        </div>
-                    </div>
+                    <div class="stat-label">Активных чатов</div>
                 </div>
                 
-                <div class="stat-card">
-                    <div class="stat-header">
-                        <div class="stat-title">
-                            <div class="stat-icon icon-time">
-                                <i class="fas fa-clock"></i>
-                            </div>
-                            Время в сети
-                        </div>
+                <div class="stat-card animated" data-delay="0.2">
+                    <div class="stat-icon">
+                        <i class="fas fa-clock"></i>
                     </div>
                     <div class="stat-value" id="totalHours">0 ч</div>
-                    <div class="stat-change" id="timeChange">
-                        <i class="fas fa-arrow-up"></i>
-                        <span>0%</span>
-                    </div>
-                    <div class="stat-details">
-                        <div class="detail-item">
-                            <span class="detail-label">В среднем в день</span>
-                            <span class="detail-value" id="avgDailyHours">0 ч</span>
-                        </div>
-                        <div class="detail-item">
-                            <span class="detail-label">Дней активности</span>
-                            <span class="detail-value" id="activeDays">0</span>
-                        </div>
-                    </div>
+                    <div class="stat-label">Время в сети</div>
                 </div>
                 
-                <div class="stat-card">
-                    <div class="stat-header">
-                        <div class="stat-title">
-                            <div class="stat-icon icon-reactions">
-                                <i class="fas fa-heart"></i>
-                            </div>
-                            Реакции
-                        </div>
+                <div class="stat-card animated" data-delay="0.3">
+                    <div class="stat-icon">
+                        <i class="fas fa-heart"></i>
                     </div>
                     <div class="stat-value" id="totalReactions">0</div>
-                    <div class="stat-change" id="reactionsChange">
-                        <i class="fas fa-arrow-up"></i>
-                        <span>0%</span>
-                    </div>
-                    <div class="stat-details">
-                        <div class="detail-item">
-                            <span class="detail-label">Получено</span>
-                            <span class="detail-value" id="receivedReactions">0</span>
-                        </div>
-                        <div class="detail-item">
-                            <span class="detail-label">Отправлено</span>
-                            <span class="detail-value" id="sentReactions">0</span>
-                        </div>
-                        <div class="detail-item">
-                            <span class="detail-label">Любимая реакция</span>
-                            <span class="detail-value" id="topReaction">-</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="stat-card large">
-                    <div class="stat-header">
-                        <div class="stat-title">
-                            <div class="stat-icon icon-popular">
-                                <i class="fas fa-fire"></i>
-                            </div>
-                            Активность по месяцам
-                        </div>
-                    </div>
-                    <div class="chart-container">
-                        <canvas id="monthlyActivityChart"></canvas>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Топ чатов -->
-            <div class="top-chats-section">
-                <h2 class="section-title">
-                    <i class="fas fa-trophy"></i>
-                    Топ-5 самых активных чатов
-                </h2>
-                <div class="top-chats-list" id="topChatsList">
-                    <!-- Чаты будут добавлены динамически -->
-                </div>
-            </div>
-            
-            <!-- Достижения -->
-            <div class="achievements-section">
-                <h2 class="section-title">
-                    <i class="fas fa-medal"></i>
-                    Ваши достижения
-                </h2>
-                <div class="achievements-grid" id="achievementsGrid">
-                    <!-- Достижения будут добавлены динамически -->
-                </div>
-            </div>
-            
-            <!-- Поделиться -->
-            <div class="share-section">
-                <h2 class="share-title">Поделитесь своей статистикой</h2>
-                <div class="share-buttons">
-                    <button class="share-btn telegram" id="shareTelegram">
-                        <i class="fab fa-telegram"></i>
-                        Поделиться в Telegram
-                    </button>
-                    <button class="share-btn whatsapp" id="shareWhatsApp">
-                        <i class="fab fa-whatsapp"></i>
-                        Поделиться в WhatsApp
-                    </button>
-                    <button class="share-btn copy" id="shareCopy">
-                        <i class="fas fa-copy"></i>
-                        Скопировать ссылку
-                    </button>
+                    <div class="stat-label">Реакций получено</div>
                 </div>
             </div>
         </div>
-    </div>
+    </section>
     
-    <div class="footer">
-        <div class="container">
-            <p>Статистика сгенерирована на основе данных из Hamburger</p>
-            <p>© 2024 Hamburger. Все данные защищены шифрованием.</p>
+    <!-- Слайд 3: График активности -->
+    <section class="slide" id="slide3">
+        <div class="slide-content">
+            <h2 class="slide-title animated">Ваша активность по месяцам</h2>
+            <p class="slide-subtitle animated">Когда вы были наиболее активны в 2025 году</p>
+            
+            <div class="chart-container animated">
+                <canvas id="monthlyChart"></canvas>
+            </div>
         </div>
+    </section>
+    
+    <!-- Слайд 4: Топ чатов -->
+    <section class="slide" id="slide4">
+        <div class="slide-content">
+            <h2 class="slide-title animated">Топ-5 самых активных чатов</h2>
+            <p class="slide-subtitle animated">Чаты, в которых вы общались больше всего</p>
+            
+            <div class="top-chats-container" id="topChatsContainer">
+                <!-- Чаты будут добавлены динамически -->
+            </div>
+        </div>
+    </section>
+    
+    <!-- Слайд 5: Достижения -->
+    <section class="slide" id="slide5">
+        <div class="slide-content">
+            <h2 class="slide-title animated">Ваши достижения</h2>
+            <p class="slide-subtitle animated">Награды за вашу активность в 2025 году</p>
+            
+            <div class="achievements-grid" id="achievementsGrid">
+                <!-- Достижения будут добавлены динамически -->
+            </div>
+        </div>
+    </section>
+    
+    <!-- Слайд 6: Финальный слайд -->
+    <section class="slide" id="slide6">
+        <div class="slide-content">
+            <h2 class="slide-title animated">Отличный год!</h2>
+            <p class="slide-subtitle animated">Спасибо, что делаете Hamburger лучше с каждым сообщением</p>
+            
+            <div class="final-stats">
+                <div class="final-stat animated" data-delay="0">
+                    <div class="final-value" id="finalMessages">0</div>
+                    <div class="final-label">Сообщений</div>
+                </div>
+                <div class="final-stat animated" data-delay="0.1">
+                    <div class="final-value" id="finalChats">0</div>
+                    <div class="final-label">Чатов</div>
+                </div>
+                <div class="final-stat animated" data-delay="0.2">
+                    <div class="final-value" id="finalDays">0</div>
+                    <div class="final-label">Дней активности</div>
+                </div>
+            </div>
+            
+            <div class="share-buttons">
+                <button class="share-btn telegram animated" data-delay="0">
+                    <i class="fab fa-telegram"></i>
+                    Поделиться в Telegram
+                </button>
+                <button class="share-btn whatsapp animated" data-delay="0.1">
+                    <i class="fab fa-whatsapp"></i>
+                    Поделиться в WhatsApp
+                </button>
+                <button class="share-btn restart animated" data-delay="0.2" id="restartBtn">
+                    <i class="fas fa-redo"></i>
+                    Начать сначала
+                </button>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Навигационные точки -->
+    <div class="nav-dots" id="navDots">
+        <div class="nav-dot active" data-slide="1"></div>
+        <div class="nav-dot" data-slide="2"></div>
+        <div class="nav-dot" data-slide="3"></div>
+        <div class="nav-dot" data-slide="4"></div>
+        <div class="nav-dot" data-slide="5"></div>
+        <div class="nav-dot" data-slide="6"></div>
     </div>
     
     <script>
@@ -983,27 +915,14 @@
         
         let currentUser = null;
         let currentUserId = null;
-        let currentYear = 2024;
-        let monthlyActivityChart = null;
-        let userStats = {
-            totalMessages: 0,
-            totalChats: 0,
-            totalHours: 0,
-            totalReactions: 0,
-            receivedReactions: 0,
-            sentReactions: 0,
-            topReaction: '',
-            messagesPerDay: 0,
-            mostActiveTime: '',
-            privateChats: 0,
-            groupChats: 0,
-            channelChats: 0,
-            avgDailyHours: 0,
-            activeDays: 0,
-            monthlyData: Array(12).fill(0),
-            topChats: [],
-            achievements: []
-        };
+        let currentYear = 2025;
+        let monthlyChart = null;
+        let userStats = null;
+        let currentSlide = 1;
+        let isGenerating = false;
+
+        // GSAP анимации
+        gsap.registerPlugin(ScrollTrigger);
 
         // Функции шифрования/дешифрования
         function encryptData(data) {
@@ -1032,194 +951,263 @@
                 return;
             }
             
-            // Проверяем тему
-            const savedTheme = localStorage.getItem('hamburger_theme') || 'light';
-            document.documentElement.setAttribute('data-theme', savedTheme);
-            
-            // Устанавливаем текущий год
-            currentYear = new Date().getFullYear();
-            document.querySelector(`[data-year="${currentYear}"]`).classList.add('active');
-            
+            // Настройка событий
             setupEventListeners();
+            
+            // Настройка навигации
+            setupNavigation();
+            
+            // Настройка скролла
+            setupScroll();
+            
+            // Автоматически загружаем статистику
+            setTimeout(loadStatistics, 500);
         });
 
         function setupEventListeners() {
-            // Кнопка назад
-            document.getElementById('backButton').addEventListener('click', () => {
-                window.location.href = 'https://hamburgerchat.github.io/main.html';
+            // Кнопка старта
+            document.getElementById('startBtn').addEventListener('click', loadStatistics);
+            
+            // Кнопка перезапуска
+            document.getElementById('restartBtn').addEventListener('click', () => {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
             });
-            
-            // Переключение темы
-            document.getElementById('themeToggle').addEventListener('click', toggleTheme);
-            
-            // Выбор года
-            document.querySelectorAll('.year-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    document.querySelectorAll('.year-btn').forEach(b => b.classList.remove('active'));
-                    this.classList.add('active');
-                    currentYear = parseInt(this.dataset.year);
-                });
-            });
-            
-            // Генерация статистики
-            document.getElementById('generateBtn').addEventListener('click', generateStats);
             
             // Кнопки поделиться
-            document.getElementById('shareTelegram').addEventListener('click', shareToTelegram);
-            document.getElementById('shareWhatsApp').addEventListener('click', shareToWhatsApp);
-            document.getElementById('shareCopy').addEventListener('click', copyShareLink);
+            document.querySelector('.share-btn.telegram').addEventListener('click', shareToTelegram);
+            document.querySelector('.share-btn.whatsapp').addEventListener('click', shareToWhatsApp);
         }
 
-        function toggleTheme() {
-            const currentTheme = document.documentElement.getAttribute('data-theme');
-            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        function setupNavigation() {
+            const dots = document.querySelectorAll('.nav-dot');
             
-            document.documentElement.setAttribute('data-theme', newTheme);
-            localStorage.setItem('hamburger_theme', newTheme);
+            dots.forEach(dot => {
+                dot.addEventListener('click', function() {
+                    const slideNum = parseInt(this.dataset.slide);
+                    goToSlide(slideNum);
+                });
+            });
+        }
+
+        function setupScroll() {
+            // Определяем видимый слайд при скролле
+            window.addEventListener('scroll', () => {
+                const scrollPosition = window.scrollY;
+                const windowHeight = window.innerHeight;
+                const slideHeight = windowHeight;
+                
+                currentSlide = Math.floor(scrollPosition / slideHeight) + 1;
+                
+                // Обновляем активную точку
+                updateActiveDot();
+                
+                // Анимируем элементы на текущем слайде
+                animateSlideElements(currentSlide);
+            });
             
-            const icon = document.querySelector('#themeToggle i');
-            icon.className = newTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
-            
-            // Перерисовываем график при смене темы
-            if (monthlyActivityChart) {
-                updateChartColors();
-                monthlyActivityChart.update();
+            // Инициализация GSAP ScrollTrigger
+            gsap.utils.toArray('.slide').forEach((slide, i) => {
+                ScrollTrigger.create({
+                    trigger: slide,
+                    start: "top top",
+                    end: "bottom top",
+                    onEnter: () => {
+                        currentSlide = i + 1;
+                        updateActiveDot();
+                        animateSlideElements(currentSlide);
+                    },
+                    onEnterBack: () => {
+                        currentSlide = i + 1;
+                        updateActiveDot();
+                        animateSlideElements(currentSlide);
+                    }
+                });
+            });
+        }
+
+        function updateActiveDot() {
+            const dots = document.querySelectorAll('.nav-dot');
+            dots.forEach(dot => {
+                const slideNum = parseInt(dot.dataset.slide);
+                dot.classList.toggle('active', slideNum === currentSlide);
+            });
+        }
+
+        function goToSlide(slideNum) {
+            const slide = document.getElementById(`slide${slideNum}`);
+            if (slide) {
+                slide.scrollIntoView({ behavior: 'smooth' });
+                currentSlide = slideNum;
+                updateActiveDot();
+                animateSlideElements(slideNum);
             }
         }
 
-        function updateChartColors() {
-            const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-            return {
-                background: isDark ? 'rgba(59, 130, 246, 0.2)' : 'rgba(59, 130, 246, 0.1)',
-                border: isDark ? '#3b82f6' : '#2563eb',
-                grid: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
-                text: isDark ? '#f9fafb' : '#1f2937'
-            };
+        function animateSlideElements(slideNum) {
+            const slide = document.getElementById(`slide${slideNum}`);
+            if (!slide || slide.classList.contains('animated-done')) return;
+            
+            slide.classList.add('animated-done');
+            
+            const animatedElements = slide.querySelectorAll('.animated');
+            
+            animatedElements.forEach((el, index) => {
+                const delay = el.dataset.delay || (index * 0.1);
+                
+                gsap.fromTo(el, 
+                    { 
+                        opacity: 0, 
+                        y: 30,
+                        scale: 0.8 
+                    },
+                    { 
+                        opacity: 1, 
+                        y: 0,
+                        scale: 1,
+                        duration: 0.8,
+                        delay: parseFloat(delay),
+                        ease: "back.out(1.7)"
+                    }
+                );
+            });
         }
 
-        async function generateStats() {
-            const generateBtn = document.getElementById('generateBtn');
-            const loadingContainer = document.getElementById('loadingContainer');
-            const noData = document.getElementById('noData');
-            const statsSection = document.getElementById('statsSection');
+        async function loadStatistics() {
+            if (isGenerating) return;
+            isGenerating = true;
             
-            // Показываем загрузку
-            generateBtn.disabled = true;
-            generateBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Загрузка...';
-            loadingContainer.style.display = 'flex';
-            statsSection.classList.remove('stats-visible');
-            noData.style.display = 'none';
+            const startBtn = document.getElementById('startBtn');
+            startBtn.disabled = true;
+            startBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Загружаем...';
             
             try {
-                // Собираем статистику
-                await collectStatistics();
-                
-                // Отображаем статистику
+                userStats = await collectStatistics();
                 displayStatistics();
                 
-                // Показываем блок со статистикой
-                loadingContainer.style.display = 'none';
-                statsSection.classList.add('stats-visible');
+                // Скрываем загрузку
+                gsap.to('#loadingOverlay', {
+                    opacity: 0,
+                    duration: 0.5,
+                    onComplete: () => {
+                        document.getElementById('loadingOverlay').style.display = 'none';
+                    }
+                });
                 
-                // Запускаем конфетти
-                createConfetti();
+                // Анимируем первый слайд
+                animateSlideElements(1);
+                
+                // Прокручиваем ко второму слайду
+                setTimeout(() => {
+                    goToSlide(2);
+                }, 1500);
                 
             } catch (error) {
-                console.error('Ошибка генерации статистики:', error);
-                loadingContainer.style.display = 'none';
-                noData.style.display = 'block';
+                console.error('Ошибка загрузки статистики:', error);
+                alert('Не удалось загрузить статистику. Попробуйте позже.');
             } finally {
-                generateBtn.disabled = false;
-                generateBtn.innerHTML = '<i class="fas fa-chart-bar"></i> Сгенерировать статистику';
+                isGenerating = false;
+                startBtn.disabled = false;
+                startBtn.innerHTML = '<i class="fas fa-rocket"></i> Показать мою статистику';
             }
         }
 
         async function collectStatistics() {
-            // Сбрасываем статистику
-            userStats = {
+            const stats = {
                 totalMessages: 0,
                 totalChats: 0,
                 totalHours: 0,
                 totalReactions: 0,
                 receivedReactions: 0,
                 sentReactions: 0,
-                topReaction: '',
-                messagesPerDay: 0,
-                mostActiveTime: '',
-                privateChats: 0,
-                groupChats: 0,
-                channelChats: 0,
-                avgDailyHours: 0,
                 activeDays: 0,
                 monthlyData: Array(12).fill(0),
                 topChats: [],
                 achievements: []
             };
             
-            // Получаем все чаты пользователя
+            // Получаем чаты пользователя
             const userChatsRef = database.ref(`userChats/${currentUserId}`);
             const userChatsSnapshot = await userChatsRef.once('value');
             
             if (!userChatsSnapshot.exists()) {
-                return;
+                return stats;
             }
             
             const userChats = userChatsSnapshot.val();
-            const chatIds = Object.keys(userChats).filter(id => id !== 'L'); // Исключаем ленту
+            const chatIds = Object.keys(userChats).filter(id => id !== 'L');
             
-            userStats.totalChats = chatIds.length;
+            stats.totalChats = chatIds.length;
             
-            // Собираем данные по каждому чату
-            const chatPromises = chatIds.map(chatId => analyzeChat(chatId));
-            await Promise.all(chatPromises);
+            // Собираем данные по чатам
+            const activeDaysSet = new Set();
             
-            // Рассчитываем производные показатели
-            calculateDerivedStats();
+            for (const chatId of chatIds) {
+                try {
+                    const chatStats = await analyzeChat(chatId, activeDaysSet);
+                    
+                    stats.totalMessages += chatStats.messages;
+                    stats.totalReactions += chatStats.reactions;
+                    stats.monthlyData = stats.monthlyData.map((val, idx) => val + chatStats.monthlyData[idx]);
+                    
+                    if (chatStats.messages > 0) {
+                        stats.topChats.push({
+                            id: chatId,
+                            name: chatStats.name,
+                            type: chatStats.type,
+                            messageCount: chatStats.messages,
+                            avatar: chatStats.avatar
+                        });
+                    }
+                    
+                } catch (error) {
+                    console.error(`Ошибка анализа чата ${chatId}:`, error);
+                }
+            }
+            
+            // Рассчитываем дополнительные показатели
+            stats.activeDays = activeDaysSet.size;
+            stats.totalHours = Math.round(stats.totalMessages * 0.5 / 60);
+            
+            // Сортируем топ чатов
+            stats.topChats.sort((a, b) => b.messageCount - a.messageCount);
             
             // Определяем достижения
-            determineAchievements();
+            determineAchievements(stats);
+            
+            return stats;
         }
 
-        async function analyzeChat(chatId) {
-            try {
-                // Получаем данные чата
-                const chatRef = database.ref(`chats/${chatId}`);
-                const chatSnapshot = await chatRef.once('value');
-                
-                if (!chatSnapshot.exists()) return;
-                
+        async function analyzeChat(chatId, activeDaysSet) {
+            const result = {
+                name: 'Без названия',
+                type: 'private',
+                messages: 0,
+                reactions: 0,
+                monthlyData: Array(12).fill(0),
+                avatar: null
+            };
+            
+            // Получаем данные чата
+            const chatRef = database.ref(`chats/${chatId}`);
+            const chatSnapshot = await chatRef.once('value');
+            
+            if (chatSnapshot.exists()) {
                 const chatData = chatSnapshot.val();
                 const decryptedData = decryptData(chatData.encryptedData);
                 
-                if (!decryptedData) return;
-                
-                // Увеличиваем счетчики по типам чатов
-                if (decryptedData.type === 'private') {
-                    userStats.privateChats++;
-                } else if (decryptedData.type === 'group') {
-                    userStats.groupChats++;
-                } else if (decryptedData.type === 'channel') {
-                    userStats.channelChats++;
+                if (decryptedData) {
+                    result.name = decryptedData.name || result.name;
+                    result.type = decryptedData.type || result.type;
+                    result.avatar = decryptedData.avatar;
                 }
-                
-                // Анализируем сообщения в чате
-                await analyzeMessages(chatId, decryptedData);
-                
-            } catch (error) {
-                console.error(`Ошибка анализа чата ${chatId}:`, error);
             }
-        }
-
-        async function analyzeMessages(chatId, chatData) {
-            try {
-                const messagesRef = database.ref(`messages/${chatId}`);
-                const messagesSnapshot = await messagesRef.once('value');
-                
-                if (!messagesSnapshot.exists()) return;
-                
+            
+            // Анализируем сообщения
+            const messagesRef = database.ref(`messages/${chatId}`);
+            const messagesSnapshot = await messagesRef.once('value');
+            
+            if (messagesSnapshot.exists()) {
                 const messages = messagesSnapshot.val();
-                let chatMessageCount = 0;
-                let chatReactionsReceived = 0;
                 
                 for (const messageId in messages) {
                     const messageData = messages[messageId];
@@ -1227,265 +1215,162 @@
                     
                     if (!decryptedMessage || !decryptedMessage.timestamp) continue;
                     
-                    // Проверяем, что сообщение относится к выбранному году
                     const messageDate = new Date(decryptedMessage.timestamp);
                     if (messageDate.getFullYear() !== currentYear) continue;
                     
-                    // Считаем сообщения пользователя
+                    // Сообщения пользователя
                     if (decryptedMessage.sender === currentUserId) {
-                        userStats.totalMessages++;
-                        chatMessageCount++;
+                        result.messages++;
                         
-                        // Обновляем данные по месяцам
+                        // Месячная статистика
                         const month = messageDate.getMonth();
-                        userStats.monthlyData[month]++;
+                        result.monthlyData[month]++;
                         
-                        // Анализируем время активности
-                        analyzeTimeActivity(messageDate);
+                        // Активные дни
+                        const dateStr = messageDate.toDateString();
+                        activeDaysSet.add(dateStr);
                     }
                     
-                    // Анализируем реакции
-                    if (decryptedMessage.reactions) {
-                        analyzeReactions(decryptedMessage.reactions, decryptedMessage.sender === currentUserId);
+                    // Реакции на сообщения пользователя
+                    if (decryptedMessage.sender === currentUserId && decryptedMessage.reactions) {
+                        for (const users of Object.values(decryptedMessage.reactions)) {
+                            const userList = Array.isArray(users) ? users : [];
+                            result.reactions += userList.length;
+                        }
                     }
                 }
-                
-                // Добавляем чат в топ, если в нем есть сообщения
-                if (chatMessageCount > 0) {
-                    userStats.topChats.push({
-                        id: chatId,
-                        name: chatData.name || 'Без названия',
-                        type: chatData.type,
-                        messageCount: chatMessageCount,
-                        reactionsReceived: chatReactionsReceived,
-                        avatar: chatData.avatar
-                    });
-                }
-                
-            } catch (error) {
-                console.error(`Ошибка анализа сообщений в чате ${chatId}:`, error);
             }
+            
+            return result;
         }
 
-        function analyzeTimeActivity(date) {
-            const hour = date.getHours();
+        function determineAchievements(stats) {
+            stats.achievements = [];
             
-            // Увеличиваем счетчик активности для этого часа
-            if (!userStats.hourlyActivity) {
-                userStats.hourlyActivity = Array(24).fill(0);
-            }
-            userStats.hourlyActivity[hour]++;
-            
-            // Считаем активные дни
-            const dateStr = date.toDateString();
-            if (!userStats.activeDaysSet) {
-                userStats.activeDaysSet = new Set();
-            }
-            userStats.activeDaysSet.add(dateStr);
-        }
-
-        function analyzeReactions(reactions, isOwnMessage) {
-            for (const [emoji, users] of Object.entries(reactions)) {
-                const userList = Array.isArray(users) ? users : [];
-                const hasUserReaction = userList.includes(currentUserId);
-                
-                if (isOwnMessage && hasUserReaction) {
-                    userStats.receivedReactions += userList.length;
-                    userStats.totalReactions += userList.length;
-                } else if (!isOwnMessage && hasUserReaction) {
-                    userStats.sentReactions++;
-                    userStats.totalReactions++;
-                }
-                
-                // Обновляем топ реакций
-                if (!userStats.reactionCounts) {
-                    userStats.reactionCounts = {};
-                }
-                
-                if (hasUserReaction) {
-                    userStats.reactionCounts[emoji] = (userStats.reactionCounts[emoji] || 0) + 1;
-                }
-            }
-        }
-
-        function calculateDerivedStats() {
-            // Сообщений в день
-            const daysInYear = currentYear % 4 === 0 ? 366 : 365;
-            userStats.messagesPerDay = (userStats.totalMessages / daysInYear).toFixed(1);
-            
-            // Самое активное время
-            if (userStats.hourlyActivity) {
-                const maxHour = userStats.hourlyActivity.indexOf(Math.max(...userStats.hourlyActivity));
-                userStats.mostActiveTime = `${maxHour}:00-${maxHour+1}:00`;
-            }
-            
-            // Часов в сети (оценка)
-            userStats.totalHours = Math.round(userStats.totalMessages * 0.5 / 60); // 30 секунд на сообщение
-            userStats.avgDailyHours = (userStats.totalHours / daysInYear).toFixed(1);
-            
-            // Активных дней
-            userStats.activeDays = userStats.activeDaysSet ? userStats.activeDaysSet.size : 0;
-            
-            // Топ реакция
-            if (userStats.reactionCounts) {
-                const topReaction = Object.entries(userStats.reactionCounts)
-                    .sort((a, b) => b[1] - a[1])[0];
-                userStats.topReaction = topReaction ? topReaction[0] : 'Нет данных';
-            }
-            
-            // Сортируем топ чатов
-            userStats.topChats.sort((a, b) => b.messageCount - a.messageCount);
-            
-            // Рассчитываем изменения (заглушка - в реальном приложении нужно сравнивать с предыдущим годом)
-            userStats.messagesChange = Math.round(Math.random() * 30) + 5;
-            userStats.chatsChange = Math.round(Math.random() * 20) + 2;
-            userStats.timeChange = Math.round(Math.random() * 25) + 3;
-            userStats.reactionsChange = Math.round(Math.random() * 40) + 10;
-        }
-
-        function determineAchievements() {
-            userStats.achievements = [];
-            
-            // Достижения по сообщениям
-            if (userStats.totalMessages >= 1000) {
-                userStats.achievements.push({
-                    id: 'msg_master',
+            // Достижение по сообщениям
+            if (stats.totalMessages >= 1000) {
+                stats.achievements.push({
                     name: 'Мастер общения',
-                    description: 'Отправлено более 1000 сообщений',
+                    description: 'Отправлено более 1000 сообщений в 2025 году',
                     icon: 'fas fa-comments',
-                    color: 'linear-gradient(135deg, var(--info-color), #60a5fa)',
-                    unlocked: true,
-                    progress: 100
+                    progress: 100,
+                    unlocked: true
                 });
-            } else if (userStats.totalMessages >= 100) {
-                userStats.achievements.push({
-                    id: 'msg_enthusiast',
-                    name: 'Энтузиаст',
-                    description: 'Отправлено более 100 сообщений',
+            } else if (stats.totalMessages >= 500) {
+                stats.achievements.push({
+                    name: 'Активный собеседник',
+                    description: 'Отправлено более 500 сообщений',
                     icon: 'fas fa-comment',
-                    color: 'linear-gradient(135deg, var(--info-color), #60a5fa)',
-                    unlocked: true,
-                    progress: 100
+                    progress: 100,
+                    unlocked: true
                 });
             } else {
-                userStats.achievements.push({
-                    id: 'msg_beginner',
-                    name: 'Новичок',
-                    description: 'Отправлено менее 100 сообщений',
-                    icon: 'fas fa-comment',
-                    color: 'linear-gradient(135deg, var(--info-color), #60a5fa)',
-                    unlocked: true,
-                    progress: Math.min((userStats.totalMessages / 100) * 100, 100)
-                });
-            }
-            
-            // Достижения по чатам
-            if (userStats.totalChats >= 10) {
-                userStats.achievements.push({
-                    id: 'chat_explorer',
-                    name: 'Исследователь',
-                    description: 'Участвует в 10+ чатах',
-                    icon: 'fas fa-users',
-                    color: 'linear-gradient(135deg, var(--success-color), #34d399)',
-                    unlocked: true,
-                    progress: 100
-                });
-            } else {
-                userStats.achievements.push({
-                    id: 'chat_starter',
+                const progress = Math.min((stats.totalMessages / 500) * 100, 100);
+                stats.achievements.push({
                     name: 'Начинающий',
-                    description: 'Участвует в нескольких чатах',
+                    description: 'Продолжайте в том же духе!',
+                    icon: 'fas fa-comment',
+                    progress: progress,
+                    unlocked: progress >= 100
+                });
+            }
+            
+            // Достижение по чатам
+            if (stats.totalChats >= 10) {
+                stats.achievements.push({
+                    name: 'Социальная бабочка',
+                    description: 'Активен в 10+ чатах',
+                    icon: 'fas fa-users',
+                    progress: 100,
+                    unlocked: true
+                });
+            } else {
+                const progress = Math.min((stats.totalChats / 10) * 100, 100);
+                stats.achievements.push({
+                    name: 'Выбираю окружение',
+                    description: 'Активен в нескольких чатах',
                     icon: 'fas fa-user-friends',
-                    color: 'linear-gradient(135deg, var(--success-color), #34d399)',
-                    unlocked: true,
-                    progress: Math.min((userStats.totalChats / 10) * 100, 100)
+                    progress: progress,
+                    unlocked: progress >= 100
                 });
             }
             
-            // Достижения по реакциям
-            if (userStats.totalReactions >= 50) {
-                userStats.achievements.push({
-                    id: 'reaction_king',
-                    name: 'Король реакций',
-                    description: 'Получено/отправлено 50+ реакций',
-                    icon: 'fas fa-heart',
-                    color: 'linear-gradient(135deg, var(--pink-color), #f472b6)',
-                    unlocked: true,
-                    progress: 100
-                });
-            } else if (userStats.totalReactions > 0) {
-                userStats.achievements.push({
-                    id: 'reaction_lover',
-                    name: 'Любитель реакций',
-                    description: 'Активно использует реакции',
-                    icon: 'fas fa-heart',
-                    color: 'linear-gradient(135deg, var(--pink-color), #f472b6)',
-                    unlocked: true,
-                    progress: Math.min((userStats.totalReactions / 50) * 100, 100)
-                });
-            }
-            
-            // Достижение по разнообразию
-            if (userStats.privateChats > 0 && userStats.groupChats > 0 && userStats.channelChats > 0) {
-                userStats.achievements.push({
-                    id: 'versatile',
-                    name: 'Разносторонний',
-                    description: 'Общается во всех типах чатов',
-                    icon: 'fas fa-globe',
-                    color: 'linear-gradient(135deg, var(--purple-color), #a78bfa)',
-                    unlocked: true,
-                    progress: 100
-                });
-            }
-            
-            // Достижение по активности
-            if (userStats.activeDays >= 300) {
-                userStats.achievements.push({
-                    id: 'active_year',
-                    name: 'Год активности',
+            // Достижение по дням активности
+            if (stats.activeDays >= 300) {
+                stats.achievements.push({
+                    name: 'Непрерывная активность',
                     description: 'Активен более 300 дней в году',
                     icon: 'fas fa-calendar-check',
-                    color: 'linear-gradient(135deg, var(--warning-color), #fbbf24)',
-                    unlocked: true,
-                    progress: 100
+                    progress: 100,
+                    unlocked: true
+                });
+            } else if (stats.activeDays >= 150) {
+                stats.achievements.push({
+                    name: 'Регулярный посетитель',
+                    description: 'Активен более 150 дней',
+                    icon: 'fas fa-calendar',
+                    progress: 100,
+                    unlocked: true
                 });
             } else {
-                userStats.achievements.push({
-                    id: 'active_progress',
-                    name: 'На пути к активности',
-                    description: `Активен ${userStats.activeDays} дней в году`,
-                    icon: 'fas fa-calendar',
-                    color: 'linear-gradient(135deg, var(--warning-color), #fbbf24)',
-                    unlocked: true,
-                    progress: Math.min((userStats.activeDays / 300) * 100, 100)
+                const progress = Math.min((stats.activeDays / 150) * 100, 100);
+                stats.achievements.push({
+                    name: 'Периодическая активность',
+                    description: 'Продолжайте заходить каждый день!',
+                    icon: 'fas fa-calendar-day',
+                    progress: progress,
+                    unlocked: progress >= 100
+                });
+            }
+            
+            // Достижение по реакциям
+            if (stats.totalReactions >= 100) {
+                stats.achievements.push({
+                    name: 'Сердце Hamburger',
+                    description: 'Получил более 100 реакций',
+                    icon: 'fas fa-heart',
+                    progress: 100,
+                    unlocked: true
+                });
+            } else if (stats.totalReactions > 0) {
+                const progress = Math.min((stats.totalReactions / 100) * 100, 100);
+                stats.achievements.push({
+                    name: 'Популярный собеседник',
+                    description: 'Ваши сообщения нравятся другим',
+                    icon: 'fas fa-heart',
+                    progress: progress,
+                    unlocked: progress >= 100
+                });
+            }
+            
+            // Специальное достижение
+            if (stats.totalMessages >= 500 && stats.activeDays >= 200) {
+                stats.achievements.push({
+                    name: 'Легенда Hamburger',
+                    description: 'Выдающаяся активность в течение года',
+                    icon: 'fas fa-crown',
+                    progress: 100,
+                    unlocked: true
                 });
             }
         }
 
         function displayStatistics() {
+            if (!userStats) return;
+            
             // Основные показатели
             document.getElementById('totalMessages').textContent = userStats.totalMessages.toLocaleString();
             document.getElementById('totalChats').textContent = userStats.totalChats;
-            document.getElementById('totalHours').textContent = userStats.totalHours;
+            document.getElementById('totalHours').textContent = userStats.totalHours + ' ч';
             document.getElementById('totalReactions').textContent = userStats.totalReactions;
             
-            // Изменения
-            updateChangeElement('messagesChange', userStats.messagesChange);
-            updateChangeElement('chatsChange', userStats.chatsChange);
-            updateChangeElement('timeChange', userStats.timeChange);
-            updateChangeElement('reactionsChange', userStats.reactionsChange);
+            // Финальные показатели
+            document.getElementById('finalMessages').textContent = userStats.totalMessages.toLocaleString();
+            document.getElementById('finalChats').textContent = userStats.totalChats;
+            document.getElementById('finalDays').textContent = userStats.activeDays;
             
-            // Детали
-            document.getElementById('messagesPerDay').textContent = userStats.messagesPerDay;
-            document.getElementById('mostActiveTime').textContent = userStats.mostActiveTime;
-            document.getElementById('privateChats').textContent = userStats.privateChats;
-            document.getElementById('groupChats').textContent = userStats.groupChats;
-            document.getElementById('channelChats').textContent = userStats.channelChats;
-            document.getElementById('avgDailyHours').textContent = userStats.avgDailyHours;
-            document.getElementById('activeDays').textContent = userStats.activeDays;
-            document.getElementById('receivedReactions').textContent = userStats.receivedReactions;
-            document.getElementById('sentReactions').textContent = userStats.sentReactions;
-            document.getElementById('topReaction').textContent = userStats.topReaction;
+            // График
+            createMonthlyChart();
             
             // Топ чатов
             displayTopChats();
@@ -1493,30 +1378,88 @@
             // Достижения
             displayAchievements();
             
-            // График
-            createMonthlyChart();
+            // Анимируем числа
+            animateNumbers();
         }
 
-        function updateChangeElement(elementId, changeValue) {
-            const element = document.getElementById(elementId);
-            const icon = element.querySelector('i');
-            const span = element.querySelector('span');
+        function createMonthlyChart() {
+            const ctx = document.getElementById('monthlyChart').getContext('2d');
+            const monthNames = ['Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн', 'Июл', 'Авг', 'Сен', 'Окт', 'Ноя', 'Дек'];
             
-            if (changeValue >= 0) {
-                icon.className = 'fas fa-arrow-up';
-                element.classList.add('positive');
-                element.classList.remove('negative');
-                span.textContent = `+${changeValue}%`;
-            } else {
-                icon.className = 'fas fa-arrow-down';
-                element.classList.add('negative');
-                element.classList.remove('positive');
-                span.textContent = `${changeValue}%`;
+            if (monthlyChart) {
+                monthlyChart.destroy();
             }
+            
+            monthlyChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: monthNames,
+                    datasets: [{
+                        label: 'Сообщений',
+                        data: userStats.monthlyData,
+                        backgroundColor: 'rgba(255, 127, 80, 0.1)',
+                        borderColor: '#ff7f50',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: '#ff7f50',
+                        pointBorderColor: '#ffffff',
+                        pointBorderWidth: 2,
+                        pointRadius: 6,
+                        pointHoverRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                            titleColor: '#ffffff',
+                            bodyColor: '#ffffff',
+                            borderColor: '#ff7f50',
+                            borderWidth: 1,
+                            cornerRadius: 8
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            ticks: {
+                                color: '#cbd5e1'
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            ticks: {
+                                color: '#cbd5e1',
+                                precision: 0
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Анимация графика
+            gsap.from('.chart-container', {
+                x: 100,
+                opacity: 0,
+                duration: 1,
+                delay: 0.3,
+                ease: "power3.out"
+            });
         }
 
         function displayTopChats() {
-            const container = document.getElementById('topChatsList');
+            const container = document.getElementById('topChatsContainer');
             container.innerHTML = '';
             
             const topChats = userStats.topChats.slice(0, 5);
@@ -1525,18 +1468,20 @@
                 container.innerHTML = `
                     <div style="text-align: center; padding: 2rem; color: var(--text-secondary);">
                         <i class="fas fa-comments" style="font-size: 2rem; margin-bottom: 1rem; opacity: 0.5;"></i>
-                        <div>Нет активных чатов за выбранный период</div>
+                        <div>Нет активных чатов за 2025 год</div>
                     </div>
                 `;
                 return;
             }
             
             topChats.forEach((chat, index) => {
-                const rankClass = index === 0 ? 'gold' : index === 1 ? 'silver' : index === 2 ? 'bronze' : '';
-                const chatItem = document.createElement('div');
-                chatItem.className = 'top-chat-item';
+                const rankClass = index === 0 ? 'rank-1' : index === 1 ? 'rank-2' : index === 2 ? 'rank-3' : 'rank-other';
                 
-                chatItem.innerHTML = `
+                const chatElement = document.createElement('div');
+                chatElement.className = 'top-chat-item animated';
+                chatElement.dataset.delay = index * 0.1;
+                
+                chatElement.innerHTML = `
                     <div class="chat-rank ${rankClass}">${index + 1}</div>
                     <div class="chat-avatar" style="${chat.avatar ? `background-image: url(${chat.avatar})` : ''}">
                         ${chat.avatar ? '' : chat.name.charAt(0).toUpperCase()}
@@ -1544,33 +1489,24 @@
                     <div class="chat-info">
                         <div class="chat-name">${chat.name}</div>
                         <div class="chat-stats">
-                            <div class="chat-stat">
-                                <i class="fas fa-comment"></i>
-                                <span>${chat.messageCount} сообщ.</span>
-                            </div>
-                            <div class="chat-stat">
-                                <i class="fas fa-heart"></i>
-                                <span>${chat.reactionsReceived} реакций</span>
-                            </div>
-                            <div class="chat-stat">
-                                <i class="fas fa-tag"></i>
-                                <span>${getChatTypeName(chat.type)}</span>
-                            </div>
+                            <span>${chat.messageCount} сообщений</span>
+                            <span>•</span>
+                            <span>${getChatTypeName(chat.type)}</span>
                         </div>
                     </div>
                 `;
                 
-                chatItem.addEventListener('click', () => {
+                chatElement.addEventListener('click', () => {
                     window.open(`https://hamburgerchat.github.io/chat.html?id=${chat.id}`, '_blank');
                 });
                 
-                container.appendChild(chatItem);
+                container.appendChild(chatElement);
             });
         }
 
         function getChatTypeName(type) {
             const types = {
-                'private': 'Личный',
+                'private': 'Личный чат',
                 'group': 'Группа',
                 'channel': 'Канал',
                 'bot': 'Бот'
@@ -1582,159 +1518,153 @@
             const container = document.getElementById('achievementsGrid');
             container.innerHTML = '';
             
-            userStats.achievements.forEach(achievement => {
-                const achievementCard = document.createElement('div');
-                achievementCard.className = `achievement-card ${achievement.unlocked ? '' : 'locked'}`;
+            userStats.achievements.forEach((achievement, index) => {
+                const achievementElement = document.createElement('div');
+                achievementElement.className = 'achievement-card animated';
+                achievementElement.dataset.delay = index * 0.15;
                 
-                achievementCard.innerHTML = `
-                    <div class="achievement-icon" style="background: ${achievement.color}">
+                achievementElement.innerHTML = `
+                    <div class="achievement-icon">
                         <i class="${achievement.icon}"></i>
                     </div>
-                    <div class="achievement-info">
-                        <div class="achievement-name">${achievement.name}</div>
-                        <div class="achievement-desc">${achievement.description}</div>
-                        ${achievement.unlocked ? '' : `
-                            <div class="achievement-progress">
-                                <div class="progress-bar" style="width: ${achievement.progress}%"></div>
-                            </div>
-                        `}
+                    <div class="achievement-name">${achievement.name}</div>
+                    <div class="achievement-desc">${achievement.description}</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${achievement.progress}%"></div>
                     </div>
-                    ${achievement.unlocked ? '<div class="achievement-badge"><i class="fas fa-medal"></i></div>' : ''}
+                    ${achievement.unlocked ? 
+                        '<div style="margin-top: 1rem; color: #ffcc70; font-size: 0.9rem;"><i class="fas fa-check"></i> Получено</div>' : 
+                        '<div style="margin-top: 1rem; color: #94a3b8; font-size: 0.9rem;"><i class="fas fa-lock"></i> В процессе</div>'
+                    }
                 `;
                 
-                container.appendChild(achievementCard);
+                // Анимация прогресс-бара
+                setTimeout(() => {
+                    const progressFill = achievementElement.querySelector('.progress-fill');
+                    gsap.from(progressFill, {
+                        width: 0,
+                        duration: 1.5,
+                        delay: 0.5,
+                        ease: "power2.out"
+                    });
+                }, index * 200);
+                
+                container.appendChild(achievementElement);
             });
         }
 
-        function createMonthlyChart() {
-            const ctx = document.getElementById('monthlyActivityChart').getContext('2d');
-            const colors = updateChartColors();
-            
-            const monthNames = ['Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн', 'Июл', 'Авг', 'Сен', 'Окт', 'Ноя', 'Дек'];
-            
-            if (monthlyActivityChart) {
-                monthlyActivityChart.destroy();
-            }
-            
-            monthlyActivityChart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: monthNames,
-                    datasets: [{
-                        label: 'Сообщений',
-                        data: userStats.monthlyData,
-                        backgroundColor: colors.background,
-                        borderColor: colors.border,
-                        borderWidth: 2,
-                        fill: true,
-                        tension: 0.4,
-                        pointBackgroundColor: colors.border,
-                        pointBorderColor: colors.text,
-                        pointBorderWidth: 1,
-                        pointRadius: 4
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            display: false
-                        },
-                        tooltip: {
-                            mode: 'index',
-                            intersect: false,
-                            backgroundColor: colors.text === '#f9fafb' ? 'rgba(0, 0, 0, 0.7)' : 'rgba(255, 255, 255, 0.9)',
-                            titleColor: colors.text === '#f9fafb' ? '#f9fafb' : '#111827',
-                            bodyColor: colors.text === '#f9fafb' ? '#f9fafb' : '#111827',
-                            borderColor: colors.border,
-                            borderWidth: 1
-                        }
-                    },
-                    scales: {
-                        x: {
-                            grid: {
-                                color: colors.grid
-                            },
-                            ticks: {
-                                color: colors.text
-                            }
-                        },
-                        y: {
-                            beginAtZero: true,
-                            grid: {
-                                color: colors.grid
-                            },
-                            ticks: {
-                                color: colors.text,
-                                precision: 0
-                            }
-                        }
+        function animateNumbers() {
+            // Анимация чисел на втором слайде
+            gsap.utils.toArray('.stat-value').forEach((element, index) => {
+                const finalValue = parseInt(element.textContent.replace(/,/g, ''));
+                
+                gsap.from(element, {
+                    textContent: 0,
+                    duration: 2,
+                    delay: 0.5 + (index * 0.2),
+                    ease: "power2.out",
+                    snap: { textContent: 1 },
+                    onUpdate: function() {
+                        const value = Math.floor(this.targets()[0].textContent);
+                        element.textContent = value.toLocaleString() + (element.id === 'totalHours' ? ' ч' : '');
                     }
-                }
-            });
-        }
-
-        function createConfetti() {
-            const colors = ['#ff7f50', '#ffcc70', '#3b82f6', '#10b981', '#8b5cf6', '#ec4899'];
-            
-            for (let i = 0; i < 50; i++) {
-                const confetti = document.createElement('div');
-                confetti.className = 'confetti';
-                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-                confetti.style.left = Math.random() * 100 + 'vw';
-                confetti.style.width = Math.random() * 10 + 5 + 'px';
-                confetti.style.height = Math.random() * 10 + 5 + 'px';
-                
-                document.body.appendChild(confetti);
-                
-                const animation = confetti.animate([
-                    { transform: 'translateY(-100px) rotate(0deg)', opacity: 1 },
-                    { transform: 'translateY(' + (window.innerHeight + 100) + 'px) rotate(' + (Math.random() * 720) + 'deg)', opacity: 0 }
-                ], {
-                    duration: Math.random() * 3000 + 2000,
-                    easing: 'cubic-bezier(0.215, 0.61, 0.355, 1)'
                 });
+            });
+            
+            // Анимация чисел на финальном слайде
+            gsap.utils.toArray('.final-value').forEach((element, index) => {
+                const finalValue = parseInt(element.textContent.replace(/,/g, ''));
                 
-                animation.onfinish = () => {
-                    confetti.remove();
-                };
-            }
+                gsap.from(element, {
+                    textContent: 0,
+                    duration: 2,
+                    delay: 0.8 + (index * 0.3),
+                    ease: "power2.out",
+                    snap: { textContent: 1 },
+                    onUpdate: function() {
+                        const value = Math.floor(this.targets()[0].textContent);
+                        element.textContent = value.toLocaleString();
+                    }
+                });
+            });
         }
 
         function shareToTelegram() {
-            const text = `📊 Моя годовая статистика в Hamburger за ${currentYear} год:
+            const text = `📊 Моя статистика в Hamburger за 2025 год:
             
 💬 Сообщений: ${userStats.totalMessages.toLocaleString()}
 👥 Чатов: ${userStats.totalChats}
 ⏰ В сети: ${userStats.totalHours} часов
 ❤️ Реакций: ${userStats.totalReactions}
+📅 Дней активности: ${userStats.activeDays}
 
-Посмотреть полную статистику: ${window.location.href}`;
+Откройте свою статистику!`;
             
             const url = `https://t.me/share/url?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent(text)}`;
             window.open(url, '_blank');
         }
 
         function shareToWhatsApp() {
-            const text = `📊 Моя годовая статистика в Hamburger за ${currentYear} год:
+            const text = `📊 Моя статистика в Hamburger за 2025 год:
             
 💬 Сообщений: ${userStats.totalMessages.toLocaleString()}
 👥 Чатов: ${userStats.totalChats}
 ⏰ В сети: ${userStats.totalHours} часов
 ❤️ Реакций: ${userStats.totalReactions}
+📅 Дней активности: ${userStats.activeDays}
 
-Посмотреть полную статистику: ${window.location.href}`;
+Откройте свою статистику!`;
             
             const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
             window.open(url, '_blank');
         }
 
-        function copyShareLink() {
-            navigator.clipboard.writeText(window.location.href).then(() => {
-                alert('Ссылка скопирована в буфер обмена!');
-            });
-        }
+        // Анимация появления при загрузке
+        gsap.from('.slide-title', {
+            opacity: 0,
+            y: 50,
+            duration: 1,
+            delay: 0.5,
+            ease: "power3.out"
+        });
+
+        gsap.from('.slide-subtitle', {
+            opacity: 0,
+            y: 30,
+            duration: 1,
+            delay: 0.7,
+            ease: "power3.out"
+        });
+
+        gsap.from('.start-btn', {
+            opacity: 0,
+            y: 30,
+            duration: 1,
+            delay: 0.9,
+            ease: "power3.out"
+        });
+
+        gsap.from('.scroll-hint', {
+            opacity: 0,
+            duration: 1,
+            delay: 1.5,
+            ease: "power2.inOut"
+        });
+
+        // Анимация бургеров
+        gsap.to('.burger-1', {
+            rotation: 360,
+            duration: 40,
+            repeat: -1,
+            ease: "none"
+        });
+
+        gsap.to('.burger-2', {
+            rotation: -360,
+            duration: 50,
+            repeat: -1,
+            ease: "none"
+        });
     </script>
 </body>
 </html>
